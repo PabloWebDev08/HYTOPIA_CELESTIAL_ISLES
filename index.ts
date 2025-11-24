@@ -32,7 +32,8 @@ import {
   SceneUI,
 } from "hytopia";
 
-import worldMap from "./assets/map.json";
+import worldMap from "./assets/map_hub.json";
+import { createParkourEntities, getStartPosition } from "./parkour";
 
 /**
  * startServer is always the entry point for our game.
@@ -66,6 +67,9 @@ startServer((world) => {
    */
   world.loadMap(worldMap);
 
+  // Crée le parkour
+  const parkourEntities = createParkourEntities(world);
+
   /**
    * Handle player joining the game. The PlayerEvent.JOINED_WORLD
    * event is emitted to the world when a new player connects to
@@ -84,7 +88,12 @@ startServer((world) => {
       name: "Player",
     });
 
-    playerEntity.spawn(world, { x: 0, y: 10, z: 0 });
+    // Utilise la position de départ du parkour
+    const startPos = getStartPosition();
+    playerEntity.spawn(world, startPos);
+
+    // Les entités du parkour sont déjà créées et spawnées dans createParkourEntities
+    // Pas besoin de les respawner ici
 
     // Load our game UI for this player
     player.ui.load("ui/index.html");
@@ -99,15 +108,54 @@ startServer((world) => {
 
     jumpChargeSceneUI.load(world);
 
+    // Fonction helper pour vérifier si le joueur est au sol
+    // Utilise un raycast vers le bas pour détecter le sol
+    const isPlayerOnGround = (): boolean => {
+      const playerPosition = playerEntity.position;
+      // Origine du raycast légèrement en dessous du centre du joueur
+      const raycastOrigin = {
+        x: playerPosition.x,
+        y: playerPosition.y - 0.5, // Ajuste pour partir des pieds
+        z: playerPosition.z,
+      };
+      // Direction vers le bas
+      const raycastDirection = { x: 0, y: -1, z: 0 };
+      // Distance maximale pour détecter le sol (1 bloc)
+      const raycastDistance = 1.0;
+
+      // Effectue le raycast en excluant le rigid body du joueur
+      const raycastResult = world.simulation.raycast(
+        raycastOrigin,
+        raycastDirection,
+        raycastDistance,
+        {
+          filterExcludeRigidBody: playerEntity.rawRigidBody,
+        }
+      );
+
+      // Retourne true si le raycast a touché un bloc ou une entité
+      return (
+        raycastResult?.hitBlock !== undefined ||
+        raycastResult?.hitEntity !== undefined
+      );
+    };
+
     // Écoute les messages de l'UI concernant le saut maintenu
     // Quand le joueur maintient le bouton de saut, on calcule la force proportionnelle
     player.ui.on(PlayerUIEvent.DATA, ({ data }) => {
       if (data.type === "jump-held") {
+        // Vérifie si le joueur est au sol avant de permettre le saut
+        if (!isPlayerOnGround()) {
+          // Le joueur n'est pas au sol, on ignore le saut
+          jumpChargeSceneUI.setState({ progress: 0, visible: false });
+          return;
+        }
+
         const duration = data.duration || 0; // Durée en millisecondes
 
         // Configuration du saut
         const minJumpForce = 10; // Force minimale du saut (saut normal)
-        const maxJumpForce = 30; // Force maximale du saut (saut chargé)
+        const maxJumpForce = 50; // Force maximale du saut (saut chargé)
         const maxHoldDuration = 1000; // Durée maximale en ms (1 seconde) pour atteindre la force max
 
         // Normalise la durée entre 0 et 1
