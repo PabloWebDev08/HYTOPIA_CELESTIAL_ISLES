@@ -30,10 +30,16 @@ import {
   PlayerEvent,
   PlayerUIEvent,
   SceneUI,
+  CollisionGroup,
 } from "hytopia";
 
 import worldMap from "./assets/map_hub.json";
-import { createParkourEntities, getStartPosition } from "./parkour";
+import {
+  createParkourEntities,
+  getStartPosition,
+  getPlatformPositionById,
+} from "./parkour";
+import { createWelcomeNPC } from "./welcomeNPCS";
 
 /**
  * startServer is always the entry point for our game.
@@ -69,6 +75,7 @@ startServer((world) => {
 
   // Crée le parkour
   const parkourEntities = createParkourEntities(world);
+  const welcomeNPC = createWelcomeNPC(world, { x: 45.08, y: 2.79, z: 29.38 });
 
   /**
    * Handle player joining the game. The PlayerEvent.JOINED_WORLD
@@ -91,6 +98,30 @@ startServer((world) => {
     // Utilise la position de départ du parkour
     const startPos = getStartPosition();
     playerEntity.spawn(world, startPos);
+
+    // Configure les groupes de collision pour empêcher les joueurs de se rentrer dedans
+    // Les colliders solides (hitbox) peuvent entrer en collision avec les blocs, entités,
+    // entités environnementales (plantes, arbres, décor) mais pas avec les autres joueurs
+    playerEntity.setCollisionGroupsForSolidColliders({
+      belongsTo: [CollisionGroup.PLAYER],
+      collidesWith: [
+        CollisionGroup.BLOCK,
+        CollisionGroup.ENTITY,
+        CollisionGroup.ENTITY_SENSOR,
+        CollisionGroup.ENVIRONMENT_ENTITY, // Plantes, arbres, éléments décoratifs
+      ],
+    });
+
+    // Configure aussi les colliders capteurs (sensors) pour éviter les faux positifs
+    // avec d'autres joueurs (comme le capteur de sol qui pourrait détecter un autre joueur)
+    playerEntity.setCollisionGroupsForSensorColliders({
+      belongsTo: [CollisionGroup.ENTITY_SENSOR],
+      collidesWith: [
+        CollisionGroup.BLOCK,
+        CollisionGroup.ENTITY,
+        CollisionGroup.ENVIRONMENT_ENTITY, // Plantes, arbres, éléments décoratifs
+      ],
+    });
 
     // Les entités du parkour sont déjà créées et spawnées dans createParkourEntities
     // Pas besoin de les respawner ici
@@ -234,6 +265,60 @@ startServer((world) => {
     world.entityManager.getPlayerEntitiesByPlayer(player).forEach((entity) => {
       entity.applyImpulse({ x: 0, y: 20, z: 0 });
     });
+  });
+
+  /**
+   * Commande pour téléporter le joueur à une plateforme spécifique
+   * Usage: /teleport <platform-id>
+   * Exemple: /teleport start-platform
+   */
+  world.chatManager.registerCommand("/teleport", (player, args) => {
+    // Vérifie qu'un ID de plateforme a été fourni
+    // args est un tableau de mots séparés par des espaces après /teleport
+    if (!args || args.length === 0) {
+      world.chatManager.sendPlayerMessage(
+        player,
+        "Usage: /teleport <platform-id>",
+        "FF0000"
+      );
+      world.chatManager.sendPlayerMessage(
+        player,
+        "Exemple: /teleport start-platform",
+        "FF0000"
+      );
+      return;
+    }
+
+    const platformId = args[0];
+    const platformPosition = getPlatformPositionById(platformId);
+
+    // Vérifie si la plateforme existe
+    if (!platformPosition) {
+      world.chatManager.sendPlayerMessage(
+        player,
+        `Plateforme avec l'ID "${platformId}" introuvable.`,
+        "FF0000"
+      );
+      return;
+    }
+
+    // Téléporte toutes les entités du joueur à la position de la plateforme
+    // On ajoute un petit offset en Y pour être au-dessus de la plateforme
+    const teleportPosition = {
+      x: platformPosition.x,
+      y: platformPosition.y + 2, // 2 blocs au-dessus de la plateforme
+      z: platformPosition.z,
+    };
+
+    world.entityManager.getPlayerEntitiesByPlayer(player).forEach((entity) => {
+      entity.setPosition(teleportPosition);
+    });
+
+    world.chatManager.sendPlayerMessage(
+      player,
+      `Téléporté vers la plateforme "${platformId}"`,
+      "00FF00"
+    );
   });
 
   /**

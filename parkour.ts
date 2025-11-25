@@ -35,6 +35,7 @@ interface ParkourObstacle {
   name: string;
   position: Position;
   rotation: Rotation;
+  blockTextureUri?: string;
   modelUri?: string;
   modelTextureUri?: string;
   modelScale?: number;
@@ -112,25 +113,35 @@ export function createParkourEntities(world: World): Entity[] {
       name: obstacle.name,
     };
 
-    // Configure le modèle si présent
-    if (obstacle.modelUri) {
+    // Si blockTextureUri est présent, on utilise une entité de bloc
+    if (obstacle.blockTextureUri) {
+      entityOptions.blockTextureUri = obstacle.blockTextureUri;
+      // Calcule blockHalfExtents depuis la taille du parkourData
+      // blockHalfExtents représente la moitié de chaque dimension
+      entityOptions.blockHalfExtents = {
+        x: obstacle.parkourData.size.width / 2,
+        y: obstacle.parkourData.size.height / 2,
+        z: obstacle.parkourData.size.depth / 2,
+      };
+    } else if (obstacle.modelUri) {
+      // Sinon, on utilise un modèle 3D si modelUri est présent
       entityOptions.modelUri = obstacle.modelUri;
-    }
 
-    // Configure la texture du modèle si présente
-    if (obstacle.modelTextureUri) {
-      entityOptions.modelTextureUri = obstacle.modelTextureUri;
-    }
+      // Configure la texture du modèle si présente
+      if (obstacle.modelTextureUri) {
+        entityOptions.modelTextureUri = obstacle.modelTextureUri;
+      }
 
-    // Configure l'échelle du modèle
-    if (obstacle.modelScale !== undefined) {
-      entityOptions.modelScale = obstacle.modelScale;
-    }
+      // Configure l'échelle du modèle
+      if (obstacle.modelScale !== undefined) {
+        entityOptions.modelScale = obstacle.modelScale;
+      }
 
-    // Configure la forme préférée du collider
-    const preferredShape = convertColliderShape(obstacle.modelPreferredShape);
-    if (preferredShape) {
-      entityOptions.modelPreferredShape = preferredShape;
+      // Configure la forme préférée du collider
+      const preferredShape = convertColliderShape(obstacle.modelPreferredShape);
+      if (preferredShape) {
+        entityOptions.modelPreferredShape = preferredShape;
+      }
     }
 
     // Configure les options du rigid body
@@ -185,4 +196,14 @@ export function createParkourEntities(world: World): Entity[] {
 export function getStartPosition(): Position {
   const config = parkourData as ParkourConfig;
   return config.metadata.startPosition;
+}
+
+/**
+ * Retourne la position d'une plateforme par son ID
+ * Retourne null si la plateforme n'existe pas
+ */
+export function getPlatformPositionById(id: string): Position | null {
+  const config = parkourData as ParkourConfig;
+  const obstacle = config.obstacles.find((obs) => obs.id === id);
+  return obstacle ? obstacle.position : null;
 }
