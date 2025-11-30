@@ -81,8 +81,6 @@ and also configure additional buttons for mobile compatibility.
 
   // Variables partagées pour la gestion du saut chargé (mobile + clavier)
   const mobileJumpButton = document.getElementById("mobile-jump-button");
-  const jumpChargeBar = document.getElementById("jump-charge-bar");
-  const jumpChargeBarFill = document.getElementById("jump-charge-bar-fill");
   let jumpStartTime = null; // Variable pour enregistrer le moment où le bouton est pressé
   let chargeUpdateInterval = null; // Interval pour mettre à jour la barre de charge
   let isJumpCharging = false; // Flag pour éviter les doubles déclenchements
@@ -96,11 +94,6 @@ and also configure additional buttons for mobile compatibility.
 
     jumpStartTime = Date.now(); // Enregistre le moment où le bouton est pressé
 
-    // Affiche la barre de charge mobile (si disponible)
-    if (jumpChargeBar) {
-      jumpChargeBar.style.display = "block";
-    }
-
     // Affiche la barre de charge Scene UI au-dessus du joueur
     hytopia.sendData({
       type: "jump-charge-update",
@@ -108,24 +101,11 @@ and also configure additional buttons for mobile compatibility.
       visible: true,
     });
 
-    // Démarre la mise à jour de la barre de charge (UI mobile + Scene UI)
+    // Démarre la mise à jour de la barre de charge Scene UI
     chargeUpdateInterval = setInterval(() => {
       if (jumpStartTime !== null) {
         const elapsed = Date.now() - jumpStartTime;
         const progress = Math.min((elapsed / maxHoldDuration) * 100, 100);
-
-        // Mise à jour de la barre mobile (si disponible)
-        if (jumpChargeBarFill) {
-          jumpChargeBarFill.style.width = progress + "%";
-
-          // Ajoute une animation de pulsation quand la barre est presque pleine (80%+)
-          if (progress >= 80) {
-            jumpChargeBarFill.style.animation =
-              "chargePulse 0.5s ease-in-out infinite";
-          } else {
-            jumpChargeBarFill.style.animation = "none";
-          }
-        }
 
         // Envoie la progression au serveur pour mettre à jour la Scene UI
         hytopia.sendData({
@@ -148,14 +128,6 @@ and also configure additional buttons for mobile compatibility.
     if (chargeUpdateInterval !== null) {
       clearInterval(chargeUpdateInterval);
       chargeUpdateInterval = null;
-    }
-
-    // Cache la barre de charge mobile (si disponible)
-    if (jumpChargeBar) {
-      jumpChargeBar.style.display = "none";
-    }
-    if (jumpChargeBarFill) {
-      jumpChargeBarFill.style.width = "0%";
     }
 
     // Cache la barre de charge Scene UI au-dessus du joueur
@@ -239,16 +211,9 @@ and also configure additional buttons for mobile compatibility.
     <img src="{{CDN_ASSETS_URL}}/icons/target.png" />
   </a>
 
-  <div class="jump-button-container">
-    <!-- Barre de charge pour le saut -->
-    <div id="jump-charge-bar" class="jump-charge-bar">
-      <div id="jump-charge-bar-fill" class="jump-charge-bar-fill"></div>
-    </div>
-
-    <a id="mobile-jump-button" class="mobile-button">
-      <img src="{{CDN_ASSETS_URL}}/icons/jump.png" />
-    </a>
-  </div>
+  <a id="mobile-jump-button" class="mobile-button">
+    <img src="{{CDN_ASSETS_URL}}/icons/jump.png" />
+  </a>
 </div>
 
 <style>
@@ -299,57 +264,6 @@ and also configure additional buttons for mobile compatibility.
     transform: scale(0.92);
     background-color: rgba(0, 0, 0, 0.75);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Conteneur pour le bouton de saut avec la barre de charge */
-  .jump-button-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Barre de charge pour le saut */
-  .jump-charge-bar {
-    display: none; /* Cachée par défaut */
-    width: 50px;
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Barre de remplissage de la charge */
-  .jump-charge-bar-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      rgba(76, 175, 80, 1) 0%,
-      rgba(139, 195, 74, 1) 50%,
-      rgba(255, 193, 7, 1) 100%
-    );
-    border-radius: 2px;
-    transition: width 0.05s linear;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-  }
-
-  /* Animation de pulsation quand la barre est presque pleine */
-  .jump-charge-bar-fill {
-    animation: none;
-  }
-
-  @keyframes chargePulse {
-    0%,
-    100% {
-      box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-    }
-    50% {
-      box-shadow: 0 0 16px rgba(255, 193, 7, 0.9);
-    }
   }
 </style>
 
