@@ -41,7 +41,15 @@ import {
   getPlatformPositionById,
 } from "./parkour";
 import { createWelcomeNPC } from "./welcomeNPCS";
-import { createCoinEntities, setupCoinCollisions } from "./coin";
+import { createCoinEntities } from "./coin";
+
+/**
+ * Interface pour les données persistées du joueur concernant les coins
+ */
+interface PlayerCoinData {
+  gold?: number;
+  collectedCoins?: string[];
+}
 
 /**
  * startServer is always the entry point for our game.
@@ -81,9 +89,6 @@ startServer((world) => {
 
   // Crée les coins
   const coinEntities = createCoinEntities(world);
-
-  // Configure les collisions entre les coins et les joueurs
-  setupCoinCollisions(world, coinEntities);
 
   // Map pour tracker les entités de joueurs par ID de joueur
   const playerEntitiesMap = new Map<string, DefaultPlayerEntity>();
@@ -195,6 +200,18 @@ startServer((world) => {
 
     // Load our game UI for this player
     player.ui.load("ui/index.html");
+
+    // Envoie l'or initial du joueur à l'UI après un court délai pour s'assurer que l'UI est chargée
+    setTimeout(() => {
+      const playerData = player.getPersistedData() as
+        | PlayerCoinData
+        | undefined;
+      const gold = playerData?.gold ?? 0;
+      player.ui.sendData({
+        type: "gold-update",
+        gold: gold,
+      });
+    }, 100);
 
     // Crée une Scene UI pour la barre de charge verticale au-dessus du joueur
     const jumpChargeSceneUI = new SceneUI({

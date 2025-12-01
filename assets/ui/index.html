@@ -4,6 +4,24 @@ and also configure additional buttons for mobile compatibility.
 -->
 
 <script>
+  // Écoute les mises à jour d'or depuis le serveur
+  hytopia.onData((data) => {
+    if (data.type === "gold-update") {
+      const goldDisplay = document.getElementById("gold-display");
+      const goldAmount = document.getElementById("gold-amount");
+      if (goldAmount) {
+        goldAmount.textContent = data.gold || 0;
+      }
+      // Animation de mise à jour
+      if (goldDisplay) {
+        goldDisplay.classList.add("gold-updated");
+        setTimeout(() => {
+          goldDisplay.classList.remove("gold-updated");
+        }, 300);
+      }
+    }
+  });
+
   // Enregistre le template Scene UI pour la barre de charge verticale
   hytopia.registerSceneUITemplate("jump-charge-bar", (id, onState) => {
     const template = document.getElementById("jump-charge-bar-template");
@@ -206,6 +224,16 @@ and also configure additional buttons for mobile compatibility.
   other unsafe actions likely won't work as you expect in production.
 -->
 
+<!-- Affichage de l'or du joueur -->
+<div id="gold-display" class="gold-display">
+  <span id="gold-amount" class="gold-amount">0</span>
+  <img
+    src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+    alt="Gold"
+    class="gold-icon"
+  />
+</div>
+
 <div class="mobile-controls">
   <a id="mobile-interact-button" class="mobile-button">
     <img src="{{CDN_ASSETS_URL}}/icons/target.png" />
@@ -217,6 +245,73 @@ and also configure additional buttons for mobile compatibility.
 </div>
 
 <style>
+  /* Styles pour l'affichage de l'or */
+  .gold-display {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 215, 0, 0.95) 0%,
+      rgba(255, 200, 0, 0.95) 100%
+    );
+    border: 3px solid #000;
+    border-radius: 12px;
+    padding: 8px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: "Arial", sans-serif;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+
+  .gold-display.gold-updated {
+    transform: scale(1.1);
+  }
+
+  .gold-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .gold-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Styles responsive pour mobile */
+  body.mobile .gold-display {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border-width: 2px;
+    gap: 6px;
+  }
+
+  body.mobile .gold-amount {
+    font-size: 18px;
+    min-width: 24px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  body.mobile .gold-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  body.mobile .gold-display.gold-updated {
+    transform: scale(1.05);
+  }
+
   /* By default, we hide the mobile controls */
   .mobile-controls {
     display: none;

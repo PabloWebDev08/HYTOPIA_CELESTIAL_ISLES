@@ -101,6 +101,12 @@ async function handleCoinCollection(
     collectedCoins: playerData.collectedCoins,
   });
 
+  // Met à jour l'or dans l'UI du joueur
+  player.ui.sendData({
+    type: "gold-update",
+    gold: playerData.gold,
+  });
+
   // Envoie un message de confirmation au joueur
   world.chatManager.sendPlayerMessage(
     player,
@@ -179,11 +185,6 @@ export function createCoinEntities(world: World): Entity[] {
       tag: "coin-collector-sensor",
       // Callback appelé quand une collision est détectée
       onCollision: async (other: Entity | any, started: boolean) => {
-        // Log pour déboguer
-        console.log(
-          `[Coin ${coin.id}] Collision sensor détectée avec ${other?.constructor?.name}, started: ${started}`
-        );
-
         // Ignore si la collision se termine (started === false)
         if (!started) return;
 
@@ -216,24 +217,4 @@ export function getCoinPositionById(id: string): Position | null {
   const config = coinData as CoinConfig;
   const coin = config.coins.find((c) => c.id === id);
   return coin ? coin.position : null;
-}
-
-/**
- * Configure les collisions entre les coins et les joueurs
- * Note: Les collisions sont maintenant configurées directement dans createCoinEntities
- * via le callback onCollision du collider sensor. Cette fonction est conservée pour
- * compatibilité mais ne fait plus rien car tout est géré dans createCoinEntities.
- * @param world - Le monde où se trouvent les coins
- * @param coinEntities - Tableau des entités de coins
- */
-export function setupCoinCollisions(
-  world: World,
-  coinEntities: Entity[]
-): void {
-  // Les collisions sont maintenant configurées directement dans createCoinEntities
-  // via le callback onCollision du collider sensor
-  // Cette fonction est conservée pour compatibilité avec le code existant
-  console.log(
-    `[setupCoinCollisions] ${coinEntities.length} coins configurés avec collision sensor`
-  );
 }
