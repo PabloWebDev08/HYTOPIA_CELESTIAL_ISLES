@@ -31,6 +31,7 @@ import {
   PlayerUIEvent,
   SceneUI,
   CollisionGroup,
+  ParticleEmitter,
 } from "hytopia";
 
 import worldMap from "./assets/map_hub.json";
@@ -98,6 +99,50 @@ startServer((world) => {
     // Utilise la position de départ du parkour
     const startPos = getStartPosition();
     playerEntity.spawn(world, startPos);
+
+    // Crée un émetteur de particules attaché au joueur
+    //
+    // OPTIONS DE POSITIONNEMENT :
+    //
+    // Méthode 1 : Utiliser 'offset' pour décaler depuis le centre du joueur
+    //   offset: { x: 0, y: 1.5, z: 0 }  // Au-dessus de la tête (y positif = haut)
+    //   offset: { x: 0, y: -0.5, z: 0 } // Aux pieds (y négatif = bas)
+    //   offset: { x: 0.5, y: 0, z: 0 }  // À droite du joueur (x positif = droite)
+    //
+    // Méthode 2 : Utiliser 'attachedToEntityNodeName' pour attacher à un nœud spécifique
+    //   Nœuds disponibles : 'head_anchor', 'hand_right_anchor', 'hand_left_anchor',
+    //   'back_anchor', 'torso_anchor', 'foot_left_anchor', 'foot_right_anchor'
+    //
+    // Vous pouvez combiner les deux méthodes pour un positionnement précis !
+    const playerParticleEmitter = new ParticleEmitter({
+      attachedToEntity: playerEntity,
+      // Optionnel : attacher à un nœud spécifique du modèle
+      // attachedToEntityNodeName: "head_anchor", // Exemple : émet depuis la tête
+      // Optionnel : décalage relatif depuis le centre ou le nœud
+      offset: { x: 0, y: -0.5, z: 0 }, // Centre du joueur par défaut
+      textureUri: "particles/magic.png",
+      colorStart: { r: 255, g: 255, b: 255 }, // Couleur blanche de base
+      // OPTIONS DE TAILLE DES PARTICULES :
+      // sizeStart : Taille de départ (en blocs). Valeurs typiques : 0.05 à 0.3
+      // sizeEnd : Taille de fin (optionnel). Si défini, les particules grandissent/rétrécissent
+      // sizeStartVariance : Variation de la taille de départ (+/- cette valeur)
+      // sizeEndVariance : Variation de la taille de fin (si sizeEnd est défini)
+      sizeStart: 0.1, // Taille de départ des particules (ajustez cette valeur pour changer la taille)
+      sizeStartVariance: 0.03, // Variation de la taille de départ
+      sizeEnd: 0.12, // Taille de fin (les particules grandissent légèrement pendant leur vie)
+      sizeEndVariance: 0.02, // Variation de la taille de fin
+      lifetime: 2, // Durée de vie des particules en secondes
+      lifetimeVariance: 0.5, // Variation de la durée de vie
+      rate: 15, // Nombre de particules émises par seconde
+      maxParticles: 30, // Nombre maximum de particules visibles
+      velocity: { x: 0, y: 0.5, z: 0 }, // Vitesse verticale vers le haut
+      velocityVariance: { x: 0.3, y: 0.2, z: 0.3 }, // Variation de la vitesse
+      opacityStart: 0.8, // Opacité de départ
+      opacityEnd: 0, // Opacité de fin (disparaît progressivement)
+    });
+
+    // Spawn l'émetteur de particules dans le monde
+    playerParticleEmitter.spawn(world);
 
     // Configure les groupes de collision pour empêcher les joueurs de se rentrer dedans
     // Les colliders solides (hitbox) peuvent entrer en collision avec les blocs, entités,
@@ -198,6 +243,13 @@ startServer((world) => {
 
         // Applique l'impulsion verticale au joueur pour le faire sauter plus haut
         playerEntity.applyImpulse({ x: 0, y: jumpForce, z: 0 });
+
+        // Joue le son de saut
+        new Audio({
+          uri: "audio/sfx/cartoon-jump.mp3",
+          loop: false,
+          volume: 0.5,
+        }).play(world);
 
         // Cache la barre de charge après le saut
         jumpChargeSceneUI.setState({ progress: 0, visible: false });
