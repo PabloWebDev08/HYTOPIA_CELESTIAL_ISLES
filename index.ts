@@ -41,6 +41,7 @@ import {
   getPlatformPositionById,
 } from "./parkour";
 import { createWelcomeNPC } from "./welcomeNPCS";
+import { createCoinEntities, setupCoinCollisions } from "./coin";
 
 /**
  * startServer is always the entry point for our game.
@@ -78,6 +79,15 @@ startServer((world) => {
   const parkourEntities = createParkourEntities(world);
   const welcomeNPC = createWelcomeNPC(world, { x: 45.08, y: 2.79, z: 29.38 });
 
+  // Crée les coins
+  const coinEntities = createCoinEntities(world);
+
+  // Configure les collisions entre les coins et les joueurs
+  setupCoinCollisions(world, coinEntities);
+
+  // Map pour tracker les entités de joueurs par ID de joueur
+  const playerEntitiesMap = new Map<string, DefaultPlayerEntity>();
+
   /**
    * Handle player joining the game. The PlayerEvent.JOINED_WORLD
    * event is emitted to the world when a new player connects to
@@ -91,6 +101,15 @@ startServer((world) => {
    * here: https://dev.hytopia.com/sdk-guides/events
    */
   world.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
+    // Initialise les données persistées pour les nouveaux joueurs
+    const existingData = player.getPersistedData();
+    if (existingData === undefined || existingData.gold === undefined) {
+      player.setPersistedData({
+        gold: 0,
+        collectedCoins: [],
+      });
+    }
+
     const playerEntity = new DefaultPlayerEntity({
       player,
       name: "Player",
@@ -99,6 +118,9 @@ startServer((world) => {
     // Utilise la position de départ du parkour
     const startPos = getStartPosition();
     playerEntity.spawn(world, startPos);
+
+    // Ajoute l'entité du joueur au Map pour référence future
+    playerEntitiesMap.set(player.id, playerEntity);
 
     // Crée un émetteur de particules attaché au joueur
     //
@@ -307,6 +329,9 @@ startServer((world) => {
     world.entityManager
       .getPlayerEntitiesByPlayer(player)
       .forEach((entity) => entity.despawn());
+
+    // Retire l'entité du joueur du Map quand il quitte
+    playerEntitiesMap.delete(player.id);
   });
 
   /**
@@ -370,6 +395,24 @@ startServer((world) => {
       player,
       `Téléporté vers la plateforme "${platformId}"`,
       "00FF00"
+    );
+  });
+
+  /**
+   * Commande pour réinitialiser les données persistées des coins du joueur
+   * Usage: /resetcoins
+   */
+  world.chatManager.registerCommand("/resetcoins", async (player) => {
+    // Réinitialise uniquement les données des coins
+    await player.setPersistedData({
+      gold: 0,
+      collectedCoins: [],
+    });
+
+    world.chatManager.sendPlayerMessage(
+      player,
+      "Vos données de coins ont été réinitialisées !",
+      "FFD700"
     );
   });
 
