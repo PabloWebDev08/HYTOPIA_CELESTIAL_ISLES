@@ -11,7 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "hytopia": "^0.14.8"
+    "hytopia": "^0.14.12"
   },
   "optionalDependencies": {
     "@hytopia.com/assets": "^0.4.2"
