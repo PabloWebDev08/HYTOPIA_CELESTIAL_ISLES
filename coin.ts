@@ -8,6 +8,7 @@ import {
   DefaultPlayerEntity,
   CollisionGroup,
   ColliderShape,
+  Audio,
 } from "hytopia";
 import coinData from "./assets/coin.json";
 
@@ -90,6 +91,13 @@ async function handleCoinCollection(
   if (currentOpacity === 0) {
     return; // Le coin est invisible, il ne peut pas être collecté
   }
+
+  // Joue le son de collecte de coin
+  new Audio({
+    uri: "audio/sfx/coin-collect.mp3",
+    loop: false,
+    volume: 0.5,
+  }).play(world);
 
   // Ajoute +1 or au joueur
   playerData.gold = (playerData.gold || 0) + 1;
