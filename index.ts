@@ -46,6 +46,7 @@ import {
   createBoat,
   createSkeletonSoldier,
   createSpeechBubble,
+  createArrow,
 } from "./welcomeNPCS";
 import { createCoinEntities, getLeaderboard } from "./coin";
 
@@ -109,6 +110,24 @@ startServer((world) => {
     y: 152,
     z: -3.51,
   });
+
+  // Crée la flèche indiquant le début du parcours
+  const arrow = createArrow(world, {
+    x: 21.66,
+    y: 13,
+    z: 24.41,
+  });
+
+  // Crée une deuxième flèche (sans carte)
+  const arrow2 = createArrow(
+    world,
+    {
+      x: 27.08,
+      y: 14.08,
+      z: 36.09,
+    },
+    false
+  );
 
   // Crée les coins
   const coinEntities = createCoinEntities(world);

@@ -38,7 +38,7 @@ class WelcomeNPC extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Holla naufragé !",
         message:
-          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voila sur l'ile céleste 1! Ici la gravité n'est plus la même !<br> Tu vois ces petites particules, elles t'aident a sauter plus haut !<br> Reste appuiyez sur la touche saut pour sauter plus haut !<br> Sur cette ile, une seule issue, atteindre le sommet !",
+          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voila sur l'ile céleste 1!<br> Ici la gravité n'est plus la même !<br> Tu vois ces petites particules,<br> elles t'aident a sauter plus haut !<br> Reste appuiyez sur la touche saut,<br> pour t'envoler !<br> Sur cette ile, une seule issue,<br> atteindre le sommet !",
       },
       viewDistance: 30, // Visible jusqu'à 15 blocs de distance
     });
@@ -144,13 +144,13 @@ class SkeletonSoldierEntity extends Entity {
 
     // Crée la SceneUI pour le leaderboard
     this.leaderboardSceneUI = new SceneUI({
-      templateId: "boat-leaderboard",
+      templateId: "skeleton-leaderboard",
       attachedToEntity: this,
       offset: { x: 0, y: 3, z: 0 }, // Au-dessus du skeleton soldier
       state: {
         visible: true, // Affiche le leaderboard en permanence
-        title: "🏆 Leaderboard",
-        subtitle: "Dernier Coin Collecté",
+        title: "🏆 Leaderboard 🏆",
+        subtitle: "Les 10 derniers joueurs à avoir terminé le niveau",
         leaderboard: leaderboard,
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
@@ -268,4 +268,72 @@ export function createSpeechBubble(
   }, 100);
 
   return speechBubble;
+}
+
+/**
+ * Entité de flèche indiquant le début du parcours
+ */
+class ArrowEntity extends Entity {
+  private cardSceneUI: SceneUI | null = null;
+
+  constructor() {
+    super({
+      modelUri: "models/environment/Gameplay/arrow.gltf",
+      name: "Arrow",
+      modelScale: 1,
+      rigidBodyOptions: {
+        type: RigidBodyType.FIXED, // Flèche fixe qui ne bouge pas
+      },
+    });
+  }
+
+  /**
+   * Crée et charge la SceneUI de la carte attachée à la flèche
+   * Doit être appelé après que l'entité soit spawnée
+   */
+  public setupCard(): void {
+    if (!this.world) return;
+
+    // Crée la SceneUI pour la carte
+    this.cardSceneUI = new SceneUI({
+      templateId: "welcome-npc-card",
+      attachedToEntity: this,
+      offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la flèche
+      state: {
+        visible: true, // Affiche la carte en permanence
+        title: "Le parcours commence ici !",
+        message: "",
+      },
+      viewDistance: 30, // Visible jusqu'à 30 blocs de distance
+    });
+
+    // Charge la SceneUI dans le monde
+    this.cardSceneUI.load(this.world);
+  }
+}
+
+/**
+ * Crée et spawn la flèche dans le monde
+ * @param world - Le monde où spawner la flèche
+ * @param position - La position où spawner la flèche (optionnel, par défaut à la position spécifiée)
+ * @param showCard - Si true, affiche la carte au-dessus de la flèche (par défaut: true)
+ * @returns L'entité flèche créée
+ */
+export function createArrow(
+  world: World,
+  position: { x: number; y: number; z: number } = { x: 21.66, y: 13, z: 24.41 },
+  showCard: boolean = true
+): ArrowEntity {
+  const arrow = new ArrowEntity();
+  arrow.spawn(world, position);
+
+  // Configure la carte après le spawn seulement si showCard est true
+  if (showCard) {
+    // On utilise setTimeout pour s'assurer que l'entité est complètement initialisée
+    setTimeout(() => {
+      arrow.setupCard();
+    }, 100);
+  }
+
+  return arrow;
 }
