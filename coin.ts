@@ -108,11 +108,17 @@ async function handleCoinCollection(
     return; // Le coin est invisible, il ne peut pas être collecté
   }
 
+  // Vérifie si c'est la première fois que le joueur collecte coin-31
+  // (avant de l'ajouter à la liste des coins collectés)
+  const isFirstTimeCoin31 =
+    coinId === "coin-31" && !playerData.collectedCoins.includes("coin-31");
+
   // Joue le son de collecte de coin
   new Audio({
     uri: "audio/sfx/coin-collect.mp3",
     loop: false,
     volume: 0.5,
+    attachedToEntity: playerEntity,
   }).play(world);
 
   // Ajoute +1 or au joueur
@@ -138,13 +144,14 @@ async function handleCoinCollection(
     "FFD700"
   );
 
-  // Vérifie si c'est le dernier coin (coin-31)
-  if (coinId === "coin-31") {
-    // Le joueur a collecté le dernier coin, on l'ajoute au leaderboard
+  // Vérifie si c'est le dernier coin (coin-31) et si c'est la première fois
+  // On ajoute au leaderboard seulement la première fois
+  if (isFirstTimeCoin31) {
+    // Le joueur a collecté le dernier coin pour la première fois, on l'ajoute au leaderboard
     await addToLeaderboard(world, player);
   }
 
-  // Rend le coin invisible temporairement
+  // Rend le coin invisible temporairement (même si on ne l'ajoute pas au leaderboard)
   coinEntity.setOpacity(0);
 
   // Réapparaît le coin après 30 secondes (30000 millisecondes)

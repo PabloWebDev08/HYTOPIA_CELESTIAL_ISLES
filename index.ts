@@ -32,6 +32,7 @@ import {
   SceneUI,
   CollisionGroup,
   ParticleEmitter,
+  PersistenceManager,
 } from "hytopia";
 
 import worldMap from "./assets/map_hub.json";
@@ -44,6 +45,7 @@ import {
   createWelcomeNPC,
   createBoat,
   createSkeletonSoldier,
+  createSpeechBubble,
 } from "./welcomeNPCS";
 import { createCoinEntities, getLeaderboard } from "./coin";
 
@@ -99,6 +101,13 @@ startServer((world) => {
     x: 4.91,
     y: 13.3,
     z: -19.78,
+  });
+
+  // Crée la bulle de dialogue
+  const speechBubble = createSpeechBubble(world, {
+    x: 12.95,
+    y: 152,
+    z: -3.51,
   });
 
   // Crée les coins
@@ -439,15 +448,49 @@ startServer((world) => {
    * Usage: /resetcoins
    */
   world.chatManager.registerCommand("/resetcoins", async (player) => {
-    // Réinitialise uniquement les données des coins
-    await player.setPersistedData({
+    // Réinitialise les données des coins du joueur
+    player.setPersistedData({
       gold: 0,
       collectedCoins: [],
     });
 
+    // Supprime l'entrée du joueur du leaderboard global
+    try {
+      const globalData = (await PersistenceManager.instance.getGlobalData(
+        "game-leaderboard"
+      )) as
+        | {
+            lastCoinLeaderboard?: Array<{
+              playerName: string;
+              timestamp: number;
+            }>;
+          }
+        | undefined;
+
+      if (globalData?.lastCoinLeaderboard) {
+        // Filtre pour retirer toutes les entrées de ce joueur
+        const updatedLeaderboard = globalData.lastCoinLeaderboard.filter(
+          (entry) => entry.playerName !== player.username
+        );
+
+        // Sauvegarde le leaderboard mis à jour
+        await PersistenceManager.instance.setGlobalData("game-leaderboard", {
+          lastCoinLeaderboard: updatedLeaderboard,
+        });
+
+        // Met à jour le leaderboard des skeleton soldiers
+        const { updateAllSkeletonSoldiersLeaderboard } = await import(
+          "./welcomeNPCS"
+        );
+        updateAllSkeletonSoldiersLeaderboard(updatedLeaderboard);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du leaderboard:", error);
+    }
+
     world.chatManager.sendPlayerMessage(
       player,
-      "Vos données de coins ont été réinitialisées !",
+      "Vos données de coins et votre entrée au leaderboard ont été réinitialisées !",
       "FFD700"
     );
   });

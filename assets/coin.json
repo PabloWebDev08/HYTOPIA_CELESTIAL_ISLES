@@ -180,27 +180,6 @@
       "modelScale": 2
     },
     {
-      "id": "coin-28",
-      "name": "Coin 28",
-      "position": { "x": -16.28, "y": 141, "z": 26.9 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "modelScale": 2
-    },
-    {
-      "id": "coin-29",
-      "name": "Coin 29",
-      "position": { "x": 0.56, "y": 146, "z": 30.03 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "modelScale": 2
-    },
-    {
-      "id": "coin-30",
-      "name": "Coin 30",
-      "position": { "x": 2.02, "y": 151, "z": 16.45 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "modelScale": 2
-    },
-    {
       "id": "coin-31",
       "name": "Coin 31",
       "position": { "x": 9.83, "y": 151, "z": -0.71 },

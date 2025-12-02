@@ -38,7 +38,7 @@ class WelcomeNPC extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Holla naufragé !",
         message:
-          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voila sur l'ile céleste ! Ici la gravité n'est plus la même !",
+          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voila sur l'ile céleste 1! Ici la gravité n'est plus la même !<br> Tu vois ces petites particules, elles t'aident a sauter plus haut !<br> Reste appuiyez sur la touche saut pour sauter plus haut !<br> Sur cette ile, une seule issue, atteindre le sommet !",
       },
       viewDistance: 30, // Visible jusqu'à 15 blocs de distance
     });
@@ -203,4 +203,69 @@ export function createSkeletonSoldier(
   }, 100);
 
   return skeletonSoldier;
+}
+
+/**
+ * Entité de bulle de dialogue
+ */
+class SpeechBubbleEntity extends Entity {
+  private cardSceneUI: SceneUI | null = null;
+
+  constructor() {
+    super({
+      modelUri: "models/environment/Gameplay/speech-bubble.gltf",
+      name: "Speech Bubble",
+      modelScale: 1,
+      rigidBodyOptions: {
+        type: RigidBodyType.FIXED, // Bulle fixe qui ne bouge pas
+      },
+    });
+  }
+
+  /**
+   * Crée et charge la SceneUI de la carte attachée à la bulle de dialogue
+   * Doit être appelé après que l'entité soit spawnée
+   */
+  public setupCard(): void {
+    if (!this.world) return;
+
+    // Crée la SceneUI pour la carte
+    this.cardSceneUI = new SceneUI({
+      templateId: "welcome-npc-card",
+      attachedToEntity: this,
+      offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la bulle
+      state: {
+        visible: true, // Affiche la carte en permanence
+        title: "Attention !",
+        message:
+          "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 2.",
+      },
+      viewDistance: 30, // Visible jusqu'à 30 blocs de distance
+    });
+
+    // Charge la SceneUI dans le monde
+    this.cardSceneUI.load(this.world);
+  }
+}
+
+/**
+ * Crée et spawn la bulle de dialogue dans le monde
+ * @param world - Le monde où spawner la bulle de dialogue
+ * @param position - La position où spawner la bulle de dialogue (optionnel, par défaut à la position spécifiée)
+ * @returns L'entité bulle de dialogue créée
+ */
+export function createSpeechBubble(
+  world: World,
+  position: { x: number; y: number; z: number } = { x: 12.95, y: 151, z: -3.51 }
+): SpeechBubbleEntity {
+  const speechBubble = new SpeechBubbleEntity();
+  speechBubble.spawn(world, position);
+
+  // Configure la carte après le spawn
+  // On utilise setTimeout pour s'assurer que l'entité est complètement initialisée
+  setTimeout(() => {
+    speechBubble.setupCard();
+  }, 100);
+
+  return speechBubble;
 }

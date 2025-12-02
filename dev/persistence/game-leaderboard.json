@@ -2,7 +2,11 @@
   "lastCoinLeaderboard": [
     {
       "playerName": "player-1",
-      "timestamp": 1764684505453
+      "timestamp": 1764692051701
+    },
+    {
+      "playerName": "player-2",
+      "timestamp": 1764692179980
     }
   ]
 }
