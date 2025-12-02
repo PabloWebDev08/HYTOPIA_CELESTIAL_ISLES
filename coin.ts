@@ -9,6 +9,7 @@ import {
   CollisionGroup,
   ColliderShape,
   Audio,
+  PersistenceManager,
 } from "hytopia";
 import coinData from "./assets/coin.json";
 
@@ -47,6 +48,21 @@ interface CoinConfig {
 interface PlayerCoinData {
   gold?: number;
   collectedCoins?: string[];
+}
+
+/**
+ * Interface pour une entrée du leaderboard
+ */
+interface LeaderboardEntry {
+  playerName: string;
+  timestamp: number;
+}
+
+/**
+ * Interface pour les données persistées globales du leaderboard
+ */
+interface GlobalLeaderboardData {
+  lastCoinLeaderboard?: LeaderboardEntry[];
 }
 
 /**
@@ -122,6 +138,12 @@ async function handleCoinCollection(
     "FFD700"
   );
 
+  // Vérifie si c'est le dernier coin (coin-31)
+  if (coinId === "coin-31") {
+    // Le joueur a collecté le dernier coin, on l'ajoute au leaderboard
+    await addToLeaderboard(world, player);
+  }
+
   // Rend le coin invisible temporairement
   coinEntity.setOpacity(0);
 
@@ -129,6 +151,52 @@ async function handleCoinCollection(
   setTimeout(() => {
     coinEntity.setOpacity(1);
   }, 30000);
+}
+
+/**
+ * Ajoute un joueur au leaderboard global quand il collecte le dernier coin
+ * @param world - Le monde du jeu
+ * @param player - Le joueur à ajouter au leaderboard
+ */
+async function addToLeaderboard(world: World, player: any): Promise<void> {
+  try {
+    // Récupère les données persistées globales
+    const globalData = (await PersistenceManager.instance.getGlobalData(
+      "game-leaderboard"
+    )) as GlobalLeaderboardData | undefined;
+
+    // Initialise le leaderboard s'il n'existe pas
+    const leaderboard: LeaderboardEntry[] =
+      globalData?.lastCoinLeaderboard || [];
+
+    // Ajoute le joueur au leaderboard avec le timestamp actuel
+    const newEntry: LeaderboardEntry = {
+      playerName: player.username,
+      timestamp: Date.now(),
+    };
+
+    leaderboard.push(newEntry);
+
+    // Sauvegarde le leaderboard mis à jour
+    await PersistenceManager.instance.setGlobalData("game-leaderboard", {
+      lastCoinLeaderboard: leaderboard,
+    });
+
+    // Envoie un message de félicitations au joueur
+    world.chatManager.sendPlayerMessage(
+      player,
+      `🎉 Félicitations ${player.username} ! Vous avez collecté le dernier coin et êtes ajouté au leaderboard !`,
+      "FFD700"
+    );
+
+    // Met à jour le leaderboard des bateaux
+    const { updateAllSkeletonSoldiersLeaderboard } = await import(
+      "./welcomeNPCS"
+    );
+    updateAllSkeletonSoldiersLeaderboard(leaderboard);
+  } catch (error) {
+    console.error("Erreur lors de l'ajout au leaderboard:", error);
+  }
 }
 
 /**
@@ -225,4 +293,20 @@ export function getCoinPositionById(id: string): Position | null {
   const config = coinData as CoinConfig;
   const coin = config.coins.find((c) => c.id === id);
   return coin ? coin.position : null;
+}
+
+/**
+ * Récupère le leaderboard global des joueurs qui ont collecté le dernier coin
+ * @returns Le leaderboard ou un tableau vide si aucun joueur n'a encore collecté le dernier coin
+ */
+export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+  try {
+    const globalData = (await PersistenceManager.instance.getGlobalData(
+      "game-leaderboard"
+    )) as GlobalLeaderboardData | undefined;
+    return globalData?.lastCoinLeaderboard || [];
+  } catch (error) {
+    console.error("Erreur lors de la récupération du leaderboard:", error);
+    return [];
+  }
 }

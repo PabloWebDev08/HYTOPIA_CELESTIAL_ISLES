@@ -7,7 +7,7 @@
     {
       "id": "coin-1",
       "name": "Coin 1",
-      "position": { "x": 29.28, "y": 16, "z": 47.87 },
+      "position": { "x": 29.28, "y": 21, "z": 47.87 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "modelScale": 2
     },
@@ -199,6 +199,13 @@
       "position": { "x": 2.02, "y": 151, "z": 16.45 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "modelScale": 2
+    },
+    {
+      "id": "coin-31",
+      "name": "Coin 31",
+      "position": { "x": 9.83, "y": 151, "z": -0.71 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
     }
   ]
 }

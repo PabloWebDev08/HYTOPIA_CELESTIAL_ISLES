@@ -40,8 +40,12 @@ import {
   getStartPosition,
   getPlatformPositionById,
 } from "./parkour";
-import { createWelcomeNPC } from "./welcomeNPCS";
-import { createCoinEntities } from "./coin";
+import {
+  createWelcomeNPC,
+  createBoat,
+  createSkeletonSoldier,
+} from "./welcomeNPCS";
+import { createCoinEntities, getLeaderboard } from "./coin";
 
 /**
  * Interface pour les données persistées du joueur concernant les coins
@@ -85,7 +89,17 @@ startServer((world) => {
 
   // Crée le parkour
   const parkourEntities = createParkourEntities(world);
-  const welcomeNPC = createWelcomeNPC(world, { x: 45.08, y: 2.79, z: 29.38 });
+  const welcomeNPC = createWelcomeNPC(world, { x: 5.77, y: 14.3, z: 4.05 });
+
+  // Crée le bateau
+  const boat = createBoat(world, { x: 26.95, y: 12, z: 35.6 });
+
+  // Crée le skeleton soldier
+  const skeletonSoldier = createSkeletonSoldier(world, {
+    x: 4.91,
+    y: 13.3,
+    z: -19.78,
+  });
 
   // Crée les coins
   const coinEntities = createCoinEntities(world);
@@ -202,7 +216,7 @@ startServer((world) => {
     player.ui.load("ui/index.html");
 
     // Envoie l'or initial du joueur à l'UI après un court délai pour s'assurer que l'UI est chargée
-    setTimeout(() => {
+    setTimeout(async () => {
       const playerData = player.getPersistedData() as
         | PlayerCoinData
         | undefined;
@@ -214,11 +228,14 @@ startServer((world) => {
     }, 100);
 
     // Crée une Scene UI pour la barre de charge verticale au-dessus du joueur
+    // Note: viewDistance très petite pour limiter la visibilité au joueur propriétaire uniquement
+    // (le SDK Hytopia ne supporte pas nativement la visibilité par joueur)
     const jumpChargeSceneUI = new SceneUI({
       templateId: "jump-charge-bar",
       attachedToEntity: playerEntity,
       state: { progress: 0, visible: false },
       offset: { x: 0, y: 1.8, z: 0 }, // Position au-dessus de la tête du joueur
+      viewDistance: 6, // Distance très petite pour limiter la visibilité au joueur propriétaire
     });
 
     jumpChargeSceneUI.load(world);
@@ -283,11 +300,13 @@ startServer((world) => {
         // Applique l'impulsion verticale au joueur pour le faire sauter plus haut
         playerEntity.applyImpulse({ x: 0, y: jumpForce, z: 0 });
 
-        // Joue le son de saut
+        // Joue le son de saut attaché au joueur
+        // L'audio suivra automatiquement la position du joueur
         new Audio({
           uri: "audio/sfx/cartoon-jump.mp3",
           loop: false,
           volume: 0.5,
+          attachedToEntity: playerEntity, // Attache l'audio au joueur
         }).play(world);
 
         // Cache la barre de charge après le saut
@@ -434,12 +453,77 @@ startServer((world) => {
   });
 
   /**
+   * Commande pour afficher le leaderboard des joueurs qui ont collecté le dernier coin
+   * Usage: /leaderboard
+   */
+  world.chatManager.registerCommand("/leaderboard", async (player) => {
+    const leaderboard = await getLeaderboard();
+
+    if (leaderboard.length === 0) {
+      world.chatManager.sendPlayerMessage(
+        player,
+        "Aucun joueur n'a encore collecté le dernier coin.",
+        "FFD700"
+      );
+      return;
+    }
+
+    // Envoie le titre du leaderboard
+    world.chatManager.sendPlayerMessage(
+      player,
+      "═══════════════════════════════════",
+      "FFD700"
+    );
+    world.chatManager.sendPlayerMessage(
+      player,
+      "🏆 LEADERBOARD - Dernier Coin Collecté",
+      "FFD700"
+    );
+    world.chatManager.sendPlayerMessage(
+      player,
+      "═══════════════════════════════════",
+      "FFD700"
+    );
+
+    // Affiche chaque joueur du leaderboard avec son rang et la date
+    leaderboard.forEach((entry, index) => {
+      const rank = index + 1;
+      const date = new Date(entry.timestamp);
+      const dateStr = date.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      let rankEmoji = "";
+      if (rank === 1) rankEmoji = "🥇";
+      else if (rank === 2) rankEmoji = "🥈";
+      else if (rank === 3) rankEmoji = "🥉";
+      else rankEmoji = `${rank}.`;
+
+      world.chatManager.sendPlayerMessage(
+        player,
+        `${rankEmoji} ${entry.playerName} - ${dateStr}`,
+        rank <= 3 ? "FFD700" : "FFFFFF"
+      );
+    });
+
+    world.chatManager.sendPlayerMessage(
+      player,
+      "═══════════════════════════════════",
+      "FFD700"
+    );
+  });
+
+  /**
    * Play some peaceful ambient music to
    * set the mood!
    */
 
   new Audio({
-    uri: "audio/music/hytopia-main-theme.mp3",
+    uri: "audio/music/jungle-theme-looping.mp3",
     loop: true,
     volume: 0.1,
   }).play(world);

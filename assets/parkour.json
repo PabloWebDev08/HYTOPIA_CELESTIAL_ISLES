@@ -2,13 +2,13 @@
   "metadata": {
     "name": "Parkour Course",
     "description": "Parcours de saut avec obstacles dynamiques",
-    "startPosition": { "x": 45.47, "y": 10, "z": -20.91 }
+    "startPosition": { "x": 0, "y": 20, "z": 0 }
   },
   "obstacles": [
     {
       "id": "start-platform",
       "name": "Plateforme de départ",
-      "position": { "x": 29, "y": 15, "z": 47.84 },
+      "position": { "x": 29, "y": 20, "z": 47.84 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-magenta.png",
       "modelScale": 1,
@@ -25,7 +25,7 @@
     {
       "id": "start-platform-bis-1",
       "name": "Plateforme de départ bis 1",
-      "position": { "x": 29, "y": 13, "z": 47.84 },
+      "position": { "x": 29, "y": 18, "z": 47.84 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-magenta.png",
       "modelScale": 1,
@@ -42,7 +42,7 @@
     {
       "id": "start-platform-bis-2",
       "name": "Plateforme de départ bis 2",
-      "position": { "x": 29, "y": 11, "z": 47.84 },
+      "position": { "x": 29, "y": 16, "z": 47.84 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-magenta.png",
       "modelScale": 1,
