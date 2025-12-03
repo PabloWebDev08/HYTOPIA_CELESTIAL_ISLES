@@ -1,5 +1,5 @@
 // Configuration de l'île céleste 2
-import type { Position } from "../shared/types";
+import type { Position, PositionWithRotation } from "../shared/types";
 
 /**
  * Configuration complète de l'île 2
@@ -12,21 +12,27 @@ export const island2Config = {
 
   // Positions des NPCs et entités décoratives
   npcs: {
-    // À définir
-  },
-
-  // Positions des bateaux
-  boats: {
-    // À définir
+    welcomeNPC: {
+      x: -9.01,
+      y: 8.2,
+      z: 14.12,
+      rotation: { x: 0, y: 1.5, z: 0, w: 1 },
+    } as PositionWithRotation,
+    skeletonSoldier: {
+      x: 3.95,
+      y: 8.6,
+      z: 30.41,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    } as PositionWithRotation,
   },
 
   // Positions des bulles de dialogue
   speechBubbles: {
-    // À définir
+    mainBubble: { x: 0, y: 0, z: -2.08 } as Position,
   },
 
   // Positions des flèches
   arrows: {
-    // À définir
+    startArrow: { x: 0, y: 0, z: 0 } as Position,
   },
 };

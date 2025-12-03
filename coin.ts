@@ -13,6 +13,22 @@ import {
 } from "hytopia";
 // Import par défaut pour compatibilité avec le code existant
 import coinDataDefault from "./assets/islands/island1/coin.json";
+// Import des fonctions de mise à jour du leaderboard pour chaque île
+import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "./islands/island1/welcomeNPCS";
+import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "./islands/island2/welcomeNPCS";
+
+/**
+ * Mapping entre les IDs d'îles et leurs fonctions de mise à jour du leaderboard
+ * Utilise un mapping statique pour éviter les problèmes d'import dynamique
+ */
+const islandLeaderboardUpdaters: Record<
+  string,
+  (leaderboard: Array<{ playerName: string; timestamp: number }>) => void
+> = {
+  island1: updateIsland1Leaderboard,
+  island2: updateIsland2Leaderboard,
+  // Ajoutez d'autres îles ici au fur et à mesure
+};
 
 export interface Position {
   x: number;
@@ -64,6 +80,8 @@ interface LeaderboardEntry {
  */
 interface GlobalLeaderboardData {
   lastCoinLeaderboard?: LeaderboardEntry[];
+  // Leaderboards séparés par île
+  [key: string]: LeaderboardEntry[] | undefined;
 }
 
 /**
@@ -72,12 +90,16 @@ interface GlobalLeaderboardData {
  * @param coinEntity - L'entité du coin
  * @param coinId - L'ID du coin
  * @param playerEntity - L'entité du joueur qui collecte le coin
+ * @param islandId - L'ID de l'île où se trouve le coin
+ * @param lastCoinId - L'ID du dernier coin de cette île
  */
 async function handleCoinCollection(
   world: World,
   coinEntity: Entity,
   coinId: string,
-  playerEntity: DefaultPlayerEntity
+  playerEntity: DefaultPlayerEntity,
+  islandId: string,
+  lastCoinId: string | null
 ): Promise<void> {
   const player = playerEntity.player;
 
@@ -109,10 +131,10 @@ async function handleCoinCollection(
     return; // Le coin est invisible, il ne peut pas être collecté
   }
 
-  // Vérifie si c'est la première fois que le joueur collecte coin-31
-  // (avant de l'ajouter à la liste des coins collectés)
-  const isFirstTimeCoin31 =
-    coinId === "coin-31" && !playerData.collectedCoins.includes("coin-31");
+  // Vérifie si c'est le dernier coin de l'île et si c'est la première fois que le joueur le collecte
+  const isLastCoin = lastCoinId !== null && coinId === lastCoinId;
+  const isFirstTimeLastCoin =
+    isLastCoin && !playerData.collectedCoins.includes(coinId);
 
   // Joue le son de collecte de coin
   new Audio({
@@ -145,11 +167,11 @@ async function handleCoinCollection(
     "FFD700"
   );
 
-  // Vérifie si c'est le dernier coin (coin-31) et si c'est la première fois
+  // Vérifie si c'est le dernier coin de l'île et si c'est la première fois
   // On ajoute au leaderboard seulement la première fois
-  if (isFirstTimeCoin31) {
+  if (isFirstTimeLastCoin) {
     // Le joueur a collecté le dernier coin pour la première fois, on l'ajoute au leaderboard
-    await addToLeaderboard(world, player);
+    await addToLeaderboard(world, player, islandId);
   }
 
   // Rend le coin invisible temporairement (même si on ne l'ajoute pas au leaderboard)
@@ -162,12 +184,20 @@ async function handleCoinCollection(
 }
 
 /**
- * Ajoute un joueur au leaderboard global quand il collecte le dernier coin
+ * Ajoute un joueur au leaderboard de l'île quand il collecte le dernier coin
  * @param world - Le monde du jeu
  * @param player - Le joueur à ajouter au leaderboard
+ * @param islandId - L'ID de l'île (ex: "island1", "island2")
  */
-async function addToLeaderboard(world: World, player: any): Promise<void> {
+async function addToLeaderboard(
+  world: World,
+  player: any,
+  islandId: string
+): Promise<void> {
   try {
+    // Clé spécifique pour le leaderboard de cette île
+    const leaderboardKey = `leaderboard-${islandId}`;
+
     // Récupère les données persistées globales
     const globalData = (await PersistenceManager.instance.getGlobalData(
       "game-leaderboard"
@@ -175,7 +205,7 @@ async function addToLeaderboard(world: World, player: any): Promise<void> {
 
     // Initialise le leaderboard s'il n'existe pas
     const leaderboard: LeaderboardEntry[] =
-      globalData?.lastCoinLeaderboard || [];
+      (globalData?.[leaderboardKey] as LeaderboardEntry[]) || [];
 
     // Ajoute le joueur au leaderboard avec le timestamp actuel
     const newEntry: LeaderboardEntry = {
@@ -185,40 +215,77 @@ async function addToLeaderboard(world: World, player: any): Promise<void> {
 
     leaderboard.push(newEntry);
 
-    // Sauvegarde le leaderboard mis à jour
+    // Sauvegarde le leaderboard mis à jour pour cette île
     await PersistenceManager.instance.setGlobalData("game-leaderboard", {
-      lastCoinLeaderboard: leaderboard,
+      ...globalData,
+      [leaderboardKey]: leaderboard,
     });
 
     // Envoie un message de félicitations au joueur
     world.chatManager.sendPlayerMessage(
       player,
-      `🎉 Félicitations ${player.username} ! Vous avez collecté le dernier coin et êtes ajouté au leaderboard !`,
+      `🎉 Félicitations ${player.username} ! Vous avez collecté le dernier coin et êtes ajouté au leaderboard de l'${islandId} !`,
       "FFD700"
     );
 
-    // Met à jour le leaderboard
-    const { updateAllSkeletonSoldiersLeaderboard } = await import(
-      "./welcomeNPCS"
+    // Met à jour le leaderboard des skeleton soldiers de cette île
+    console.log(
+      `[Coin] Mise à jour du leaderboard pour l'île ${islandId} avec ${leaderboard.length} entrées`
     );
-    updateAllSkeletonSoldiersLeaderboard(leaderboard);
+    const updateLeaderboard = islandLeaderboardUpdaters[islandId];
+    if (updateLeaderboard) {
+      try {
+        updateLeaderboard(leaderboard);
+        console.log(
+          `[Coin] Leaderboard mis à jour avec succès pour l'île ${islandId}`
+        );
+      } catch (error) {
+        console.error(
+          `[Coin] Erreur lors de la mise à jour du leaderboard pour ${islandId}:`,
+          error
+        );
+      }
+    } else {
+      console.warn(
+        `[Coin] Aucune fonction de mise à jour trouvée pour l'île ${islandId}`
+      );
+    }
   } catch (error) {
     console.error("Erreur lors de l'ajout au leaderboard:", error);
   }
 }
 
 /**
+ * Trouve l'ID du dernier coin dans une configuration de coins
+ * Le dernier coin est celui qui apparaît en dernier dans le tableau
+ * @param coinData - Les données JSON des coins
+ * @returns L'ID du dernier coin ou null si aucun coin
+ */
+function getLastCoinId(coinData: CoinConfig): string | null {
+  if (!coinData.coins || coinData.coins.length === 0) {
+    return null;
+  }
+  // Le dernier coin est le dernier élément du tableau
+  return coinData.coins[coinData.coins.length - 1].id;
+}
+
+/**
  * Crée et place toutes les entités de coins dans le monde
  * @param world - Le monde où spawner les coins
  * @param coinData - Les données JSON des coins (optionnel, utilise les données par défaut si non fourni)
+ * @param islandId - L'ID de l'île (ex: "island1", "island2")
  * @returns Un tableau contenant toutes les entités de coins créées
  */
 export function createCoinEntities(
   world: World,
-  coinData?: CoinConfig
+  coinData?: CoinConfig,
+  islandId: string = "island1"
 ): Entity[] {
   const config = (coinData || coinDataDefault) as CoinConfig;
   const entities: Entity[] = [];
+
+  // Trouve l'ID du dernier coin pour cette île
+  const lastCoinId = getLastCoinId(config);
 
   // Crée chaque coin
   for (const coin of config.coins) {
@@ -286,8 +353,15 @@ export function createCoinEntities(
 
         const playerEntity = other as DefaultPlayerEntity;
 
-        // Gère la collecte du coin
-        await handleCoinCollection(world, entity, coin.id, playerEntity);
+        // Gère la collecte du coin avec l'ID de l'île et le dernier coin
+        await handleCoinCollection(
+          world,
+          entity,
+          coin.id,
+          playerEntity,
+          islandId,
+          lastCoinId
+        );
       },
     });
 
@@ -313,15 +387,19 @@ export function getCoinPositionById(
 }
 
 /**
- * Récupère le leaderboard global des joueurs qui ont collecté le dernier coin
+ * Récupère le leaderboard des joueurs qui ont collecté le dernier coin pour une île spécifique
+ * @param islandId - L'ID de l'île (ex: "island1", "island2")
  * @returns Le leaderboard ou un tableau vide si aucun joueur n'a encore collecté le dernier coin
  */
-export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+export async function getLeaderboard(
+  islandId: string = "island1"
+): Promise<LeaderboardEntry[]> {
   try {
+    const leaderboardKey = `leaderboard-${islandId}`;
     const globalData = (await PersistenceManager.instance.getGlobalData(
       "game-leaderboard"
     )) as GlobalLeaderboardData | undefined;
-    return globalData?.lastCoinLeaderboard || [];
+    return (globalData?.[leaderboardKey] as LeaderboardEntry[]) || [];
   } catch (error) {
     console.error("Erreur lors de la récupération du leaderboard:", error);
     return [];

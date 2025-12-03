@@ -9,7 +9,16 @@ import {
   getPlatformPositionById as getParkourPlatformPositionById,
   type ParkourConfig,
 } from "../../parkour";
+import { createCoinEntities, type CoinConfig } from "../../coin";
+import {
+  createWelcomeNPC,
+  createSkeletonSoldier,
+  createSpeechBubble,
+  createArrow,
+} from "./welcomeNPCS";
+// Import des données JSON pour l'île 2
 import parkourData from "../../assets/islands/island2/parkour.json";
+import coinData from "../../assets/islands/island2/coin.json";
 
 /**
  * Classe représentant l'île céleste 2
@@ -17,11 +26,13 @@ import parkourData from "../../assets/islands/island2/parkour.json";
  */
 export class Island2 extends IslandBase {
   private parkourConfig: ParkourConfig;
+  private coinConfig: CoinConfig;
 
   constructor() {
     super();
     // Charge les données JSON pour cette île
     this.parkourConfig = parkourData as ParkourConfig;
+    this.coinConfig = coinData as CoinConfig;
   }
 
   /**
@@ -29,9 +40,35 @@ export class Island2 extends IslandBase {
    * @param world - Le monde où créer les entités
    */
   protected createEntities(world: World): void {
-    // Crée les entités de parkour depuis le fichier JSON
+    // Crée les entités de parkour
     const parkourEntities = createParkourEntities(world, this.parkourConfig);
     this.entities.parkourEntities = parkourEntities;
+
+    // Crée les entités de coins avec l'ID de l'île
+    const coinEntities = createCoinEntities(world, this.coinConfig, "island2");
+    this.entities.coinEntities = coinEntities;
+
+    // Crée le NPC de bienvenue
+    const welcomeNPC = createWelcomeNPC(world, island2Config.npcs.welcomeNPC);
+    this.entities.npcs = [welcomeNPC];
+
+    // Crée le skeleton soldier
+    const skeletonSoldier = createSkeletonSoldier(
+      world,
+      island2Config.npcs.skeletonSoldier
+    );
+    this.entities.npcs.push(skeletonSoldier);
+
+    // Crée la bulle de dialogue
+    const speechBubble = createSpeechBubble(
+      world,
+      island2Config.speechBubbles.mainBubble
+    );
+    this.entities.speechBubbles = [speechBubble];
+
+    // Crée les flèches
+    const startArrow = createArrow(world, island2Config.arrows.startArrow);
+    this.entities.arrows = [startArrow];
   }
 
   /**

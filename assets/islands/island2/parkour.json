@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Parkour Course - Island 2",
     "description": "Parcours de saut pour l'île céleste 2",
-    "startPosition": { "x": 0, "y": 30, "z": 0 }
+    "startPosition": { "x": -26.11, "y": 15, "z": 24.87 }
   },
   "obstacles": [
     {

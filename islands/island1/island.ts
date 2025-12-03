@@ -16,7 +16,7 @@ import {
   createSkeletonSoldier,
   createSpeechBubble,
   createArrow,
-} from "../../welcomeNPCS";
+} from "./welcomeNPCS";
 // Import des données JSON pour l'île 1
 import parkourData from "../../assets/islands/island1/parkour.json";
 import coinData from "../../assets/islands/island1/coin.json";
@@ -45,8 +45,8 @@ export class Island1 extends IslandBase {
     const parkourEntities = createParkourEntities(world, this.parkourConfig);
     this.entities.parkourEntities = parkourEntities;
 
-    // Crée les entités de coins
-    const coinEntities = createCoinEntities(world, this.coinConfig);
+    // Crée les entités de coins avec l'ID de l'île
+    const coinEntities = createCoinEntities(world, this.coinConfig, "island1");
     this.entities.coinEntities = coinEntities;
 
     // Crée le NPC de bienvenue

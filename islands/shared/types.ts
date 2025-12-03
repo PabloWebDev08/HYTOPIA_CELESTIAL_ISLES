@@ -21,6 +21,13 @@ export interface Rotation {
 }
 
 /**
+ * Position avec rotation optionnelle
+ */
+export interface PositionWithRotation extends Position {
+  rotation?: Rotation;
+}
+
+/**
  * Interface que toutes les îles doivent implémenter
  */
 export interface Island {

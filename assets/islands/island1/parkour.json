@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Parkour Course",
     "description": "Parcours de saut avec obstacles dynamiques",
-    "startPosition": { "x": 0, "y": 20, "z": 0 }
+    "startPosition": { "x": -18.27, "y": 15, "z": 5.17 }
   },
   "obstacles": [
     {

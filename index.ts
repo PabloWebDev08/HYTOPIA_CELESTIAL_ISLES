@@ -43,6 +43,9 @@ import island2Map from "./assets/map_island_2.json";
 import { getLeaderboard } from "./coin";
 import { IslandManager } from "./islands/islandManager";
 import { IslandWorldManager } from "./islands/worldManager";
+// Import des fonctions de mise à jour du leaderboard pour chaque île
+import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "./islands/island1/welcomeNPCS";
+import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "./islands/island2/welcomeNPCS";
 
 /**
  * Interface pour les données persistées du joueur concernant les coins
@@ -59,6 +62,19 @@ interface PlayerCoinData {
 const islandMapMapping: Record<string, any> = {
   island1: hubMap,
   island2: island2Map,
+  // Ajoutez d'autres îles ici au fur et à mesure
+};
+
+/**
+ * Mapping entre les IDs d'îles et leurs fonctions de mise à jour du leaderboard
+ * Utilise un mapping statique pour éviter les problèmes d'import dynamique
+ */
+const islandLeaderboardUpdaters: Record<
+  string,
+  (leaderboard: Array<{ playerName: string; timestamp: number }>) => void
+> = {
+  island1: updateIsland1Leaderboard,
+  island2: updateIsland2Leaderboard,
   // Ajoutez d'autres îles ici au fur et à mesure
 };
 
@@ -468,10 +484,27 @@ startServer((defaultWorld) => {
   };
 
   /**
+   * Fonction helper pour enregistrer une commande sur tous les mondes
+   * Cela permet d'utiliser la commande peu importe dans quel monde se trouve le joueur
+   */
+  const registerCommandOnAllWorlds = (
+    command: string,
+    handler: (player: Player, args?: string[]) => void | Promise<void>
+  ): void => {
+    // Enregistre la commande sur le monde par défaut
+    defaultWorld.chatManager.registerCommand(command, handler);
+
+    // Enregistre la commande sur tous les mondes d'îles
+    islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+      islandWorld.chatManager.registerCommand(command, handler);
+    });
+  };
+
+  /**
    * A silly little easter egg command. When a player types
    * "/rocket" in the game, they'll get launched into the air!
    */
-  defaultWorld.chatManager.registerCommand("/rocket", (player) => {
+  registerCommandOnAllWorlds("/rocket", (player) => {
     const playerWorld = getPlayerWorld(player);
     if (playerWorld) {
       playerWorld.entityManager
@@ -487,7 +520,7 @@ startServer((defaultWorld) => {
    * Usage: /teleport <platform-id>
    * Exemple: /teleport start-platform
    */
-  defaultWorld.chatManager.registerCommand("/teleport", (player, args) => {
+  registerCommandOnAllWorlds("/teleport", (player, args) => {
     const playerWorld = getPlayerWorld(player);
     if (!playerWorld) return;
 
@@ -565,7 +598,7 @@ startServer((defaultWorld) => {
    * Commande pour réinitialiser les données persistées des coins du joueur
    * Usage: /resetcoins
    */
-  defaultWorld.chatManager.registerCommand("/resetcoins", async (player) => {
+  registerCommandOnAllWorlds("/resetcoins", async (player) => {
     const playerWorld = getPlayerWorld(player);
     if (!playerWorld) return;
     // Réinitialise les données des coins du joueur
@@ -574,35 +607,59 @@ startServer((defaultWorld) => {
       collectedCoins: [],
     });
 
-    // Supprime l'entrée du joueur du leaderboard global
+    // Supprime l'entrée du joueur de tous les leaderboards (toutes les îles)
     try {
       const globalData = (await PersistenceManager.instance.getGlobalData(
         "game-leaderboard"
-      )) as
-        | {
-            lastCoinLeaderboard?: Array<{
-              playerName: string;
-              timestamp: number;
-            }>;
+      )) as Record<string, any> | undefined;
+
+      if (globalData) {
+        // Liste des IDs d'îles disponibles
+        const islandIds = ["island1", "island2"];
+
+        // Met à jour chaque leaderboard d'île
+        for (const islandId of islandIds) {
+          const leaderboardKey = `leaderboard-${islandId}`;
+          const leaderboard = globalData[leaderboardKey] as
+            | Array<{ playerName: string; timestamp: number }>
+            | undefined;
+
+          if (leaderboard && leaderboard.length > 0) {
+            // Filtre pour retirer toutes les entrées de ce joueur
+            const updatedLeaderboard = leaderboard.filter(
+              (entry) => entry.playerName !== player.username
+            );
+
+            // Sauvegarde le leaderboard mis à jour
+            globalData[leaderboardKey] = updatedLeaderboard;
+
+            // Met à jour le leaderboard des skeleton soldiers de cette île
+            const updateLeaderboard = islandLeaderboardUpdaters[islandId];
+            if (updateLeaderboard) {
+              try {
+                updateLeaderboard(updatedLeaderboard);
+                console.log(
+                  `[ResetCoins] Leaderboard mis à jour pour ${islandId}`
+                );
+              } catch (error) {
+                console.error(
+                  `[ResetCoins] Erreur lors de la mise à jour du leaderboard pour ${islandId}:`,
+                  error
+                );
+              }
+            } else {
+              console.warn(
+                `[ResetCoins] Aucune fonction de mise à jour trouvée pour l'île ${islandId}`
+              );
+            }
           }
-        | undefined;
+        }
 
-      if (globalData?.lastCoinLeaderboard) {
-        // Filtre pour retirer toutes les entrées de ce joueur
-        const updatedLeaderboard = globalData.lastCoinLeaderboard.filter(
-          (entry) => entry.playerName !== player.username
+        // Sauvegarde tous les leaderboards mis à jour
+        await PersistenceManager.instance.setGlobalData(
+          "game-leaderboard",
+          globalData
         );
-
-        // Sauvegarde le leaderboard mis à jour
-        await PersistenceManager.instance.setGlobalData("game-leaderboard", {
-          lastCoinLeaderboard: updatedLeaderboard,
-        });
-
-        // Met à jour le leaderboard des skeleton soldiers
-        const { updateAllSkeletonSoldiersLeaderboard } = await import(
-          "./welcomeNPCS"
-        );
-        updateAllSkeletonSoldiersLeaderboard(updatedLeaderboard);
       }
     } catch (error) {
       console.error("Erreur lors de la suppression du leaderboard:", error);
@@ -617,12 +674,28 @@ startServer((defaultWorld) => {
 
   /**
    * Commande pour afficher le leaderboard des joueurs qui ont collecté le dernier coin
-   * Usage: /leaderboard
+   * Usage: /leaderboard [islandId]
+   * Si islandId n'est pas spécifié, utilise l'île actuelle du joueur
    */
-  defaultWorld.chatManager.registerCommand("/leaderboard", async (player) => {
+  registerCommandOnAllWorlds("/leaderboard", async (player, args) => {
     const playerWorld = getPlayerWorld(player);
     if (!playerWorld) return;
-    const leaderboard = await getLeaderboard();
+
+    // Détermine quelle île utiliser
+    let islandId = "island1"; // Par défaut
+    if (args && args.length > 0) {
+      // Si un argument est fourni, utilise-le
+      islandId = args[0];
+    } else {
+      // Sinon, détermine l'île depuis le monde du joueur
+      islandWorldManager.getAvailableIslandIds().forEach((id) => {
+        if (islandWorldManager.getWorldForIsland(id) === playerWorld) {
+          islandId = id;
+        }
+      });
+    }
+
+    const leaderboard = await getLeaderboard(islandId);
 
     if (leaderboard.length === 0) {
       playerWorld.chatManager.sendPlayerMessage(
@@ -641,7 +714,7 @@ startServer((defaultWorld) => {
     );
     playerWorld.chatManager.sendPlayerMessage(
       player,
-      "🏆 LEADERBOARD - Dernier Coin Collecté",
+      `🏆 LEADERBOARD - ${islandId.toUpperCase()} - Dernier Coin Collecté`,
       "FFD700"
     );
     playerWorld.chatManager.sendPlayerMessage(
