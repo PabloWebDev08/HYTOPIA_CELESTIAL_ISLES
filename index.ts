@@ -33,22 +33,16 @@ import {
   CollisionGroup,
   ParticleEmitter,
   PersistenceManager,
+  WorldManager,
+  World,
+  Player,
 } from "hytopia";
 
-import worldMap from "./assets/map_hub.json";
-import {
-  createParkourEntities,
-  getStartPosition,
-  getPlatformPositionById,
-} from "./parkour";
-import {
-  createWelcomeNPC,
-  createBoat,
-  createSkeletonSoldier,
-  createSpeechBubble,
-  createArrow,
-} from "./welcomeNPCS";
-import { createCoinEntities, getLeaderboard } from "./coin";
+import hubMap from "./assets/map_hub.json";
+import island2Map from "./assets/map_island_2.json";
+import { getLeaderboard } from "./coin";
+import { IslandManager } from "./islands/islandManager";
+import { IslandWorldManager } from "./islands/worldManager";
 
 /**
  * Interface pour les données persistées du joueur concernant les coins
@@ -56,7 +50,17 @@ import { createCoinEntities, getLeaderboard } from "./coin";
 interface PlayerCoinData {
   gold?: number;
   collectedCoins?: string[];
+  selectedIsland?: string; // Île sélectionnée par le joueur
 }
+
+/**
+ * Mapping entre les IDs d'îles et leurs maps correspondantes
+ */
+const islandMapMapping: Record<string, any> = {
+  island1: hubMap,
+  island2: island2Map,
+  // Ajoutez d'autres îles ici au fur et à mesure
+};
 
 /**
  * startServer is always the entry point for our game.
@@ -68,7 +72,7 @@ interface PlayerCoinData {
  * Documentation: https://github.com/hytopiagg/sdk/blob/main/docs/server.startserver.md
  */
 
-startServer((world) => {
+startServer((defaultWorld) => {
   /**
    * Enable debug rendering of the physics simulation.
    * This will overlay lines in-game representing colliders,
@@ -80,170 +84,127 @@ startServer((world) => {
    * debugging physics.
    */
 
-  // world.simulation.enableDebugRendering(true);
+  // defaultWorld.simulation.enableDebugRendering(true);
 
   /**
-   * Load our map.
-   * You can build your own map using https://build.hytopia.com
-   * After building, hit export and drop the .json file in
-   * the assets folder as map.json.
+   * Le monde par défaut sert de monde de lobby ou d'île par défaut
+   * On charge la map de l'île 1 par défaut au démarrage
    */
-  world.loadMap(worldMap);
+  defaultWorld.loadMap(hubMap);
 
-  // Crée le parkour
-  const parkourEntities = createParkourEntities(world);
-  const welcomeNPC = createWelcomeNPC(world, { x: 5.77, y: 14.3, z: 4.05 });
+  // Initialise le gestionnaire d'îles pour le monde par défaut
+  const defaultIslandManager = new IslandManager(defaultWorld);
+  defaultIslandManager.loadIsland("island1");
 
-  // Crée le bateau
-  const boat = createBoat(world, { x: 26.95, y: 12, z: 35.6 });
+  // Crée le gestionnaire de mondes d'îles et initialise tous les mondes
+  const islandWorldManager = new IslandWorldManager(islandMapMapping);
+  islandWorldManager.initializeWorlds();
 
-  // Crée le skeleton soldier
-  const skeletonSoldier = createSkeletonSoldier(world, {
-    x: 4.91,
-    y: 13.3,
-    z: -19.78,
-  });
-
-  // Crée la bulle de dialogue
-  const speechBubble = createSpeechBubble(world, {
-    x: 12.95,
-    y: 152,
-    z: -3.51,
-  });
-
-  // Crée la flèche indiquant le début du parcours
-  const arrow = createArrow(world, {
-    x: 21.66,
-    y: 13,
-    z: 24.41,
-  });
-
-  // Crée une deuxième flèche (sans carte)
-  const arrow2 = createArrow(
-    world,
-    {
-      x: 27.08,
-      y: 14.08,
-      z: 36.09,
-    },
-    false
-  );
-
-  // Crée les coins
-  const coinEntities = createCoinEntities(world);
-
-  // Map pour tracker les entités de joueurs par ID de joueur
-  const playerEntitiesMap = new Map<string, DefaultPlayerEntity>();
+  // Map pour tracker les entités de joueurs par monde et par ID de joueur
+  // Structure: Map<World, Map<playerId, DefaultPlayerEntity>>
+  const playerEntitiesByWorld = new Map<
+    World,
+    Map<string, DefaultPlayerEntity>
+  >();
 
   /**
-   * Handle player joining the game. The PlayerEvent.JOINED_WORLD
-   * event is emitted to the world when a new player connects to
-   * the game. From here, we create a basic player
-   * entity instance which automatically handles mapping
-   * their inputs to control their in-game entity and
-   * internally uses our player entity controller.
-   *
-   * The HYTOPIA SDK is heavily driven by events, you
-   * can find documentation on how the event system works,
-   * here: https://dev.hytopia.com/sdk-guides/events
+   * Fonction helper pour initialiser un joueur dans un monde donné
+   * Cette fonction est réutilisable pour tous les mondes (défaut et îles)
    */
-  world.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
+  const initializePlayerInWorld = (
+    player: Player,
+    world: World,
+    islandManager: IslandManager
+  ): void => {
     // Initialise les données persistées pour les nouveaux joueurs
-    const existingData = player.getPersistedData();
-    if (existingData === undefined || existingData.gold === undefined) {
-      player.setPersistedData({
-        gold: 0,
-        collectedCoins: [],
-      });
-    }
+    const existingData = player.getPersistedData() as
+      | PlayerCoinData
+      | undefined;
+    const playerData: PlayerCoinData = {
+      gold: existingData?.gold ?? 0,
+      collectedCoins: existingData?.collectedCoins ?? [],
+      selectedIsland: existingData?.selectedIsland ?? "island1",
+    };
+    player.setPersistedData(playerData as Record<string, unknown>);
 
+    // Détermine quelle île utiliser pour ce monde
+    // Pour le monde par défaut, utilise island1
+    // Pour les mondes d'îles, détermine l'île depuis le monde
+    let islandId = "island1";
+    islandWorldManager.getAvailableIslandIds().forEach((id) => {
+      if (islandWorldManager.getWorldForIsland(id) === world) {
+        islandId = id;
+      }
+    });
+
+    // Charge l'île dans le gestionnaire d'îles
+    islandManager.loadIsland(islandId);
+    const currentIsland = islandManager.getCurrentIsland()!;
+
+    // Crée l'entité du joueur
     const playerEntity = new DefaultPlayerEntity({
       player,
       name: "Player",
     });
 
-    // Utilise la position de départ du parkour
-    const startPos = getStartPosition();
+    // Utilise la position de départ de l'île
+    const startPos = currentIsland.getStartPosition();
     playerEntity.spawn(world, startPos);
 
-    // Ajoute l'entité du joueur au Map pour référence future
-    playerEntitiesMap.set(player.id, playerEntity);
+    // Initialise la Map pour ce monde si elle n'existe pas
+    if (!playerEntitiesByWorld.has(world)) {
+      playerEntitiesByWorld.set(world, new Map());
+    }
+    const worldPlayerMap = playerEntitiesByWorld.get(world)!;
+    worldPlayerMap.set(player.id, playerEntity);
 
     // Crée un émetteur de particules attaché au joueur
-    //
-    // OPTIONS DE POSITIONNEMENT :
-    //
-    // Méthode 1 : Utiliser 'offset' pour décaler depuis le centre du joueur
-    //   offset: { x: 0, y: 1.5, z: 0 }  // Au-dessus de la tête (y positif = haut)
-    //   offset: { x: 0, y: -0.5, z: 0 } // Aux pieds (y négatif = bas)
-    //   offset: { x: 0.5, y: 0, z: 0 }  // À droite du joueur (x positif = droite)
-    //
-    // Méthode 2 : Utiliser 'attachedToEntityNodeName' pour attacher à un nœud spécifique
-    //   Nœuds disponibles : 'head_anchor', 'hand_right_anchor', 'hand_left_anchor',
-    //   'back_anchor', 'torso_anchor', 'foot_left_anchor', 'foot_right_anchor'
-    //
-    // Vous pouvez combiner les deux méthodes pour un positionnement précis !
     const playerParticleEmitter = new ParticleEmitter({
       attachedToEntity: playerEntity,
-      // Optionnel : attacher à un nœud spécifique du modèle
-      // attachedToEntityNodeName: "head_anchor", // Exemple : émet depuis la tête
-      // Optionnel : décalage relatif depuis le centre ou le nœud
-      offset: { x: 0, y: -0.5, z: 0 }, // Centre du joueur par défaut
+      offset: { x: 0, y: -0.5, z: 0 },
       textureUri: "particles/magic.png",
-      colorStart: { r: 255, g: 255, b: 255 }, // Couleur blanche de base
-      // OPTIONS DE TAILLE DES PARTICULES :
-      // sizeStart : Taille de départ (en blocs). Valeurs typiques : 0.05 à 0.3
-      // sizeEnd : Taille de fin (optionnel). Si défini, les particules grandissent/rétrécissent
-      // sizeStartVariance : Variation de la taille de départ (+/- cette valeur)
-      // sizeEndVariance : Variation de la taille de fin (si sizeEnd est défini)
-      sizeStart: 0.1, // Taille de départ des particules (ajustez cette valeur pour changer la taille)
-      sizeStartVariance: 0.03, // Variation de la taille de départ
-      sizeEnd: 0.12, // Taille de fin (les particules grandissent légèrement pendant leur vie)
-      sizeEndVariance: 0.02, // Variation de la taille de fin
-      lifetime: 2, // Durée de vie des particules en secondes
-      lifetimeVariance: 0.5, // Variation de la durée de vie
-      rate: 15, // Nombre de particules émises par seconde
-      maxParticles: 30, // Nombre maximum de particules visibles
-      velocity: { x: 0, y: 0.5, z: 0 }, // Vitesse verticale vers le haut
-      velocityVariance: { x: 0.3, y: 0.2, z: 0.3 }, // Variation de la vitesse
-      opacityStart: 0.8, // Opacité de départ
-      opacityEnd: 0, // Opacité de fin (disparaît progressivement)
+      colorStart: { r: 255, g: 255, b: 255 },
+      sizeStart: 0.1,
+      sizeStartVariance: 0.03,
+      sizeEnd: 0.12,
+      sizeEndVariance: 0.02,
+      lifetime: 2,
+      lifetimeVariance: 0.5,
+      rate: 15,
+      maxParticles: 30,
+      velocity: { x: 0, y: 0.5, z: 0 },
+      velocityVariance: { x: 0.3, y: 0.2, z: 0.3 },
+      opacityStart: 0.8,
+      opacityEnd: 0,
     });
 
     // Spawn l'émetteur de particules dans le monde
     playerParticleEmitter.spawn(world);
 
-    // Configure les groupes de collision pour empêcher les joueurs de se rentrer dedans
-    // Les colliders solides (hitbox) peuvent entrer en collision avec les blocs, entités,
-    // entités environnementales (plantes, arbres, décor) mais pas avec les autres joueurs
+    // Configure les groupes de collision
     playerEntity.setCollisionGroupsForSolidColliders({
       belongsTo: [CollisionGroup.PLAYER],
       collidesWith: [
         CollisionGroup.BLOCK,
         CollisionGroup.ENTITY,
         CollisionGroup.ENTITY_SENSOR,
-        CollisionGroup.ENVIRONMENT_ENTITY, // Plantes, arbres, éléments décoratifs
+        CollisionGroup.ENVIRONMENT_ENTITY,
       ],
     });
 
-    // Configure aussi les colliders capteurs (sensors) pour éviter les faux positifs
-    // avec d'autres joueurs (comme le capteur de sol qui pourrait détecter un autre joueur)
     playerEntity.setCollisionGroupsForSensorColliders({
       belongsTo: [CollisionGroup.ENTITY_SENSOR],
       collidesWith: [
         CollisionGroup.BLOCK,
         CollisionGroup.ENTITY,
-        CollisionGroup.ENVIRONMENT_ENTITY, // Plantes, arbres, éléments décoratifs
+        CollisionGroup.ENVIRONMENT_ENTITY,
       ],
     });
 
-    // Les entités du parkour sont déjà créées et spawnées dans createParkourEntities
-    // Pas besoin de les respawner ici
-
-    // Load our game UI for this player
+    // Charge l'UI du jeu pour ce joueur
     player.ui.load("ui/index.html");
 
-    // Envoie l'or initial du joueur à l'UI après un court délai pour s'assurer que l'UI est chargée
+    // Envoie l'or initial du joueur à l'UI
     setTimeout(async () => {
       const playerData = player.getPersistedData() as
         | PlayerCoinData
@@ -256,34 +217,27 @@ startServer((world) => {
     }, 100);
 
     // Crée une Scene UI pour la barre de charge verticale au-dessus du joueur
-    // Note: viewDistance très petite pour limiter la visibilité au joueur propriétaire uniquement
-    // (le SDK Hytopia ne supporte pas nativement la visibilité par joueur)
     const jumpChargeSceneUI = new SceneUI({
       templateId: "jump-charge-bar",
       attachedToEntity: playerEntity,
       state: { progress: 0, visible: false },
-      offset: { x: 0, y: 1.8, z: 0 }, // Position au-dessus de la tête du joueur
-      viewDistance: 6, // Distance très petite pour limiter la visibilité au joueur propriétaire
+      offset: { x: 0, y: 1.8, z: 0 },
+      viewDistance: 6,
     });
 
     jumpChargeSceneUI.load(world);
 
     // Fonction helper pour vérifier si le joueur est au sol
-    // Utilise un raycast vers le bas pour détecter le sol
     const isPlayerOnGround = (): boolean => {
       const playerPosition = playerEntity.position;
-      // Origine du raycast légèrement en dessous du centre du joueur
       const raycastOrigin = {
         x: playerPosition.x,
-        y: playerPosition.y - 0.5, // Ajuste pour partir des pieds
+        y: playerPosition.y - 0.5,
         z: playerPosition.z,
       };
-      // Direction vers le bas
       const raycastDirection = { x: 0, y: -1, z: 0 };
-      // Distance maximale pour détecter le sol (1 bloc)
       const raycastDistance = 1.0;
 
-      // Effectue le raycast en excluant le rigid body du joueur
       const raycastResult = world.simulation.raycast(
         raycastOrigin,
         raycastDirection,
@@ -293,54 +247,79 @@ startServer((world) => {
         }
       );
 
-      // Retourne true si le raycast a touché un bloc ou une entité
       return (
         raycastResult?.hitBlock !== undefined ||
         raycastResult?.hitEntity !== undefined
       );
     };
 
-    // Écoute les messages de l'UI concernant le saut maintenu
-    // Quand le joueur maintient le bouton de saut, on calcule la force proportionnelle
+    // Écoute les messages de l'UI concernant la sélection de map
     player.ui.on(PlayerUIEvent.DATA, ({ data }) => {
+      if (data.type === "select-island") {
+        // Sauvegarde l'île sélectionnée dans les données persistées du joueur
+        const islandId = data.islandId as string;
+        if (islandId && islandMapMapping[islandId]) {
+          const currentData = player.getPersistedData() as PlayerCoinData;
+          player.setPersistedData({
+            ...currentData,
+            selectedIsland: islandId,
+          } as Record<string, unknown>);
+
+          // Récupère le monde correspondant à l'île sélectionnée
+          const targetWorld = islandWorldManager.getWorldForIsland(islandId);
+          if (targetWorld) {
+            // Fait rejoindre le joueur au monde de l'île sélectionnée
+            // Cela déclenchera LEFT_WORLD sur le monde actuel et JOINED_WORLD sur le nouveau monde
+            player.joinWorld(targetWorld);
+
+            // Envoie un message au joueur
+            // Le message sera envoyé dans le nouveau monde après le changement
+            // On utilise un setTimeout pour s'assurer que le joueur est dans le nouveau monde
+            setTimeout(() => {
+              const newWorld = islandWorldManager.getWorldForIsland(islandId);
+              if (newWorld) {
+                newWorld.chatManager.sendPlayerMessage(
+                  player,
+                  `Vous avez rejoint ${islandId}!`,
+                  "00FF00"
+                );
+              }
+            }, 100);
+          }
+        }
+        return;
+      }
+
       if (data.type === "jump-held") {
         // Vérifie si le joueur est au sol avant de permettre le saut
         if (!isPlayerOnGround()) {
-          // Le joueur n'est pas au sol, on ignore le saut
           jumpChargeSceneUI.setState({ progress: 0, visible: false });
           return;
         }
 
-        const duration = data.duration || 0; // Durée en millisecondes
+        const duration = data.duration || 0;
 
         // Configuration du saut
-        const minJumpForce = 10; // Force minimale du saut (saut normal)
-        const maxJumpForce = 50; // Force maximale du saut (saut chargé)
-        const maxHoldDuration = 1000; // Durée maximale en ms (1 seconde) pour atteindre la force max
+        const minJumpForce = 10;
+        const maxJumpForce = 50;
+        const maxHoldDuration = 1000;
 
-        // Normalise la durée entre 0 et 1
         const normalizedDuration = Math.min(duration / maxHoldDuration, 1);
-
-        // Calcule la force du saut proportionnellement à la durée
         const jumpForce =
           minJumpForce + normalizedDuration * (maxJumpForce - minJumpForce);
 
-        // Applique l'impulsion verticale au joueur pour le faire sauter plus haut
         playerEntity.applyImpulse({ x: 0, y: jumpForce, z: 0 });
 
         // Joue le son de saut attaché au joueur
-        // L'audio suivra automatiquement la position du joueur
         new Audio({
           uri: "audio/sfx/cartoon-jump.mp3",
           loop: false,
           volume: 0.5,
-          attachedToEntity: playerEntity, // Attache l'audio au joueur
+          attachedToEntity: playerEntity,
         }).play(world);
 
-        // Cache la barre de charge après le saut
         jumpChargeSceneUI.setState({ progress: 0, visible: false });
       } else if (data.type === "jump-charge-update") {
-        // Met à jour la progression de la barre de charge en temps réel
         jumpChargeSceneUI.setState({
           progress: data.progress || 0,
           visible: data.visible || false,
@@ -348,7 +327,7 @@ startServer((world) => {
       }
     });
 
-    // Send a nice welcome message that only the player who joined will see ;)
+    // Messages de bienvenue
     world.chatManager.sendPlayerMessage(
       player,
       "Welcome to the game!",
@@ -372,6 +351,62 @@ startServer((world) => {
       player,
       "Press \\ to enter or exit debug view."
     );
+  };
+
+  /**
+   * Handle player joining the default world (lobby)
+   * Les nouveaux joueurs rejoignent ce monde par défaut
+   */
+  defaultWorld.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
+    initializePlayerInWorld(player, defaultWorld, defaultIslandManager);
+  });
+
+  /**
+   * Handle player leaving the default world
+   */
+  defaultWorld.on(PlayerEvent.LEFT_WORLD, ({ player }) => {
+    defaultWorld.entityManager
+      .getPlayerEntitiesByPlayer(player)
+      .forEach((entity) => entity.despawn());
+
+    const worldPlayerMap = playerEntitiesByWorld.get(defaultWorld);
+    if (worldPlayerMap) {
+      worldPlayerMap.delete(player.id);
+    }
+  });
+
+  /**
+   * Configure les handlers JOINED_WORLD et LEFT_WORLD pour chaque monde d'île
+   */
+  islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+    // Trouve l'ID de l'île correspondant à ce monde
+    let islandId = "";
+    islandWorldManager.getAvailableIslandIds().forEach((id) => {
+      if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
+        islandId = id;
+      }
+    });
+
+    const islandManager =
+      islandWorldManager.getIslandManagerForIsland(islandId);
+    if (!islandManager) return;
+
+    // Handler JOINED_WORLD pour ce monde d'île
+    islandWorld.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
+      initializePlayerInWorld(player, islandWorld, islandManager);
+    });
+
+    // Handler LEFT_WORLD pour ce monde d'île
+    islandWorld.on(PlayerEvent.LEFT_WORLD, ({ player }) => {
+      islandWorld.entityManager
+        .getPlayerEntitiesByPlayer(player)
+        .forEach((entity) => entity.despawn());
+
+      const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
+      if (worldPlayerMap) {
+        worldPlayerMap.delete(player.id);
+      }
+    });
   });
 
   /**
@@ -389,23 +424,62 @@ startServer((world) => {
    * can find documentation on how the event system works,
    * here: https://dev.hytopia.com/sdk-guides/events
    */
-  world.on(PlayerEvent.LEFT_WORLD, ({ player }) => {
-    world.entityManager
-      .getPlayerEntitiesByPlayer(player)
-      .forEach((entity) => entity.despawn());
+  // Note: Les handlers LEFT_WORLD sont déjà configurés ci-dessus pour chaque monde
 
-    // Retire l'entité du joueur du Map quand il quitte
-    playerEntitiesMap.delete(player.id);
-  });
+  /**
+   * Fonction helper pour obtenir le monde où se trouve un joueur
+   */
+  const getPlayerWorld = (player: Player): World | null => {
+    // Vérifie d'abord le monde par défaut
+    const defaultWorldPlayers =
+      defaultWorld.entityManager.getPlayerEntitiesByPlayer(player);
+    if (defaultWorldPlayers.length > 0) {
+      return defaultWorld;
+    }
+
+    // Vérifie chaque monde d'île
+    for (const islandWorld of islandWorldManager.getAllWorlds()) {
+      const islandPlayers =
+        islandWorld.entityManager.getPlayerEntitiesByPlayer(player);
+      if (islandPlayers.length > 0) {
+        return islandWorld;
+      }
+    }
+
+    return null;
+  };
+
+  /**
+   * Fonction helper pour obtenir le gestionnaire d'îles pour un monde donné
+   */
+  const getIslandManagerForWorld = (world: World): IslandManager | null => {
+    if (world === defaultWorld) {
+      return defaultIslandManager;
+    }
+
+    // Trouve l'ID de l'île correspondant à ce monde
+    for (const islandId of islandWorldManager.getAvailableIslandIds()) {
+      if (islandWorldManager.getWorldForIsland(islandId) === world) {
+        return islandWorldManager.getIslandManagerForIsland(islandId);
+      }
+    }
+
+    return null;
+  };
 
   /**
    * A silly little easter egg command. When a player types
    * "/rocket" in the game, they'll get launched into the air!
    */
-  world.chatManager.registerCommand("/rocket", (player) => {
-    world.entityManager.getPlayerEntitiesByPlayer(player).forEach((entity) => {
-      entity.applyImpulse({ x: 0, y: 20, z: 0 });
-    });
+  defaultWorld.chatManager.registerCommand("/rocket", (player) => {
+    const playerWorld = getPlayerWorld(player);
+    if (playerWorld) {
+      playerWorld.entityManager
+        .getPlayerEntitiesByPlayer(player)
+        .forEach((entity) => {
+          entity.applyImpulse({ x: 0, y: 20, z: 0 });
+        });
+    }
   });
 
   /**
@@ -413,16 +487,19 @@ startServer((world) => {
    * Usage: /teleport <platform-id>
    * Exemple: /teleport start-platform
    */
-  world.chatManager.registerCommand("/teleport", (player, args) => {
+  defaultWorld.chatManager.registerCommand("/teleport", (player, args) => {
+    const playerWorld = getPlayerWorld(player);
+    if (!playerWorld) return;
+
     // Vérifie qu'un ID de plateforme a été fourni
     // args est un tableau de mots séparés par des espaces après /teleport
     if (!args || args.length === 0) {
-      world.chatManager.sendPlayerMessage(
+      playerWorld.chatManager.sendPlayerMessage(
         player,
         "Usage: /teleport <platform-id>",
         "FF0000"
       );
-      world.chatManager.sendPlayerMessage(
+      playerWorld.chatManager.sendPlayerMessage(
         player,
         "Exemple: /teleport start-platform",
         "FF0000"
@@ -431,11 +508,31 @@ startServer((world) => {
     }
 
     const platformId = args[0];
-    const platformPosition = getPlatformPositionById(platformId);
+    const islandManager = getIslandManagerForWorld(playerWorld);
+    if (!islandManager) {
+      playerWorld.chatManager.sendPlayerMessage(
+        player,
+        "Aucune île n'est actuellement chargée.",
+        "FF0000"
+      );
+      return;
+    }
+
+    const currentIsland = islandManager.getCurrentIsland();
+    if (!currentIsland) {
+      playerWorld.chatManager.sendPlayerMessage(
+        player,
+        "Aucune île n'est actuellement chargée.",
+        "FF0000"
+      );
+      return;
+    }
+
+    const platformPosition = currentIsland.getPlatformPositionById(platformId);
 
     // Vérifie si la plateforme existe
     if (!platformPosition) {
-      world.chatManager.sendPlayerMessage(
+      playerWorld.chatManager.sendPlayerMessage(
         player,
         `Plateforme avec l'ID "${platformId}" introuvable.`,
         "FF0000"
@@ -451,11 +548,13 @@ startServer((world) => {
       z: platformPosition.z,
     };
 
-    world.entityManager.getPlayerEntitiesByPlayer(player).forEach((entity) => {
-      entity.setPosition(teleportPosition);
-    });
+    playerWorld.entityManager
+      .getPlayerEntitiesByPlayer(player)
+      .forEach((entity) => {
+        entity.setPosition(teleportPosition);
+      });
 
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       `Téléporté vers la plateforme "${platformId}"`,
       "00FF00"
@@ -466,7 +565,9 @@ startServer((world) => {
    * Commande pour réinitialiser les données persistées des coins du joueur
    * Usage: /resetcoins
    */
-  world.chatManager.registerCommand("/resetcoins", async (player) => {
+  defaultWorld.chatManager.registerCommand("/resetcoins", async (player) => {
+    const playerWorld = getPlayerWorld(player);
+    if (!playerWorld) return;
     // Réinitialise les données des coins du joueur
     player.setPersistedData({
       gold: 0,
@@ -507,7 +608,7 @@ startServer((world) => {
       console.error("Erreur lors de la suppression du leaderboard:", error);
     }
 
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       "Vos données de coins et votre entrée au leaderboard ont été réinitialisées !",
       "FFD700"
@@ -518,11 +619,13 @@ startServer((world) => {
    * Commande pour afficher le leaderboard des joueurs qui ont collecté le dernier coin
    * Usage: /leaderboard
    */
-  world.chatManager.registerCommand("/leaderboard", async (player) => {
+  defaultWorld.chatManager.registerCommand("/leaderboard", async (player) => {
+    const playerWorld = getPlayerWorld(player);
+    if (!playerWorld) return;
     const leaderboard = await getLeaderboard();
 
     if (leaderboard.length === 0) {
-      world.chatManager.sendPlayerMessage(
+      playerWorld.chatManager.sendPlayerMessage(
         player,
         "Aucun joueur n'a encore collecté le dernier coin.",
         "FFD700"
@@ -531,17 +634,17 @@ startServer((world) => {
     }
 
     // Envoie le titre du leaderboard
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       "═══════════════════════════════════",
       "FFD700"
     );
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       "🏆 LEADERBOARD - Dernier Coin Collecté",
       "FFD700"
     );
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       "═══════════════════════════════════",
       "FFD700"
@@ -565,14 +668,14 @@ startServer((world) => {
       else if (rank === 3) rankEmoji = "🥉";
       else rankEmoji = `${rank}.`;
 
-      world.chatManager.sendPlayerMessage(
+      playerWorld.chatManager.sendPlayerMessage(
         player,
         `${rankEmoji} ${entry.playerName} - ${dateStr}`,
         rank <= 3 ? "FFD700" : "FFFFFF"
       );
     });
 
-    world.chatManager.sendPlayerMessage(
+    playerWorld.chatManager.sendPlayerMessage(
       player,
       "═══════════════════════════════════",
       "FFD700"
@@ -582,11 +685,22 @@ startServer((world) => {
   /**
    * Play some peaceful ambient music to
    * set the mood!
+   * On joue la musique dans tous les mondes (défaut et îles)
    */
 
+  // Musique pour le monde par défaut
   new Audio({
     uri: "audio/music/jungle-theme-looping.mp3",
     loop: true,
     volume: 0.1,
-  }).play(world);
+  }).play(defaultWorld);
+
+  // Musique pour chaque monde d'île
+  islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+    new Audio({
+      uri: "audio/music/jungle-theme-looping.mp3",
+      loop: true,
+      volume: 0.1,
+    }).play(islandWorld);
+  });
 });

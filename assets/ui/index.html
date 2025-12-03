@@ -307,6 +307,95 @@ and also configure additional buttons for mobile compatibility.
     },
     true
   ); // true = capture phase, intercepte avant que le SDK ne le reçoive
+
+  // Gestion du menu hamburger pour mobile
+  const hamburgerButton = document.getElementById("hamburger-button");
+  const hamburgerDropdown = document.getElementById("hamburger-dropdown");
+
+  hamburgerButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    hamburgerDropdown.classList.toggle("active");
+    hamburgerButton.classList.toggle("active");
+  });
+
+  // Ferme le menu si on clique en dehors
+  document.addEventListener("click", (e) => {
+    if (
+      !hamburgerButton.contains(e.target) &&
+      !hamburgerDropdown.contains(e.target)
+    ) {
+      hamburgerDropdown.classList.remove("active");
+      hamburgerButton.classList.remove("active");
+    }
+  });
+
+  // Gestion du floating group pour la sélection de map
+  const mapsFloatingGroup = document.getElementById("maps-floating-group");
+  const mapsCloseButton = document.getElementById("maps-close-button");
+
+  // Trouve le lien "Maps" spécifiquement
+  const mapsLinks = document.querySelectorAll(".hamburger-link");
+  let mapsLinkElement = null;
+  mapsLinks.forEach((link) => {
+    if (link.textContent.trim() === "Maps") {
+      mapsLinkElement = link;
+    }
+  });
+
+  // Ouvre le floating group au clic sur "Maps"
+  if (mapsLinkElement && mapsFloatingGroup) {
+    mapsLinkElement.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      mapsFloatingGroup.classList.add("active");
+      // Ferme aussi le menu hamburger
+      hamburgerDropdown.classList.remove("active");
+      hamburgerButton.classList.remove("active");
+    });
+  }
+
+  // Ferme le floating group au clic sur le bouton de fermeture
+  if (mapsCloseButton) {
+    mapsCloseButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      mapsFloatingGroup.classList.remove("active");
+    });
+  }
+
+  // Ferme le floating group si on clique en dehors
+  document.addEventListener("click", (e) => {
+    if (
+      mapsFloatingGroup &&
+      mapsFloatingGroup.classList.contains("active") &&
+      !mapsFloatingGroup.contains(e.target) &&
+      mapsLinkElement &&
+      !mapsLinkElement.contains(e.target)
+    ) {
+      mapsFloatingGroup.classList.remove("active");
+    }
+  });
+
+  // Gestion des clics sur les cartes de map
+  const mapCards = document.querySelectorAll(".map-card");
+  mapCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const islandId = card.getAttribute("data-island");
+      if (islandId) {
+        // Envoie le message au serveur pour changer d'île
+        hytopia.sendData({
+          type: "select-island",
+          islandId: islandId,
+        });
+
+        // Ferme le floating group après sélection
+        if (mapsFloatingGroup) {
+          mapsFloatingGroup.classList.remove("active");
+        }
+      }
+    });
+  });
 </script>
 
 <!--
@@ -318,14 +407,64 @@ and also configure additional buttons for mobile compatibility.
   other unsafe actions likely won't work as you expect in production.
 -->
 
-<!-- Affichage de l'or du joueur -->
-<div id="gold-display" class="gold-display">
-  <span id="gold-amount" class="gold-amount">0</span>
-  <img
-    src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
-    alt="Gold"
-    class="gold-icon"
-  />
+<!-- Conteneur pour l'or et le menu hamburger -->
+<div class="top-right-container">
+  <!-- Affichage de l'or du joueur -->
+  <div id="gold-display" class="gold-display">
+    <span id="gold-amount" class="gold-amount">0</span>
+    <img
+      src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+      alt="Gold"
+      class="gold-icon"
+    />
+  </div>
+
+  <!-- Menu hamburger -->
+  <div id="hamburger-menu" class="hamburger-menu">
+    <button id="hamburger-button" class="hamburger-button" aria-label="Menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+    <div id="hamburger-dropdown" class="hamburger-dropdown">
+      <ul class="hamburger-list">
+        <li class="hamburger-item">
+          <a href="#" class="hamburger-link">Maps</a>
+        </li>
+        <li class="hamburger-item">
+          <a href="#" class="hamburger-link">Particle</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Floating group pour la sélection de map -->
+<div id="maps-floating-group" class="maps-floating-group">
+  <div class="maps-floating-header">
+    <h2 class="maps-floating-title">Sélectionner une Map</h2>
+    <button
+      id="maps-close-button"
+      class="maps-close-button"
+      aria-label="Fermer"
+    >
+      ×
+    </button>
+  </div>
+  <div class="maps-grid">
+    <div class="map-card" data-island="island1">
+      <div class="map-card-background"></div>
+      <div class="map-card-name">Island 1</div>
+    </div>
+    <div class="map-card" data-island="island2">
+      <div class="map-card-background"></div>
+      <div class="map-card-name">Island 2</div>
+    </div>
+    <div class="map-card" data-island="island3">
+      <div class="map-card-background"></div>
+      <div class="map-card-name">Island 3</div>
+    </div>
+  </div>
 </div>
 
 <div class="mobile-controls">
@@ -347,22 +486,32 @@ and also configure additional buttons for mobile compatibility.
     padding: 0;
   }
 
-  /* Styles pour l'affichage de l'or */
-  .gold-display {
+  /* Conteneur pour l'or et le menu hamburger */
+  .top-right-container {
     position: fixed;
     top: 20px;
     right: 20px;
     display: flex;
     align-items: center;
+    gap: 12px;
+    z-index: 1001;
+  }
+
+  /* Styles pour l'affichage de l'or */
+  .gold-display {
+    display: flex;
+    align-items: center;
     gap: 8px;
     background: rgba(255, 200, 0, 0.95);
     border: 3px solid #000;
-    border-radius: 12px;
-    padding: 8px 16px;
+    border-radius: 8px;
+    height: 50px;
+    padding: 10px 16px;
+    box-sizing: border-box;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     font-family: "Arial", sans-serif;
     z-index: 1000;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .gold-display.gold-updated {
@@ -387,13 +536,18 @@ and also configure additional buttons for mobile compatibility.
 
   /* Styles responsive pour mobile */
   @media screen and (max-width: 768px) {
-    .gold-display {
+    .top-right-container {
       top: 10px;
       right: 10px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      border-width: 2px;
-      gap: 6px;
+      gap: 10px;
+    }
+
+    .gold-display {
+      height: 50px;
+      padding: 10px;
+      border-radius: 8px;
+      border-width: 3px;
+      gap: 8px;
     }
 
     .gold-amount {
@@ -408,13 +562,18 @@ and also configure additional buttons for mobile compatibility.
   }
 
   @media screen and (max-width: 480px) {
-    .gold-display {
+    .top-right-container {
       top: 8px;
       right: 8px;
-      padding: 5px 10px;
-      border-radius: 8px;
+      gap: 8px;
+    }
+
+    .gold-display {
+      height: 44px;
+      padding: 10px;
+      border-radius: 6px;
       border-width: 2px;
-      gap: 5px;
+      gap: 6px;
     }
 
     .gold-amount {
@@ -428,13 +587,18 @@ and also configure additional buttons for mobile compatibility.
     }
   }
 
-  body.mobile .gold-display {
+  body.mobile .top-right-container {
     top: 10px;
     right: 10px;
-    padding: 6px 12px;
-    border-radius: 10px;
-    border-width: 2px;
-    gap: 6px;
+    gap: 10px;
+  }
+
+  body.mobile .gold-display {
+    height: 50px;
+    padding: 10px;
+    border-radius: 8px;
+    border-width: 3px;
+    gap: 8px;
   }
 
   body.mobile .gold-amount {
@@ -537,6 +701,133 @@ and also configure additional buttons for mobile compatibility.
     transform: scale(0.92);
     background-color: rgba(0, 0, 0, 0.75);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Styles pour le menu hamburger */
+  .hamburger-menu {
+    position: relative;
+    display: block; /* Visible sur desktop et mobile */
+  }
+
+  .hamburger-button {
+    background: rgba(255, 200, 0, 0.95);
+    border: 3px solid #000;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 10px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .hamburger-button:hover {
+    background: rgba(255, 210, 0, 0.95);
+  }
+
+  .hamburger-button.active {
+    background: rgba(255, 190, 0, 0.95);
+  }
+
+  .hamburger-line {
+    width: 25px;
+    height: 3px;
+    background: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .hamburger-button.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+  }
+
+  .hamburger-button.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-button.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+  }
+
+  .hamburger-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: rgba(255, 200, 0, 0.95);
+    border: 3px solid #000;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 150px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .hamburger-dropdown.active {
+    max-height: 300px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hamburger-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+  }
+
+  .hamburger-item {
+    margin: 0;
+  }
+
+  .hamburger-link {
+    display: block;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Arial", sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    transition: background 0.2s ease;
+  }
+
+  .hamburger-link:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Styles responsive pour le menu hamburger */
+  @media screen and (max-width: 480px) {
+    .hamburger-button {
+      width: 44px;
+      height: 44px;
+      border-width: 2px;
+      border-radius: 6px;
+    }
+
+    .hamburger-line {
+      width: 22px;
+      height: 2px;
+    }
+
+    .hamburger-dropdown {
+      top: 54px;
+      border-width: 2px;
+      border-radius: 10px;
+      min-width: 130px;
+    }
+
+    .hamburger-link {
+      padding: 10px 16px;
+      font-size: 14px;
+    }
   }
 </style>
 
@@ -954,6 +1245,188 @@ and also configure additional buttons for mobile compatibility.
   body.mobile .skeleton-leaderboard-rank {
     font-size: 13px;
     min-width: 20px;
+  }
+
+  /* Styles pour le floating group de sélection de map - Mobile First */
+  .maps-floating-group {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 200, 0, 0.95);
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    padding: 16px;
+    z-index: 2000;
+    width: 90%;
+  }
+
+  .maps-floating-group.active {
+    display: block;
+  }
+
+  .maps-floating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .maps-floating-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: "Arial", sans-serif;
+  }
+
+  .maps-close-button {
+    background: transparent;
+    border: 2px solid #000;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    line-height: 1;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-family: "Arial", sans-serif;
+    font-weight: bold;
+  }
+
+  .maps-close-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+  }
+
+  .maps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .map-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    border: 2px solid #000;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 200, 0, 0.95);
+  }
+
+  .map-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .map-card-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+  }
+
+  /* Background spécifique pour chaque île */
+  .map-card[data-island="island1"] .map-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/imgs-islands/island-1.png");
+  }
+
+  .map-card[data-island="island2"] .map-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+  }
+
+  .map-card[data-island="island3"] .map-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+  }
+
+  .map-card-name {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: "Arial", sans-serif;
+  }
+
+  /* Styles pour tablette et desktop */
+  @media screen and (min-width: 481px) {
+    .maps-floating-group {
+      width: 80%;
+      padding: 20px;
+      border-width: 3px;
+      border-radius: 12px;
+    }
+
+    .maps-floating-title {
+      font-size: 20px;
+    }
+
+    .maps-close-button {
+      width: 32px;
+      height: 32px;
+      font-size: 24px;
+      border-width: 2px;
+    }
+
+    .maps-grid {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .map-card {
+      border-width: 3px;
+    }
+
+    .map-card-name {
+      font-size: 16px;
+    }
+  }
+
+  @media screen and (min-width: 769px) {
+    .maps-floating-group {
+      width: 80%;
+      padding: 24px;
+    }
+
+    .maps-floating-title {
+      font-size: 24px;
+    }
+
+    .maps-floating-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+    }
+
+    .maps-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .map-card-name {
+      font-size: 18px;
+    }
   }
 </style>
 

@@ -1,0 +1,53 @@
+// Logique de l'île céleste 2
+import { World } from "hytopia";
+import { IslandBase } from "../shared/IslandBase";
+import type { Position } from "../shared/types";
+import { island2Config } from "./config";
+import {
+  createParkourEntities,
+  getStartPosition as getParkourStartPosition,
+  getPlatformPositionById as getParkourPlatformPositionById,
+  type ParkourConfig,
+} from "../../parkour";
+import parkourData from "../../assets/islands/island2/parkour.json";
+
+/**
+ * Classe représentant l'île céleste 2
+ * Template vide prêt à être rempli lors de la création de l'île 2
+ */
+export class Island2 extends IslandBase {
+  private parkourConfig: ParkourConfig;
+
+  constructor() {
+    super();
+    // Charge les données JSON pour cette île
+    this.parkourConfig = parkourData as ParkourConfig;
+  }
+
+  /**
+   * Crée toutes les entités spécifiques à l'île 2
+   * @param world - Le monde où créer les entités
+   */
+  protected createEntities(world: World): void {
+    // Crée les entités de parkour depuis le fichier JSON
+    const parkourEntities = createParkourEntities(world, this.parkourConfig);
+    this.entities.parkourEntities = parkourEntities;
+  }
+
+  /**
+   * Retourne la position de départ pour les joueurs
+   * @returns La position de départ du parkour depuis le fichier JSON
+   */
+  getStartPosition(): Position {
+    return getParkourStartPosition(this.parkourConfig);
+  }
+
+  /**
+   * Retourne la position d'une plateforme par son ID
+   * @param id - L'ID de la plateforme
+   * @returns La position de la plateforme ou null si introuvable
+   */
+  getPlatformPositionById(id: string): Position | null {
+    return getParkourPlatformPositionById(id, this.parkourConfig);
+  }
+}

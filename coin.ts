@@ -11,22 +11,23 @@ import {
   Audio,
   PersistenceManager,
 } from "hytopia";
-import coinData from "./assets/coin.json";
+// Import par défaut pour compatibilité avec le code existant
+import coinDataDefault from "./assets/islands/island1/coin.json";
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
   z: number;
 }
 
-interface Rotation {
+export interface Rotation {
   x: number;
   y: number;
   z: number;
   w: number;
 }
 
-interface Coin {
+export interface Coin {
   id: string;
   name: string;
   position: Position;
@@ -34,7 +35,7 @@ interface Coin {
   modelScale?: number;
 }
 
-interface CoinConfig {
+export interface CoinConfig {
   metadata: {
     name: string;
     description: string;
@@ -196,7 +197,7 @@ async function addToLeaderboard(world: World, player: any): Promise<void> {
       "FFD700"
     );
 
-    // Met à jour le leaderboard des bateaux
+    // Met à jour le leaderboard
     const { updateAllSkeletonSoldiersLeaderboard } = await import(
       "./welcomeNPCS"
     );
@@ -209,10 +210,14 @@ async function addToLeaderboard(world: World, player: any): Promise<void> {
 /**
  * Crée et place toutes les entités de coins dans le monde
  * @param world - Le monde où spawner les coins
+ * @param coinData - Les données JSON des coins (optionnel, utilise les données par défaut si non fourni)
  * @returns Un tableau contenant toutes les entités de coins créées
  */
-export function createCoinEntities(world: World): Entity[] {
-  const config = coinData as CoinConfig;
+export function createCoinEntities(
+  world: World,
+  coinData?: CoinConfig
+): Entity[] {
+  const config = (coinData || coinDataDefault) as CoinConfig;
   const entities: Entity[] = [];
 
   // Crée chaque coin
@@ -295,9 +300,14 @@ export function createCoinEntities(world: World): Entity[] {
 /**
  * Retourne la position d'un coin par son ID
  * Retourne null si le coin n'existe pas
+ * @param id - L'ID du coin
+ * @param coinData - Les données JSON des coins (optionnel, utilise les données par défaut si non fourni)
  */
-export function getCoinPositionById(id: string): Position | null {
-  const config = coinData as CoinConfig;
+export function getCoinPositionById(
+  id: string,
+  coinData?: CoinConfig
+): Position | null {
+  const config = (coinData || coinDataDefault) as CoinConfig;
   const coin = config.coins.find((c) => c.id === id);
   return coin ? coin.position : null;
 }

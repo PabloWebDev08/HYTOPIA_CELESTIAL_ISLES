@@ -1,0 +1,190 @@
+{
+  "metadata": {
+    "name": "Coins",
+    "description": "Coins à collecter dans le jeu"
+  },
+  "coins": [
+    {
+      "id": "coin-1",
+      "name": "Coin 1",
+      "position": { "x": 29.28, "y": 21, "z": 47.87 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-2",
+      "name": "Coin 2",
+      "position": { "x": 13.7, "y": 31, "z": 47.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-3",
+      "name": "Coin 3",
+      "position": { "x": 29, "y": 46, "z": 47.84 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-4",
+      "name": "Coin 4",
+      "position": { "x": 15, "y": 61, "z": 47.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-5",
+      "name": "Coin 5",
+      "position": { "x": -5, "y": 61, "z": 47.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-6",
+      "name": "Coin 6",
+      "position": { "x": -25, "y": 61, "z": 47.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-7",
+      "name": "Coin 7",
+      "position": { "x": -45, "y": 61, "z": 47.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-8",
+      "name": "Coin 8",
+      "position": { "x": -45.13, "y": 61, "z": 25.96 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-9",
+      "name": "Coin 9",
+      "position": { "x": -45.35, "y": 71, "z": 5.3 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-10",
+      "name": "Coin 10",
+      "position": { "x": -44.67, "y": 81, "z": -13.47 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-11",
+      "name": "Coin 11",
+      "position": { "x": -28.6, "y": 81, "z": -28.94 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-12",
+      "name": "Coin 12",
+      "position": { "x": -15.62, "y": 91, "z": -13.63 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-13",
+      "name": "Coin 13",
+      "position": { "x": -30.23, "y": 101, "z": 2.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-14",
+      "name": "Coin 14",
+      "position": { "x": -44.62, "y": 111, "z": -12.85 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-15",
+      "name": "Coin 15",
+      "position": { "x": -27.97, "y": 111, "z": -12.65 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-16",
+      "name": "Coin 16",
+      "position": { "x": -6.76, "y": 111, "z": -12.59 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-17",
+      "name": "Coin 17",
+      "position": { "x": 15.1, "y": 111, "z": -12.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-18",
+      "name": "Coin 18",
+      "position": { "x": 30.13, "y": 111, "z": -12.43 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-19",
+      "name": "Coin 19",
+      "position": { "x": 42.45, "y": 111, "z": 1.66 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-20",
+      "name": "Coin 20",
+      "position": { "x": 30.36, "y": 120, "z": 15.3 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-21",
+      "name": "Coin 21",
+      "position": { "x": 46.49, "y": 131, "z": 28.88 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-22",
+      "name": "Coin 22",
+      "position": { "x": 34.35, "y": 131, "z": 44.22 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-24",
+      "name": "Coin 24",
+      "position": { "x": 12.95, "y": 131, "z": 44.59 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-26",
+      "name": "Coin 26",
+      "position": { "x": -5.6, "y": 131, "z": 44.56 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-27",
+      "name": "Coin 27",
+      "position": { "x": -22.05, "y": 131, "z": 44.91 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-31",
+      "name": "Coin 31",
+      "position": { "x": 9.83, "y": 151, "z": -0.71 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
+    }
+  ]
+}

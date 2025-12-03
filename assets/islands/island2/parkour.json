@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "name": "Parkour Course - Island 2",
+    "description": "Parcours de saut pour l'île céleste 2",
+    "startPosition": { "x": 0, "y": 30, "z": 0 }
+  },
+  "obstacles": [
+    {
+      "id": "start-platform",
+      "name": "Plateforme de départ",
+      "position": { "x": -1.75, "y": 20, "z": 9.94 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    }
+  ]
+}

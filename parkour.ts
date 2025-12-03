@@ -6,15 +6,16 @@ import {
   ColliderShape,
   Quaternion,
 } from "hytopia";
-import parkourData from "./assets/parkour.json";
+// Import par défaut pour compatibilité avec le code existant
+import parkourDataDefault from "./assets/islands/island1/parkour.json";
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
   z: number;
 }
 
-interface Rotation {
+export interface Rotation {
   x: number;
   y: number;
   z: number;
@@ -30,7 +31,7 @@ interface Movement {
   loop: boolean;
 }
 
-interface ParkourObstacle {
+export interface ParkourObstacle {
   id: string;
   name: string;
   position: Position;
@@ -52,7 +53,7 @@ interface ParkourObstacle {
   };
 }
 
-interface ParkourConfig {
+export interface ParkourConfig {
   metadata: {
     name: string;
     description: string;
@@ -101,9 +102,14 @@ function convertColliderShape(
 
 /**
  * Crée et place toutes les entités du parkour dans le monde
+ * @param world - Le monde où créer les entités
+ * @param parkourData - Les données JSON du parkour (optionnel, utilise les données par défaut si non fourni)
  */
-export function createParkourEntities(world: World): Entity[] {
-  const config = parkourData as ParkourConfig;
+export function createParkourEntities(
+  world: World,
+  parkourData?: ParkourConfig
+): Entity[] {
+  const config = (parkourData || parkourDataDefault) as ParkourConfig;
   const entities: Entity[] = [];
 
   // Crée chaque obstacle
@@ -192,18 +198,24 @@ export function createParkourEntities(world: World): Entity[] {
 
 /**
  * Retourne la position de départ du parkour
+ * @param parkourData - Les données JSON du parkour (optionnel, utilise les données par défaut si non fourni)
  */
-export function getStartPosition(): Position {
-  const config = parkourData as ParkourConfig;
+export function getStartPosition(parkourData?: ParkourConfig): Position {
+  const config = (parkourData || parkourDataDefault) as ParkourConfig;
   return config.metadata.startPosition;
 }
 
 /**
  * Retourne la position d'une plateforme par son ID
  * Retourne null si la plateforme n'existe pas
+ * @param id - L'ID de la plateforme
+ * @param parkourData - Les données JSON du parkour (optionnel, utilise les données par défaut si non fourni)
  */
-export function getPlatformPositionById(id: string): Position | null {
-  const config = parkourData as ParkourConfig;
+export function getPlatformPositionById(
+  id: string,
+  parkourData?: ParkourConfig
+): Position | null {
+  const config = (parkourData || parkourDataDefault) as ParkourConfig;
   const obstacle = config.obstacles.find((obs) => obs.id === id);
   return obstacle ? obstacle.position : null;
 }
