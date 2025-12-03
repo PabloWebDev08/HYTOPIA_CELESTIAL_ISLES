@@ -13,15 +13,15 @@ export const island2Config = {
   // Positions des NPCs et entités décoratives
   npcs: {
     welcomeNPC: {
-      x: -9.01,
-      y: 8.2,
-      z: 14.12,
+      x: -9.79,
+      y: 13,
+      z: -2.53,
       rotation: { x: 0, y: 1.5, z: 0, w: 1 },
     } as PositionWithRotation,
     skeletonSoldier: {
-      x: 3.95,
-      y: 8.6,
-      z: 30.41,
+      x: -1.16,
+      y: 12,
+      z: 24.83,
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     } as PositionWithRotation,
   },
@@ -33,6 +33,6 @@ export const island2Config = {
 
   // Positions des flèches
   arrows: {
-    startArrow: { x: 0, y: 0, z: 0 } as Position,
+    startArrow: { x: 3.67, y: 19, z: 1.01 } as Position,
   },
 };
