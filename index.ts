@@ -319,18 +319,20 @@ startServer((defaultWorld) => {
             selectedParticle: particleId,
           } as Record<string, unknown>);
 
-          // Récupère l'émetteur de particules actuel du joueur
-          const currentEmitter = playerParticleEmitters.get(player.id);
-          if (currentEmitter) {
-            // Détruit l'ancien émetteur de particules
-            currentEmitter.despawn();
-            playerParticleEmitters.delete(player.id);
-          }
-
-          // Récupère l'entité du joueur dans le monde actuel
+          // Récupère d'abord l'entité du joueur dans le monde actuel
           const worldPlayerMap = playerEntitiesByWorld.get(world);
           const playerEntity = worldPlayerMap?.get(player.id);
+
+          // Ne procède que si l'entité du joueur existe
           if (playerEntity) {
+            // Récupère l'émetteur de particules actuel du joueur
+            const currentEmitter = playerParticleEmitters.get(player.id);
+            if (currentEmitter) {
+              // Détruit l'ancien émetteur de particules
+              currentEmitter.despawn();
+              playerParticleEmitters.delete(player.id);
+            }
+
             // Crée un nouvel émetteur de particules avec le type sélectionné
             const newEmitter = ParticleManager.createParticleEmitter(
               particleId as ParticleType,
