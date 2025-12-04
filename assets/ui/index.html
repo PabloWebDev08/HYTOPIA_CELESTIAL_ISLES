@@ -445,6 +445,26 @@ and also configure additional buttons for mobile compatibility.
       }
     });
   });
+
+  // Gestion des clics sur les cartes de particules
+  const particleCards = document.querySelectorAll(".particle-card");
+  particleCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const particleId = card.getAttribute("data-particle");
+      if (particleId) {
+        // Envoie le message au serveur pour changer de particule
+        hytopia.sendData({
+          type: "select-particle",
+          particleId: particleId,
+        });
+
+        // Ferme le floating group après sélection
+        if (particleFloatingGroup) {
+          particleFloatingGroup.classList.remove("active");
+        }
+      }
+    });
+  });
 </script>
 
 <!--

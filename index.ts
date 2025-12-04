@@ -46,6 +46,8 @@ import { IslandWorldManager } from "./islands/worldManager";
 // Import des fonctions de mise à jour du leaderboard pour chaque île
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "./islands/island1/welcomeNPCS";
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "./islands/island2/welcomeNPCS";
+import { ParticleManager } from "./particles/particleManager";
+import type { ParticleType } from "./particles/particleManager";
 
 /**
  * Interface pour les données persistées du joueur concernant les coins
@@ -54,6 +56,7 @@ interface PlayerCoinData {
   gold?: number;
   collectedCoins?: string[];
   selectedIsland?: string; // Île sélectionnée par le joueur
+  selectedParticle?: string; // Particule sélectionnée par le joueur
 }
 
 /**
@@ -123,6 +126,10 @@ startServer((defaultWorld) => {
     Map<string, DefaultPlayerEntity>
   >();
 
+  // Map pour tracker les émetteurs de particules par joueur
+  // Structure: Map<playerId, ParticleEmitter>
+  const playerParticleEmitters = new Map<string, ParticleEmitter>();
+
   /**
    * Fonction helper pour initialiser un joueur dans un monde donné
    * Cette fonction est réutilisable pour tous les mondes (défaut et îles)
@@ -140,6 +147,9 @@ startServer((defaultWorld) => {
       gold: existingData?.gold ?? 0,
       collectedCoins: existingData?.collectedCoins ?? [],
       selectedIsland: existingData?.selectedIsland ?? "island1",
+      selectedParticle:
+        existingData?.selectedParticle ??
+        ParticleManager.getDefaultParticleType(),
     };
     player.setPersistedData(playerData as Record<string, unknown>);
 
@@ -174,28 +184,21 @@ startServer((defaultWorld) => {
     const worldPlayerMap = playerEntitiesByWorld.get(world)!;
     worldPlayerMap.set(player.id, playerEntity);
 
-    // Crée un émetteur de particules attaché au joueur
-    const playerParticleEmitter = new ParticleEmitter({
-      attachedToEntity: playerEntity,
-      offset: { x: 0, y: -0.5, z: 0 },
-      textureUri: "particles/magic.png",
-      colorStart: { r: 255, g: 255, b: 255 },
-      sizeStart: 0.1,
-      sizeStartVariance: 0.03,
-      sizeEnd: 0.12,
-      sizeEndVariance: 0.02,
-      lifetime: 2,
-      lifetimeVariance: 0.5,
-      rate: 15,
-      maxParticles: 30,
-      velocity: { x: 0, y: 0.5, z: 0 },
-      velocityVariance: { x: 0.3, y: 0.2, z: 0.3 },
-      opacityStart: 0.8,
-      opacityEnd: 0,
-    });
+    // Crée un émetteur de particules attaché au joueur selon sa sélection
+    const selectedParticleType = ParticleManager.isValidParticleType(
+      playerData.selectedParticle!
+    )
+      ? (playerData.selectedParticle! as ParticleType)
+      : ParticleManager.getDefaultParticleType();
 
-    // Spawn l'émetteur de particules dans le monde
-    playerParticleEmitter.spawn(world);
+    const playerParticleEmitter = ParticleManager.createParticleEmitter(
+      selectedParticleType,
+      playerEntity,
+      world
+    );
+
+    // Stocke la référence à l'émetteur de particules pour ce joueur
+    playerParticleEmitters.set(player.id, playerParticleEmitter);
 
     // Configure les groupes de collision
     playerEntity.setCollisionGroupsForSolidColliders({
@@ -306,6 +309,47 @@ startServer((defaultWorld) => {
         return;
       }
 
+      if (data.type === "select-particle") {
+        // Sauvegarde la particule sélectionnée dans les données persistées du joueur
+        const particleId = data.particleId as string;
+        if (particleId && ParticleManager.isValidParticleType(particleId)) {
+          const currentData = player.getPersistedData() as PlayerCoinData;
+          player.setPersistedData({
+            ...currentData,
+            selectedParticle: particleId,
+          } as Record<string, unknown>);
+
+          // Récupère l'émetteur de particules actuel du joueur
+          const currentEmitter = playerParticleEmitters.get(player.id);
+          if (currentEmitter) {
+            // Détruit l'ancien émetteur de particules
+            currentEmitter.despawn();
+            playerParticleEmitters.delete(player.id);
+          }
+
+          // Récupère l'entité du joueur dans le monde actuel
+          const worldPlayerMap = playerEntitiesByWorld.get(world);
+          const playerEntity = worldPlayerMap?.get(player.id);
+          if (playerEntity) {
+            // Crée un nouvel émetteur de particules avec le type sélectionné
+            const newEmitter = ParticleManager.createParticleEmitter(
+              particleId as ParticleType,
+              playerEntity,
+              world
+            );
+            playerParticleEmitters.set(player.id, newEmitter);
+
+            // Envoie un message de confirmation au joueur
+            world.chatManager.sendPlayerMessage(
+              player,
+              `Particule "${particleId}" appliquée !`,
+              "00FF00"
+            );
+          }
+        }
+        return;
+      }
+
       if (data.type === "jump-held") {
         // Vérifie si le joueur est au sol avant de permettre le saut
         if (!isPlayerOnGround()) {
@@ -389,6 +433,13 @@ startServer((defaultWorld) => {
     if (worldPlayerMap) {
       worldPlayerMap.delete(player.id);
     }
+
+    // Nettoie l'émetteur de particules du joueur
+    const particleEmitter = playerParticleEmitters.get(player.id);
+    if (particleEmitter) {
+      particleEmitter.despawn();
+      playerParticleEmitters.delete(player.id);
+    }
   });
 
   /**
@@ -421,6 +472,13 @@ startServer((defaultWorld) => {
       const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
       if (worldPlayerMap) {
         worldPlayerMap.delete(player.id);
+      }
+
+      // Nettoie l'émetteur de particules du joueur
+      const particleEmitter = playerParticleEmitters.get(player.id);
+      if (particleEmitter) {
+        particleEmitter.despawn();
+        playerParticleEmitters.delete(player.id);
       }
     });
   });
