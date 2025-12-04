@@ -177,6 +177,9 @@ async function handleCoinCollection(
   const coinPosition = (coinEntity as any)._coinPosition;
   const coinRotation = (coinEntity as any)._coinRotation;
   const coinWorld = (coinEntity as any)._coinWorld || world;
+  const storedCoinId = (coinEntity as any)._coinId;
+  const storedLastCoinId = (coinEntity as any)._lastCoinId;
+  const storedIslandId = (coinEntity as any)._islandId;
 
   coinEntity.despawn();
 
@@ -184,6 +187,36 @@ async function handleCoinCollection(
   setTimeout(() => {
     if (coinPosition && coinWorld) {
       coinEntity.spawn(coinWorld, coinPosition, coinRotation);
+
+      // Recrée le collider sensor car il est perdu lors du despawn/respawn
+      coinEntity.createAndAddChildCollider({
+        shape: ColliderShape.BALL,
+        radius: 0.8,
+        isSensor: true,
+        collisionGroups: {
+          belongsTo: [CollisionGroup.ENTITY_SENSOR],
+          collidesWith: [CollisionGroup.PLAYER],
+        },
+        tag: "coin-collector-sensor",
+        onCollision: async (other: Entity | any, started: boolean) => {
+          if (!started) return;
+          if (!(other instanceof DefaultPlayerEntity)) {
+            console.log(
+              `[Coin ${storedCoinId}] L'entité n'est pas un DefaultPlayerEntity`
+            );
+            return;
+          }
+          const playerEntity = other as DefaultPlayerEntity;
+          await handleCoinCollection(
+            coinWorld,
+            coinEntity,
+            storedCoinId,
+            playerEntity,
+            storedIslandId,
+            storedLastCoinId
+          );
+        },
+      });
     }
   }, 30000);
 }
@@ -334,6 +367,8 @@ export function createCoinEntities(
     (entity as any)._coinPosition = coin.position;
     (entity as any)._coinRotation = rotation;
     (entity as any)._coinWorld = world;
+    (entity as any)._lastCoinId = lastCoinId;
+    (entity as any)._islandId = islandId;
 
     // Ajoute un collider sensor pour détecter les collisions avec les joueurs
     // Le sensor permet de détecter les collisions sans bloquer le mouvement du joueur
