@@ -14,13 +14,13 @@ export const island2Config = {
   npcs: {
     welcomeNPC: {
       x: -9.79,
-      y: 13,
+      y: 13.2,
       z: -2.53,
       rotation: { x: 0, y: 1.5, z: 0, w: 1 },
     } as PositionWithRotation,
     skeletonSoldier: {
       x: -1.16,
-      y: 12,
+      y: 12.6,
       z: 24.83,
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     } as PositionWithRotation,

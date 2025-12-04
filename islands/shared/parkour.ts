@@ -101,6 +101,111 @@ function convertColliderShape(
 }
 
 /**
+ * Calcule la distance entre deux positions
+ */
+function getDistance(pos1: Position, pos2: Position): number {
+  const dx = pos2.x - pos1.x;
+  const dy = pos2.y - pos1.y;
+  const dz = pos2.z - pos1.z;
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+/**
+ * Interpole linéairement entre deux positions
+ */
+function lerpPosition(start: Position, end: Position, t: number): Position {
+  return {
+    x: start.x + (end.x - start.x) * t,
+    y: start.y + (end.y - start.y) * t,
+    z: start.z + (end.z - start.z) * t,
+  };
+}
+
+/**
+ * Configure le mouvement linéaire d'une entité entre des waypoints
+ * @param entity - L'entité à déplacer
+ * @param movement - La configuration du mouvement
+ */
+function setupLinearMovement(entity: Entity, movement: Movement): void {
+  // Vérifie que les waypoints sont définis et qu'il y en a au moins 2
+  if (!movement.waypoints || movement.waypoints.length < 2) {
+    console.warn(
+      `Mouvement linéaire ignoré pour ${entity.name}: au moins 2 waypoints requis`
+    );
+    return;
+  }
+
+  let currentWaypointIndex = 0;
+  let currentPosition = { ...movement.waypoints[0] };
+  let targetWaypointIndex = 1;
+  let targetWaypoint = movement.waypoints[targetWaypointIndex];
+  let startTime = Date.now();
+
+  // Intervalle de mise à jour (60 fois par seconde pour un mouvement fluide)
+  const updateInterval = 1000 / 60; // ~16.67ms
+
+  // Stocke l'interval ID pour pouvoir le nettoyer plus tard
+  const intervalId = setInterval(() => {
+    // Vérifie que l'entité est toujours spawnée
+    if (!entity.isSpawned) {
+      clearInterval(intervalId);
+      return;
+    }
+
+    // Calcule la distance entre le waypoint de départ et d'arrivée du segment actuel
+    const startWaypoint = movement.waypoints![currentWaypointIndex];
+    const endWaypoint = movement.waypoints![targetWaypointIndex];
+    const segmentDistance = getDistance(startWaypoint, endWaypoint);
+
+    // Calcule le temps écoulé depuis le début du segment
+    const elapsedTime = (Date.now() - startTime) / 1000; // en secondes
+
+    // Calcule le temps nécessaire pour parcourir ce segment à la vitesse donnée
+    const timeToReach = segmentDistance / movement.speed;
+
+    // Calcule le progrès (0 à 1) vers le waypoint cible
+    let progress = elapsedTime / timeToReach;
+
+    if (progress >= 1.0) {
+      // A atteint le waypoint cible
+      currentPosition = { ...endWaypoint };
+      // Utilise setNextKinematicPosition pour que le moteur physique
+      // calcule correctement les collisions et pousse les entités en contact (comme le joueur)
+      entity.setNextKinematicPosition(currentPosition);
+
+      // Passe au waypoint suivant
+      currentWaypointIndex = targetWaypointIndex;
+      targetWaypointIndex++;
+
+      // Gère la fin du parcours
+      if (targetWaypointIndex >= movement.waypoints!.length) {
+        if (movement.loop) {
+          // En boucle, retourne au début
+          targetWaypointIndex = 0;
+        } else {
+          // Pas de boucle, arrête le mouvement
+          clearInterval(intervalId);
+          return;
+        }
+      }
+
+      // Met à jour le waypoint cible et réinitialise le temps
+      targetWaypoint = movement.waypoints![targetWaypointIndex];
+      startTime = Date.now();
+    } else {
+      // Interpole la position entre le waypoint actuel et le suivant
+      currentPosition = lerpPosition(startWaypoint, endWaypoint, progress);
+      // Utilise setNextKinematicPosition pour que le moteur physique
+      // calcule correctement les collisions et pousse les entités en contact (comme le joueur)
+      entity.setNextKinematicPosition(currentPosition);
+    }
+  }, updateInterval);
+
+  // Stocke l'interval ID sur l'entité pour pouvoir le nettoyer si nécessaire
+  (entity as any)._movementIntervalId = intervalId;
+}
+
+/**
  * Crée et place toutes les entités du parkour dans le monde
  * @param world - Le monde où créer les entités
  * @param parkourData - Les données JSON du parkour (optionnel, utilise les données par défaut si non fourni)
@@ -151,8 +256,13 @@ export function createParkourEntities(
     }
 
     // Configure les options du rigid body
+    // Si le mouvement est activé, force le type à KINEMATIC_POSITION pour permettre le mouvement contrôlé
+    const rigidBodyType = obstacle.movement?.enabled
+      ? RigidBodyType.KINEMATIC_POSITION
+      : convertRigidBodyType(obstacle.rigidBodyOptions.type);
+
     entityOptions.rigidBodyOptions = {
-      type: convertRigidBodyType(obstacle.rigidBodyOptions.type),
+      type: rigidBodyType,
     };
 
     // Ajoute la rotation au rigid body si spécifiée
@@ -183,11 +293,14 @@ export function createParkourEntities(
 
     // Si l'entité a un mouvement, configurez-le ici
     if (obstacle.movement?.enabled) {
-      // TODO: Implémenter la logique de mouvement selon le type
-      // Exemple pour mouvement linéaire :
-      // if (obstacle.movement.type === "linear" && obstacle.movement.waypoints) {
-      //   setupLinearMovement(entity, obstacle.movement);
-      // }
+      if (obstacle.movement.type === "linear" && obstacle.movement.waypoints) {
+        setupLinearMovement(entity, obstacle.movement);
+      } else if (obstacle.movement.type === "rotation") {
+        // TODO: Implémenter la logique de rotation si nécessaire
+        console.warn(
+          `Le mouvement de type "rotation" n'est pas encore implémenté pour ${obstacle.name}`
+        );
+      }
     }
 
     entities.push(entity);
