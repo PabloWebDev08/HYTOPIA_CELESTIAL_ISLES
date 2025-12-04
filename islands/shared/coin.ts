@@ -124,11 +124,9 @@ async function handleCoinCollection(
     playerData.collectedCoins = [];
   }
 
-  // Vérifie si le coin est visible (opacité > 0)
-  // Si le coin est invisible, on ne peut pas le collecter
-  const currentOpacity = (coinEntity as any).opacity ?? 1;
-  if (currentOpacity === 0) {
-    return; // Le coin est invisible, il ne peut pas être collecté
+  // Vérifie si le coin est spawné (si désactivé, on ne peut pas le collecter)
+  if (!coinEntity.isSpawned) {
+    return; // Le coin n'est pas spawné, il ne peut pas être collecté
   }
 
   // Vérifie si c'est le dernier coin de l'île et si c'est la première fois que le joueur le collecte
@@ -174,12 +172,19 @@ async function handleCoinCollection(
     await addToLeaderboard(world, player, islandId);
   }
 
-  // Rend le coin invisible temporairement (même si on ne l'ajoute pas au leaderboard)
-  coinEntity.setOpacity(0);
+  // Désactive le coin temporairement (même si on ne l'ajoute pas au leaderboard)
+  // Récupère la position et rotation stockées pour le respawn
+  const coinPosition = (coinEntity as any)._coinPosition;
+  const coinRotation = (coinEntity as any)._coinRotation;
+  const coinWorld = (coinEntity as any)._coinWorld || world;
 
-  // Réapparaît le coin après 30 secondes (30000 millisecondes)
+  coinEntity.despawn();
+
+  // Respawn le coin après 30 secondes
   setTimeout(() => {
-    coinEntity.setOpacity(1);
+    if (coinPosition && coinWorld) {
+      coinEntity.spawn(coinWorld, coinPosition, coinRotation);
+    }
   }, 30000);
 }
 
@@ -324,8 +329,11 @@ export function createCoinEntities(
     // Spawn l'entité dans le monde avec sa position et rotation
     entity.spawn(world, coin.position, rotation);
 
-    // Stocke l'ID du coin pour référence future
+    // Stocke l'ID du coin, la position et la rotation pour référence future (nécessaire pour respawn)
     (entity as any)._coinId = coin.id;
+    (entity as any)._coinPosition = coin.position;
+    (entity as any)._coinRotation = rotation;
+    (entity as any)._coinWorld = world;
 
     // Ajoute un collider sensor pour détecter les collisions avec les joueurs
     // Le sensor permet de détecter les collisions sans bloquer le mouvement du joueur
@@ -405,4 +413,3 @@ export async function getLeaderboard(
     return [];
   }
 }
-
