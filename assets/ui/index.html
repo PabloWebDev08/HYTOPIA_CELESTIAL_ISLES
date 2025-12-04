@@ -377,6 +377,55 @@ and also configure additional buttons for mobile compatibility.
     }
   });
 
+  // Gestion du floating group pour la sélection de particules
+  const particleFloatingGroup = document.getElementById(
+    "particle-floating-group"
+  );
+  const particleCloseButton = document.getElementById("particle-close-button");
+
+  // Trouve le lien "Particle" spécifiquement
+  const particleLinks = document.querySelectorAll(".hamburger-link");
+  let particleLinkElement = null;
+  particleLinks.forEach((link) => {
+    if (link.textContent.trim() === "Particle") {
+      particleLinkElement = link;
+    }
+  });
+
+  // Ouvre le floating group au clic sur "Particle"
+  if (particleLinkElement && particleFloatingGroup) {
+    particleLinkElement.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      particleFloatingGroup.classList.add("active");
+      // Ferme aussi le menu hamburger
+      hamburgerDropdown.classList.remove("active");
+      hamburgerButton.classList.remove("active");
+    });
+  }
+
+  // Ferme le floating group au clic sur le bouton de fermeture
+  if (particleCloseButton) {
+    particleCloseButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      particleFloatingGroup.classList.remove("active");
+    });
+  }
+
+  // Ferme le floating group si on clique en dehors
+  document.addEventListener("click", (e) => {
+    if (
+      particleFloatingGroup &&
+      particleFloatingGroup.classList.contains("active") &&
+      !particleFloatingGroup.contains(e.target) &&
+      particleLinkElement &&
+      !particleLinkElement.contains(e.target)
+    ) {
+      particleFloatingGroup.classList.remove("active");
+    }
+  });
+
   // Gestion des clics sur les cartes de map
   const mapCards = document.querySelectorAll(".map-card");
   mapCards.forEach((card) => {
@@ -463,6 +512,34 @@ and also configure additional buttons for mobile compatibility.
     <div class="map-card" data-island="island3">
       <div class="map-card-background"></div>
       <div class="map-card-name">Island 3</div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating group pour la sélection de particules -->
+<div id="particle-floating-group" class="particle-floating-group">
+  <div class="particle-floating-header">
+    <h2 class="particle-floating-title">Sélectionner une Particule</h2>
+    <button
+      id="particle-close-button"
+      class="particle-close-button"
+      aria-label="Fermer"
+    >
+      ×
+    </button>
+  </div>
+  <div class="particle-grid">
+    <div class="particle-card" data-particle="particle1">
+      <div class="particle-card-background"></div>
+      <div class="particle-card-name">Particle 1</div>
+    </div>
+    <div class="particle-card" data-particle="particle2">
+      <div class="particle-card-background"></div>
+      <div class="particle-card-name">Particle 2</div>
+    </div>
+    <div class="particle-card" data-particle="particle3">
+      <div class="particle-card-background"></div>
+      <div class="particle-card-name">Particle 3</div>
     </div>
   </div>
 </div>
@@ -1425,6 +1502,188 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .map-card-name {
+      font-size: 18px;
+    }
+  }
+
+  /* Styles pour le floating group de sélection de particules - Mobile First */
+  .particle-floating-group {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 200, 0, 0.95);
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    padding: 16px;
+    z-index: 2000;
+    width: 90%;
+  }
+
+  .particle-floating-group.active {
+    display: block;
+  }
+
+  .particle-floating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .particle-floating-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: "Arial", sans-serif;
+  }
+
+  .particle-close-button {
+    background: transparent;
+    border: 2px solid #000;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    line-height: 1;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-family: "Arial", sans-serif;
+    font-weight: bold;
+  }
+
+  .particle-close-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+  }
+
+  .particle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .particle-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    border: 2px solid #000;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 200, 0, 0.95);
+  }
+
+  .particle-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .particle-card-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+  }
+
+  /* Background spécifique pour chaque particule */
+  .particle-card[data-particle="particle1"] .particle-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+  }
+
+  .particle-card[data-particle="particle2"] .particle-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+  }
+
+  .particle-card[data-particle="particle3"] .particle-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+  }
+
+  .particle-card-name {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: "Arial", sans-serif;
+  }
+
+  /* Styles pour tablette et desktop */
+  @media screen and (min-width: 481px) {
+    .particle-floating-group {
+      width: 80%;
+      padding: 20px;
+      border-width: 3px;
+      border-radius: 12px;
+    }
+
+    .particle-floating-title {
+      font-size: 20px;
+    }
+
+    .particle-close-button {
+      width: 32px;
+      height: 32px;
+      font-size: 24px;
+      border-width: 2px;
+    }
+
+    .particle-grid {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .particle-card {
+      border-width: 3px;
+    }
+
+    .particle-card-name {
+      font-size: 16px;
+    }
+  }
+
+  @media screen and (min-width: 769px) {
+    .particle-floating-group {
+      width: 80%;
+      padding: 24px;
+    }
+
+    .particle-floating-title {
+      font-size: 24px;
+    }
+
+    .particle-floating-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+    }
+
+    .particle-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .particle-card-name {
       font-size: 18px;
     }
   }
