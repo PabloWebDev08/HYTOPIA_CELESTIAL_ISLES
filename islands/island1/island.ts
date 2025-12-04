@@ -8,8 +8,8 @@ import {
   getStartPosition as getParkourStartPosition,
   getPlatformPositionById as getParkourPlatformPositionById,
   type ParkourConfig,
-} from "../../parkour";
-import { createCoinEntities, type CoinConfig } from "../../coin";
+} from "../shared/parkour";
+import { createCoinEntities, type CoinConfig } from "../shared/coin";
 import {
   createWelcomeNPC,
   createBoat,

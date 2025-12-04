@@ -1,5 +1,5 @@
 import { Entity, World, RigidBodyType, SceneUI, Quaternion } from "hytopia";
-import { getLeaderboard } from "../../coin";
+import { getLeaderboard } from "../shared/coin";
 import type { PositionWithRotation } from "../shared/types";
 
 // ID de l'île pour ce fichier

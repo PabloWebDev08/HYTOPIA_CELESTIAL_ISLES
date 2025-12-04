@@ -40,7 +40,7 @@ import {
 
 import hubMap from "./assets/map_hub.json";
 import island2Map from "./assets/map_island_2.json";
-import { getLeaderboard } from "./coin";
+import { getLeaderboard } from "./islands/shared/coin";
 import { IslandManager } from "./islands/islandManager";
 import { IslandWorldManager } from "./islands/worldManager";
 // Import des fonctions de mise à jour du leaderboard pour chaque île

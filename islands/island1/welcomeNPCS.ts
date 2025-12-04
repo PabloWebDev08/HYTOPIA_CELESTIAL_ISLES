@@ -1,5 +1,5 @@
 import { Entity, World, RigidBodyType, SceneUI, Quaternion } from "hytopia";
-import { getLeaderboard } from "../../coin";
+import { getLeaderboard } from "../shared/coin";
 
 // ID de l'île pour ce fichier
 const ISLAND_ID = "island1";

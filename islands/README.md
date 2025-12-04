@@ -56,8 +56,8 @@ import { World } from "hytopia";
 import { IslandBase } from "../shared/IslandBase";
 import { Position } from "../shared/types";
 import { islandXConfig } from "./config";
-import { createParkourEntities, ParkourConfig } from "../../parkour";
-import { createCoinEntities, CoinConfig } from "../../coin";
+import { createParkourEntities, ParkourConfig } from "../shared/parkour";
+import { createCoinEntities, CoinConfig } from "../shared/coin";
 import parkourData from "../../assets/islands/islandX/parkour.json";
 import coinData from "../../assets/islands/islandX/coin.json";
 

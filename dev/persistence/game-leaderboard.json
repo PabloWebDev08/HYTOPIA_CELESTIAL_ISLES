@@ -9,5 +9,14 @@
       "timestamp": 1764692179980
     }
   ],
-  "leaderboard-island1": []
+  "leaderboard-island1": [
+    {
+      "playerName": "player-2",
+      "timestamp": 1764787812007
+    },
+    {
+      "playerName": "player-1",
+      "timestamp": 1764787873160
+    }
+  ]
 }
