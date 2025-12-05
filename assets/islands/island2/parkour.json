@@ -106,7 +106,7 @@
     {
       "id": "4-platform",
       "name": "Plateforme 4",
-      "position": { "x": -23.39, "y": 60, "z": 48.39 },
+      "position": { "x": -23.39, "y": 60, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-white.png",
       "modelScale": 1,
@@ -150,7 +150,7 @@
     {
       "id": "6-platform",
       "name": "Plateforme 6",
-      "position": { "x": -23.39, "y": 70, "z": 48.39 },
+      "position": { "x": -25.11, "y": 70, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-white.png",
       "modelScale": 1,
@@ -595,7 +595,7 @@
     {
       "id": "31-platform",
       "name": "Plateforme 31",
-      "position": { "x": 23.21, "y": 115, "z": 31.83 },
+      "position": { "x": 23, "y": 115, "z": 31.83 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-white.png",
       "modelScale": 1,
@@ -606,7 +606,174 @@
       "parkourData": {
         "type": "platform",
         "requiredJumpForce": 0,
-        "size": { "width": 6, "height": 3, "depth": 6 }
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "32-platform",
+      "name": "Plateforme 32",
+      "position": { "x": 4, "y": 115, "z": 31.04 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "kinematic_position"
+      },
+      "movement": {
+        "enabled": true,
+        "type": "linear",
+        "waypoints": [
+          { "x": 4.7, "y": 115, "z": 36 },
+          { "x": 4.7, "y": 115, "z": 26 }
+        ],
+        "speed": 4,
+        "loop": true
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 1, "depth": 3 }
+      }
+    },
+    {
+      "id": "33-platform",
+      "name": "Plateforme 33",
+      "position": { "x": -15, "y": 115, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "34-platform",
+      "name": "Plateforme 34",
+      "position": { "x": -34, "y": 115, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "kinematic_position"
+      },
+      "movement": {
+        "enabled": true,
+        "type": "linear",
+        "waypoints": [
+          { "x": -34.7, "y": 115, "z": 36 },
+          { "x": -34.7, "y": 115, "z": 26 }
+        ],
+        "speed": 4,
+        "loop": true
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 1, "depth": 3 }
+      }
+    },
+    {
+      "id": "35-platform",
+      "name": "Plateforme 35",
+      "position": { "x": -34.07, "y": 125, "z": 8.97 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "36-platform",
+      "name": "Plateforme 36",
+      "position": { "x": -15.95, "y": 125, "z": 6.14 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 3, "depth": 3 }
+      }
+    },
+    {
+      "id": "37-platform",
+      "name": "Plateforme 37",
+      "position": { "x": -1.08, "y": 135, "z": 21.44 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 3, "depth": 3 }
+      }
+    },
+    {
+      "id": "38-platform",
+      "name": "Plateforme 38",
+      "position": { "x": 14.74, "y": 135, "z": 14.79 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "kinematic_position"
+      },
+      "movement": {
+        "enabled": true,
+        "type": "linear",
+        "waypoints": [
+          { "x": 14.74, "y": 135, "z": 14.79 },
+          { "x": 14.74, "y": 145, "z": 14.79 }
+        ],
+        "speed": 2,
+        "loop": true
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "end-platform",
+      "name": "Plateforme de fin",
+      "position": { "x": 36.79, "y": 145, "z": 14.79 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 8, "height": 1, "depth": 8 }
       }
     }
   ]
