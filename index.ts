@@ -34,6 +34,7 @@ import {
   ParticleEmitter,
   PersistenceManager,
   WorldManager,
+  PlayerManager,
   World,
   Player,
 } from "hytopia";
@@ -93,6 +94,12 @@ const islandLeaderboardUpdaters: Record<
 
 startServer((defaultWorld) => {
   /**
+   * Note: Le paramètre defaultWorld n'est plus utilisé dans cette architecture.
+   * Tous les joueurs sont maintenant redirigés vers les mondes d'îles créés
+   * par IslandWorldManager via le worldSelectionHandler.
+   */
+
+  /**
    * Enable debug rendering of the physics simulation.
    * This will overlay lines in-game representing colliders,
    * rigid bodies, and raycasts. This is useful for debugging
@@ -103,24 +110,21 @@ startServer((defaultWorld) => {
    * debugging physics.
    */
 
-  // defaultWorld.simulation.enableDebugRendering(true);
+  // Pour activer le debug rendering sur un monde d'île spécifique:
+  // const island1World = islandWorldManager.getWorldForIsland("island1");
+  // island1World?.simulation.enableDebugRendering(true);
 
-  /**
-   * Le monde par défaut sert de monde pour island1
-   * Le IslandWorldManager utilisera ce monde pour island1 au lieu d'en créer un nouveau
-   */
   // Crée le gestionnaire de mondes d'îles et initialise tous les mondes
-  // Le defaultWorld sera utilisé pour island1, évitant ainsi la duplication
-  const islandWorldManager = new IslandWorldManager(
-    islandMapMapping,
-    defaultWorld,
-    "island1"
-  );
+  // Tous les mondes d'îles sont créés ici, y compris island1
+  const islandWorldManager = new IslandWorldManager(islandMapMapping);
   islandWorldManager.initializeWorlds();
 
-  // Récupère le gestionnaire d'îles pour le monde par défaut (island1)
-  const defaultIslandManager =
-    islandWorldManager.getIslandManagerForIsland("island1")!;
+  // Configure le handler pour rediriger automatiquement les nouveaux joueurs vers island1
+  // Les joueurs ne rejoindront plus le defaultWorld mais directement le monde de island1
+  PlayerManager.instance.worldSelectionHandler = async (player: Player) => {
+    const island1World = islandWorldManager.getWorldForIsland("island1");
+    return island1World || undefined;
+  };
 
   // Map pour tracker les entités de joueurs par monde et par ID de joueur
   // Structure: Map<World, Map<playerId, DefaultPlayerEntity>>
@@ -135,7 +139,7 @@ startServer((defaultWorld) => {
 
   /**
    * Fonction helper pour initialiser un joueur dans un monde donné
-   * Cette fonction est réutilisable pour tous les mondes (défaut et îles)
+   * Cette fonction est utilisée pour tous les mondes d'îles gérés par islandWorldManager
    */
   const initializePlayerInWorld = (
     player: Player,
@@ -157,9 +161,8 @@ startServer((defaultWorld) => {
     player.setPersistedData(playerData as Record<string, unknown>);
 
     // Détermine quelle île utiliser pour ce monde
-    // Pour le monde par défaut, utilise island1
-    // Pour les mondes d'îles, détermine l'île depuis le monde
-    let islandId = "island1";
+    // Tous les mondes sont maintenant gérés par islandWorldManager
+    let islandId = "island1"; // Par défaut
     islandWorldManager.getAvailableIslandIds().forEach((id) => {
       if (islandWorldManager.getWorldForIsland(id) === world) {
         islandId = id;
@@ -419,36 +422,8 @@ startServer((defaultWorld) => {
   };
 
   /**
-   * Handle player joining the default world (lobby)
-   * Les nouveaux joueurs rejoignent ce monde par défaut
-   */
-  defaultWorld.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
-    initializePlayerInWorld(player, defaultWorld, defaultIslandManager);
-  });
-
-  /**
-   * Handle player leaving the default world
-   */
-  defaultWorld.on(PlayerEvent.LEFT_WORLD, ({ player }) => {
-    defaultWorld.entityManager
-      .getPlayerEntitiesByPlayer(player)
-      .forEach((entity) => entity.despawn());
-
-    const worldPlayerMap = playerEntitiesByWorld.get(defaultWorld);
-    if (worldPlayerMap) {
-      worldPlayerMap.delete(player.id);
-    }
-
-    // Nettoie l'émetteur de particules du joueur
-    const particleEmitter = playerParticleEmitters.get(player.id);
-    if (particleEmitter) {
-      particleEmitter.despawn();
-      playerParticleEmitters.delete(player.id);
-    }
-  });
-
-  /**
    * Configure les handlers JOINED_WORLD et LEFT_WORLD pour chaque monde d'île
+   * Les joueurs rejoignent maintenant directement les mondes d'îles via worldSelectionHandler
    */
   islandWorldManager.getAllWorlds().forEach((islandWorld) => {
     // Trouve l'ID de l'île correspondant à ce monde
@@ -507,15 +482,9 @@ startServer((defaultWorld) => {
 
   /**
    * Fonction helper pour obtenir le monde où se trouve un joueur
+   * Tous les joueurs sont maintenant dans les mondes d'îles gérés par islandWorldManager
    */
   const getPlayerWorld = (player: Player): World | null => {
-    // Vérifie d'abord le monde par défaut
-    const defaultWorldPlayers =
-      defaultWorld.entityManager.getPlayerEntitiesByPlayer(player);
-    if (defaultWorldPlayers.length > 0) {
-      return defaultWorld;
-    }
-
     // Vérifie chaque monde d'île
     for (const islandWorld of islandWorldManager.getAllWorlds()) {
       const islandPlayers =
@@ -530,7 +499,7 @@ startServer((defaultWorld) => {
 
   /**
    * Fonction helper pour obtenir le gestionnaire d'îles pour un monde donné
-   * Le defaultWorld est maintenant géré par IslandWorldManager, donc on utilise la même logique pour tous
+   * Tous les mondes sont maintenant gérés par islandWorldManager
    */
   const getIslandManagerForWorld = (world: World): IslandManager | null => {
     // Trouve l'ID de l'île correspondant à ce monde
@@ -546,14 +515,12 @@ startServer((defaultWorld) => {
   /**
    * Fonction helper pour enregistrer une commande sur tous les mondes
    * Cela permet d'utiliser la commande peu importe dans quel monde se trouve le joueur
+   * Tous les mondes sont maintenant gérés par islandWorldManager
    */
   const registerCommandOnAllWorlds = (
     command: string,
     handler: (player: Player, args?: string[]) => void | Promise<void>
   ): void => {
-    // Enregistre la commande sur le monde par défaut
-    defaultWorld.chatManager.registerCommand(command, handler);
-
     // Enregistre la commande sur tous les mondes d'îles
     islandWorldManager.getAllWorlds().forEach((islandWorld) => {
       islandWorld.chatManager.registerCommand(command, handler);
@@ -818,7 +785,7 @@ startServer((defaultWorld) => {
   /**
    * Play some peaceful ambient music to
    * set the mood!
-   * On joue la musique dans tous les mondes (le defaultWorld est déjà inclus dans getAllWorlds())
+   * On joue la musique dans tous les mondes d'îles
    */
   islandWorldManager.getAllWorlds().forEach((islandWorld) => {
     new Audio({

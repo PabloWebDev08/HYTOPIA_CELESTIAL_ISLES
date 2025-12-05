@@ -13,57 +13,27 @@ export interface IslandMapMapping {
 /**
  * Gestionnaire de mondes pour les îles
  * Crée et gère un monde séparé pour chaque île
- * Utilise le defaultWorld pour la première île (island1) pour éviter la duplication
  */
 export class IslandWorldManager {
   private worlds: Map<string, World> = new Map();
   private islandManagers: Map<string, IslandManager> = new Map();
   private islandMapMapping: IslandMapMapping;
-  private defaultIslandId: string;
 
   /**
    * Initialise le gestionnaire de mondes d'îles
    * @param islandMapMapping - Mapping entre les IDs d'îles et leurs maps
-   * @param defaultWorld - Le monde par défaut à utiliser pour la première île (optionnel)
-   * @param defaultIslandId - L'ID de l'île à utiliser avec le defaultWorld (par défaut: "island1")
    */
-  constructor(
-    islandMapMapping: IslandMapMapping,
-    defaultWorld?: World,
-    defaultIslandId: string = "island1"
-  ) {
+  constructor(islandMapMapping: IslandMapMapping) {
     this.islandMapMapping = islandMapMapping;
-    this.defaultIslandId = defaultIslandId;
-
-    // Si un defaultWorld est fourni et que l'île par défaut existe dans le mapping
-    if (defaultWorld && this.islandMapMapping[defaultIslandId]) {
-      const mapData = this.islandMapMapping[defaultIslandId];
-
-      // Charge la map dans le monde par défaut
-      defaultWorld.loadMap(mapData);
-
-      // Crée un gestionnaire d'îles pour le monde par défaut
-      const islandManager = new IslandManager(defaultWorld);
-      islandManager.loadIsland(defaultIslandId);
-
-      // Stocke le monde par défaut et son gestionnaire d'îles
-      this.worlds.set(defaultIslandId, defaultWorld);
-      this.islandManagers.set(defaultIslandId, islandManager);
-    }
   }
 
   /**
    * Crée tous les mondes d'îles au démarrage
-   * Chaque île aura son propre monde isolé (sauf l'île par défaut qui utilise defaultWorld)
+   * Chaque île aura son propre monde isolé
    */
   initializeWorlds(): void {
     // Parcourt toutes les îles définies dans le mapping
     Object.keys(this.islandMapMapping).forEach((islandId) => {
-      // Ignore l'île par défaut car elle utilise déjà le defaultWorld
-      if (islandId === this.defaultIslandId && this.worlds.has(islandId)) {
-        return;
-      }
-
       const mapData = this.islandMapMapping[islandId];
 
       // Crée un nouveau monde pour cette île
