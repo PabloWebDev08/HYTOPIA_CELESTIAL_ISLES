@@ -10,7 +10,7 @@
       "name": "Plateforme de départ",
       "position": { "x": -1.75, "y": 20, "z": 9.94 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -27,7 +27,7 @@
       "name": "Plateforme 1",
       "position": { "x": 1.57, "y": 30, "z": 25.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -40,7 +40,7 @@
           { "x": 1.57, "y": 30, "z": 25.71 },
           { "x": -6, "y": 30, "z": 25.71 }
         ],
-        "speed": 1,
+        "speed": 2,
         "loop": true
       },
       "parkourData": {
@@ -54,7 +54,7 @@
       "name": "Plateforme 2",
       "position": { "x": 2.79, "y": 40, "z": 41.72 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -67,7 +67,7 @@
           { "x": 2.79, "y": 40, "z": 41.72 },
           { "x": -6, "y": 40, "z": 41.71 }
         ],
-        "speed": 1,
+        "speed": 2,
         "loop": true
       },
       "parkourData": {
@@ -81,7 +81,7 @@
       "name": "Plateforme 3",
       "position": { "x": 1.48, "y": 50, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -94,7 +94,7 @@
           { "x": 1.48, "y": 50, "z": 49.71 },
           { "x": -6, "y": 50, "z": 49.71 }
         ],
-        "speed": 1,
+        "speed": 2,
         "loop": true
       },
       "parkourData": {
@@ -108,7 +108,7 @@
       "name": "Plateforme 4",
       "position": { "x": -23.39, "y": 60, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -125,7 +125,7 @@
       "name": "Plateforme 5",
       "position": { "x": 1.48, "y": 70, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -138,7 +138,7 @@
           { "x": 1.48, "y": 70, "z": 49.71 },
           { "x": -6, "y": 70, "z": 49.71 }
         ],
-        "speed": 1,
+        "speed": 2,
         "loop": true
       },
       "parkourData": {
@@ -152,7 +152,7 @@
       "name": "Plateforme 6",
       "position": { "x": -25.11, "y": 70, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -169,7 +169,7 @@
       "name": "Plateforme 7",
       "position": { "x": -38.91, "y": 70, "z": 30.35 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -186,7 +186,7 @@
       "name": "Plateforme 8",
       "position": { "x": -48, "y": 70, "z": 13 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -203,7 +203,7 @@
       "name": "Plateforme 9",
       "position": { "x": -39, "y": 70, "z": 13 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -220,7 +220,7 @@
       "name": "Plateforme 10",
       "position": { "x": -30, "y": 70, "z": 13 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -237,7 +237,7 @@
       "name": "Plateforme 11",
       "position": { "x": -34.5, "y": 70, "z": 6 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -254,7 +254,7 @@
       "name": "Plateforme 12",
       "position": { "x": -43.5, "y": 70, "z": 6 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -271,7 +271,7 @@
       "name": "Plateforme 13",
       "position": { "x": -43.5, "y": 70, "z": 6 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -288,7 +288,7 @@
       "name": "Plateforme 14",
       "position": { "x": -30, "y": 70, "z": -10 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -305,7 +305,7 @@
       "name": "Plateforme 15",
       "position": { "x": -48, "y": 70, "z": -10 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -322,7 +322,7 @@
       "name": "Plateforme 16",
       "position": { "x": -39, "y": 70, "z": -10 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -339,7 +339,7 @@
       "name": "Plateforme 17",
       "position": { "x": -43.5, "y": 70, "z": -17 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -356,7 +356,7 @@
       "name": "Plateforme 18",
       "position": { "x": -34.5, "y": 70, "z": -17 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -373,7 +373,7 @@
       "name": "Plateforme 19",
       "position": { "x": -39, "y": 70, "z": -32 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -400,7 +400,7 @@
       "name": "Plateforme 20",
       "position": { "x": -26, "y": 80, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-purple.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -417,7 +417,7 @@
       "name": "Plateforme 21",
       "position": { "x": -15, "y": 85, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-purple.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -434,7 +434,7 @@
       "name": "Plateforme 22",
       "position": { "x": -2, "y": 90, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-purple.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -451,7 +451,7 @@
       "name": "Plateforme 23",
       "position": { "x": 11, "y": 95, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-purple.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -468,7 +468,7 @@
       "name": "Plateforme 24",
       "position": { "x": 24, "y": 100, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-purple.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -485,7 +485,7 @@
       "name": "Plateforme 25",
       "position": { "x": 38, "y": 105, "z": -43.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -502,7 +502,7 @@
       "name": "Plateforme 26",
       "position": { "x": 48, "y": 105, "z": -27.77 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -519,7 +519,7 @@
       "name": "Plateforme 27",
       "position": { "x": 37.56, "y": 95, "z": -14.33 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -536,7 +536,7 @@
       "name": "Plateforme 28",
       "position": { "x": 48, "y": 105, "z": 1.02 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -553,7 +553,7 @@
       "name": "Plateforme 29",
       "position": { "x": 37.56, "y": 95, "z": 15.52 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -570,7 +570,7 @@
       "name": "Plateforme 30",
       "position": { "x": 43.82, "y": 105, "z": 32.89 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 2,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -597,7 +597,7 @@
       "name": "Plateforme 31",
       "position": { "x": 23, "y": 115, "z": 31.83 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -614,7 +614,7 @@
       "name": "Plateforme 32",
       "position": { "x": 4, "y": 115, "z": 31.04 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -641,7 +641,7 @@
       "name": "Plateforme 33",
       "position": { "x": -15, "y": 115, "z": 31.83 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -658,7 +658,7 @@
       "name": "Plateforme 34",
       "position": { "x": -34, "y": 115, "z": 31.83 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -685,7 +685,7 @@
       "name": "Plateforme 35",
       "position": { "x": -34.07, "y": 125, "z": 8.97 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -702,7 +702,7 @@
       "name": "Plateforme 36",
       "position": { "x": -15.95, "y": 125, "z": 6.14 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -720,7 +720,7 @@
       "name": "Plateforme 37",
       "position": { "x": -1.08, "y": 135, "z": 21.44 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
@@ -737,7 +737,7 @@
       "name": "Plateforme 38",
       "position": { "x": 14.74, "y": 135, "z": 14.79 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "blockTextureUri": "models/blocks/glass-white.png",
+      "blockTextureUri": "models/blocks/glass-blue.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
