@@ -28,7 +28,12 @@ export const island2Config = {
 
   // Positions des bulles de dialogue
   speechBubbles: {
-    mainBubble: { x: 0, y: 0, z: -2.08 } as Position,
+    mainBubble: {
+      x: 39.91,
+      y: 146.5,
+      z: 17.83,
+      rotation: { x: 0, y: 1, z: 0, w: 1 },
+    } as PositionWithRotation,
   },
 
   // Positions des flèches

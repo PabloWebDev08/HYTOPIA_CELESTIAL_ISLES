@@ -240,7 +240,7 @@ class SpeechBubbleEntity extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Attention !",
         message:
-          "Message de la bulle de dialogue pour l'île 2. À personnaliser selon vos besoins.",
+          "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 3.",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -253,15 +253,31 @@ class SpeechBubbleEntity extends Entity {
 /**
  * Crée et spawn la bulle de dialogue dans le monde
  * @param world - Le monde où spawner la bulle de dialogue
- * @param position - La position où spawner la bulle de dialogue (optionnel, par défaut à la position spécifiée)
+ * @param position - La position où spawner la bulle de dialogue avec rotation optionnelle (optionnel, par défaut à la position spécifiée)
  * @returns L'entité bulle de dialogue créée
  */
 export function createSpeechBubble(
   world: World,
-  position: { x: number; y: number; z: number } = { x: 0, y: 0, z: -2.08 }
+  position: PositionWithRotation = {
+    x: 39.91,
+    y: 146.5,
+    z: 17.83,
+    rotation: { x: 0, y: 0.6, z: 0, w: 1 },
+  }
 ): SpeechBubbleEntity {
   const speechBubble = new SpeechBubbleEntity();
-  speechBubble.spawn(world, position);
+
+  // Convertit la rotation en Quaternion si fournie
+  const rotation = position.rotation
+    ? new Quaternion(
+        position.rotation.x,
+        position.rotation.y,
+        position.rotation.z,
+        position.rotation.w
+      )
+    : undefined;
+
+  speechBubble.spawn(world, position, rotation);
 
   // Configure la carte après le spawn
   // On utilise setTimeout pour s'assurer que l'entité est complètement initialisée

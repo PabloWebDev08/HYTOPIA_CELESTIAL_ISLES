@@ -25,7 +25,7 @@
     {
       "id": "1-platform",
       "name": "Plateforme 1",
-      "position": { "x": 1.57, "y": 30, "z": 25.71 },
+      "position": { "x": 2, "y": 30, "z": 25.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
@@ -37,7 +37,7 @@
         "enabled": true,
         "type": "linear",
         "waypoints": [
-          { "x": 1.57, "y": 30, "z": 25.71 },
+          { "x": 2, "y": 30, "z": 25.71 },
           { "x": -6, "y": 30, "z": 25.71 }
         ],
         "speed": 2,
@@ -52,7 +52,7 @@
     {
       "id": "2-platform",
       "name": "Plateforme 2",
-      "position": { "x": 2.79, "y": 40, "z": 41.72 },
+      "position": { "x": 2, "y": 40, "z": 41.72 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
@@ -64,8 +64,8 @@
         "enabled": true,
         "type": "linear",
         "waypoints": [
-          { "x": 2.79, "y": 40, "z": 41.72 },
-          { "x": -6, "y": 40, "z": 41.71 }
+          { "x": -6, "y": 40, "z": 41.72 },
+          { "x": 2, "y": 40, "z": 41.72 }
         ],
         "speed": 2,
         "loop": true
@@ -79,23 +79,13 @@
     {
       "id": "3-platform",
       "name": "Plateforme 3",
-      "position": { "x": 1.48, "y": 50, "z": 49.71 },
+      "position": { "x": 2, "y": 50, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,
       "modelPreferredShape": "box",
       "rigidBodyOptions": {
-        "type": "kinematic_position"
-      },
-      "movement": {
-        "enabled": true,
-        "type": "linear",
-        "waypoints": [
-          { "x": 1.48, "y": 50, "z": 49.71 },
-          { "x": -6, "y": 50, "z": 49.71 }
-        ],
-        "speed": 2,
-        "loop": true
+        "type": "fixed"
       },
       "parkourData": {
         "type": "platform",
@@ -106,7 +96,7 @@
     {
       "id": "4-platform",
       "name": "Plateforme 4",
-      "position": { "x": -23.39, "y": 60, "z": 49.71 },
+      "position": { "x": 20.73, "y": 60, "z": 49.71 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-light-blue.png",
       "modelScale": 1,
@@ -583,13 +573,13 @@
           { "x": 43.82, "y": 105, "z": 32.89 },
           { "x": 43.82, "y": 115, "z": 32.89 }
         ],
-        "speed": 1,
+        "speed": 2,
         "loop": true
       },
       "parkourData": {
         "type": "platform",
         "requiredJumpForce": 0,
-        "size": { "width": 2, "height": 3, "depth": 2 }
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     },
     {
