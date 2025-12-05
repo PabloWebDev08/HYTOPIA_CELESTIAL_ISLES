@@ -38,7 +38,7 @@ import {
   Player,
 } from "hytopia";
 
-import hubMap from "./assets/map_hub.json";
+import island1Map from "./assets/map_island_1.json";
 import island2Map from "./assets/map_island_2.json";
 import { getLeaderboard } from "./islands/shared/coin";
 import { IslandManager } from "./islands/islandManager";
@@ -63,7 +63,7 @@ interface PlayerCoinData {
  * Mapping entre les IDs d'îles et leurs maps correspondantes
  */
 const islandMapMapping: Record<string, any> = {
-  island1: hubMap,
+  island1: island1Map,
   island2: island2Map,
   // Ajoutez d'autres îles ici au fur et à mesure
 };
@@ -106,18 +106,21 @@ startServer((defaultWorld) => {
   // defaultWorld.simulation.enableDebugRendering(true);
 
   /**
-   * Le monde par défaut sert de monde de lobby ou d'île par défaut
-   * On charge la map de l'île 1 par défaut au démarrage
+   * Le monde par défaut sert de monde pour island1
+   * Le IslandWorldManager utilisera ce monde pour island1 au lieu d'en créer un nouveau
    */
-  defaultWorld.loadMap(hubMap);
-
-  // Initialise le gestionnaire d'îles pour le monde par défaut
-  const defaultIslandManager = new IslandManager(defaultWorld);
-  defaultIslandManager.loadIsland("island1");
-
   // Crée le gestionnaire de mondes d'îles et initialise tous les mondes
-  const islandWorldManager = new IslandWorldManager(islandMapMapping);
+  // Le defaultWorld sera utilisé pour island1, évitant ainsi la duplication
+  const islandWorldManager = new IslandWorldManager(
+    islandMapMapping,
+    defaultWorld,
+    "island1"
+  );
   islandWorldManager.initializeWorlds();
+
+  // Récupère le gestionnaire d'îles pour le monde par défaut (island1)
+  const defaultIslandManager =
+    islandWorldManager.getIslandManagerForIsland("island1")!;
 
   // Map pour tracker les entités de joueurs par monde et par ID de joueur
   // Structure: Map<World, Map<playerId, DefaultPlayerEntity>>
@@ -527,12 +530,9 @@ startServer((defaultWorld) => {
 
   /**
    * Fonction helper pour obtenir le gestionnaire d'îles pour un monde donné
+   * Le defaultWorld est maintenant géré par IslandWorldManager, donc on utilise la même logique pour tous
    */
   const getIslandManagerForWorld = (world: World): IslandManager | null => {
-    if (world === defaultWorld) {
-      return defaultIslandManager;
-    }
-
     // Trouve l'ID de l'île correspondant à ce monde
     for (const islandId of islandWorldManager.getAvailableIslandIds()) {
       if (islandWorldManager.getWorldForIsland(islandId) === world) {
@@ -818,17 +818,8 @@ startServer((defaultWorld) => {
   /**
    * Play some peaceful ambient music to
    * set the mood!
-   * On joue la musique dans tous les mondes (défaut et îles)
+   * On joue la musique dans tous les mondes (le defaultWorld est déjà inclus dans getAllWorlds())
    */
-
-  // Musique pour le monde par défaut
-  new Audio({
-    uri: "audio/music/jungle-theme-looping.mp3",
-    loop: true,
-    volume: 0.1,
-  }).play(defaultWorld);
-
-  // Musique pour chaque monde d'île
   islandWorldManager.getAllWorlds().forEach((islandWorld) => {
     new Audio({
       uri: "audio/music/jungle-theme-looping.mp3",
