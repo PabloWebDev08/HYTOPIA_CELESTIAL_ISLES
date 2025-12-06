@@ -59,12 +59,18 @@ export class Island2 extends IslandBase {
     );
     this.entities.npcs.push(skeletonSoldier);
 
-    // Crée la bulle de dialogue
-    const speechBubble = createSpeechBubble(
+    // Crée les bulles de dialogue
+    const mainBubble = createSpeechBubble(
       world,
       island2Config.speechBubbles.mainBubble
     );
-    this.entities.speechBubbles = [speechBubble];
+    const secondBubble = createSpeechBubble(
+      world,
+      island2Config.speechBubbles.secondBubble,
+      island2Config.speechBubbles.secondBubble.title,
+      island2Config.speechBubbles.secondBubble.message
+    );
+    this.entities.speechBubbles = [mainBubble, secondBubble];
 
     // Crée les flèches
     const startArrow = createArrow(world, island2Config.arrows.startArrow);

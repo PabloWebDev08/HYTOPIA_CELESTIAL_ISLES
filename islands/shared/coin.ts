@@ -158,12 +158,12 @@ async function handleCoinCollection(
     gold: playerData.gold,
   });
 
-  // Envoie un message de confirmation au joueur
-  world.chatManager.sendPlayerMessage(
-    player,
-    `+1 or collecté ! Total: ${playerData.gold} or`,
-    "FFD700"
-  );
+  // // Envoie un message de confirmation au joueur
+  // world.chatManager.sendPlayerMessage(
+  //   player,
+  //   `+1 or collecté ! Total: ${playerData.gold} or`,
+  //   "FFD700"
+  // );
 
   // Vérifie si c'est le dernier coin de l'île et si c'est la première fois
   // On ajoute au leaderboard seulement la première fois

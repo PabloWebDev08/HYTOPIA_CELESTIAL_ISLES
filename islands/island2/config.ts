@@ -34,6 +34,15 @@ export const island2Config = {
       z: 17.83,
       rotation: { x: 0, y: 1, z: 0, w: 1 },
     } as PositionWithRotation,
+    secondBubble: {
+      x: 22.36,
+      y: 61.5,
+      z: 51.05,
+      rotation: { x: 0, y: 1, z: 0, w: 1 },
+      title: "Attention !",
+      message:
+        "Attendez que la plateforme soit sur le chemin retour pour commencer a sauter.",
+    } as PositionWithRotation & { title?: string; message?: string },
   },
 
   // Positions des flèches

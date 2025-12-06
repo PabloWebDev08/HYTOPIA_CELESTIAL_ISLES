@@ -33,7 +33,7 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle1: {
     // Particule de feu (configuration actuelle)
     textureUri: "particles/fire.png",
-    colorStart: { r: 255, g: 255, b: 255 },
+    colorStart: { r: 255, g: 150, b: 0 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -51,14 +51,14 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle2: {
     // Particule magique
     textureUri: "particles/magic.png",
-    colorStart: { r: 150, g: 100, b: 255 },
-    sizeStart: 0.08,
+    colorStart: { r: 200, g: 100, b: 255 },
+    sizeStart: 0.1,
     sizeStartVariance: 0.02,
-    sizeEnd: 0.15,
+    sizeEnd: 0.5,
     sizeEndVariance: 0.03,
     lifetime: 2.5,
     lifetimeVariance: 0.6,
-    rate: 12,
+    rate: 10,
     maxParticles: 25,
     velocity: { x: 0, y: 0.4, z: 0 },
     velocityVariance: { x: 0.4, y: 0.3, z: 0.4 },
@@ -69,10 +69,10 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle3: {
     // Particule de fumée
     textureUri: "particles/smoke.png",
-    colorStart: { r: 200, g: 200, b: 200 },
-    sizeStart: 0.12,
+    colorStart: { r: 150, g: 150, b: 150 },
+    sizeStart: 0.1,
     sizeStartVariance: 0.04,
-    sizeEnd: 0.2,
+    sizeEnd: 0.5,
     sizeEndVariance: 0.05,
     lifetime: 3,
     lifetimeVariance: 0.8,

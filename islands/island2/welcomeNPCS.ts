@@ -212,8 +212,13 @@ export function createSkeletonSoldier(
  */
 class SpeechBubbleEntity extends Entity {
   private cardSceneUI: SceneUI | null = null;
+  private title: string;
+  private message: string;
 
-  constructor() {
+  constructor(
+    title: string = "Attention !",
+    message: string = "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 3."
+  ) {
     super({
       modelUri: "models/environment/Gameplay/speech-bubble.gltf",
       name: "Speech Bubble",
@@ -222,6 +227,8 @@ class SpeechBubbleEntity extends Entity {
         type: RigidBodyType.FIXED, // Bulle fixe qui ne bouge pas
       },
     });
+    this.title = title;
+    this.message = message;
   }
 
   /**
@@ -238,9 +245,8 @@ class SpeechBubbleEntity extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la bulle
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Attention !",
-        message:
-          "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 3.",
+        title: this.title,
+        message: this.message,
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -254,6 +260,8 @@ class SpeechBubbleEntity extends Entity {
  * Crée et spawn la bulle de dialogue dans le monde
  * @param world - Le monde où spawner la bulle de dialogue
  * @param position - La position où spawner la bulle de dialogue avec rotation optionnelle (optionnel, par défaut à la position spécifiée)
+ * @param title - Le titre de la bulle de dialogue (optionnel)
+ * @param message - Le message de la bulle de dialogue (optionnel)
  * @returns L'entité bulle de dialogue créée
  */
 export function createSpeechBubble(
@@ -263,9 +271,11 @@ export function createSpeechBubble(
     y: 146.5,
     z: 17.83,
     rotation: { x: 0, y: 0.6, z: 0, w: 1 },
-  }
+  },
+  title?: string,
+  message?: string
 ): SpeechBubbleEntity {
-  const speechBubble = new SpeechBubbleEntity();
+  const speechBubble = new SpeechBubbleEntity(title, message);
 
   // Convertit la rotation en Quaternion si fournie
   const rotation = position.rotation
