@@ -79,7 +79,7 @@
     {
       "id": "3-platform",
       "name": "Plateforme 3",
-      "position": { "x": 2, "y": 50, "z": 49.71 },
+      "position": { "x": 20.73, "y": 50, "z": 42.68 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "blockTextureUri": "models/blocks/glass-aqua.png",
       "modelScale": 1,

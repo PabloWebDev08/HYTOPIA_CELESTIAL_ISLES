@@ -14,7 +14,7 @@
     {
       "id": "coin-2",
       "name": "Coin 2",
-      "position": { "x": 1.91, "y": 51, "z": 49.45 },
+      "position": { "x": 20.74, "y": 51, "z": 42.54 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
       "modelScale": 2
     },

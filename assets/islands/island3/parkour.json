@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "name": "Parkour Course - Island 3",
+    "description": "Parcours de saut pour l'île céleste 3",
+    "startPosition": { "x": 4.2, "y": 13, "z": -19.1 }
+  },
+  "obstacles": [
+    {
+      "id": "start-platform",
+      "name": "Plateforme de départ",
+      "position": { "x": 0.87, "y": 30, "z": 17.61 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    }
+  ]
+}

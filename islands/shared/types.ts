@@ -63,6 +63,7 @@ export interface Island {
 export interface IslandEntities {
   parkourEntities?: Entity[];
   coinEntities?: Entity[];
+  spinningSawEntities?: Entity[];
   npcs?: Entity[];
   boats?: Entity[];
   arrows?: Entity[];

@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "name": "Spinning Saws - Island 3",
+    "description": "Scies rotatives qui téléportent au départ"
+  },
+  "spinningSaws": [
+    {
+      "id": "saw-1",
+      "name": "Spinning Saw 1",
+      "position": { "x": -0.56, "y": 31, "z": 15.93 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    }
+  ]
+}

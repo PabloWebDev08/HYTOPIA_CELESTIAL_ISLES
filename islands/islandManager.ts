@@ -3,6 +3,7 @@ import { World } from "hytopia";
 import type { Island } from "./shared/types";
 import { Island1 } from "./island1/island";
 import { Island2 } from "./island2/island";
+import { Island3 } from "./island3/island";
 
 /**
  * Gestionnaire central pour toutes les îles du jeu
@@ -30,6 +31,8 @@ export class IslandManager {
     this.islands.set("island1", new Island1());
     // Enregistre l'île 2 (vide pour l'instant)
     this.islands.set("island2", new Island2());
+    // Enregistre l'île 3
+    this.islands.set("island3", new Island3());
     // Ajoutez d'autres îles ici au fur et à mesure de leur création
   }
 

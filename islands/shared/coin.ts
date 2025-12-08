@@ -16,6 +16,7 @@ import coinDataDefault from "../../assets/islands/island1/coin.json";
 // Import des fonctions de mise à jour du leaderboard pour chaque île
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "../island1/welcomeNPCS";
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "../island2/welcomeNPCS";
+import { updateAllSkeletonSoldiersLeaderboard as updateIsland3Leaderboard } from "../island3/welcomeNPCS";
 
 /**
  * Mapping entre les IDs d'îles et leurs fonctions de mise à jour du leaderboard
@@ -27,6 +28,7 @@ const islandLeaderboardUpdaters: Record<
 > = {
   island1: updateIsland1Leaderboard,
   island2: updateIsland2Leaderboard,
+  island3: updateIsland3Leaderboard,
   // Ajoutez d'autres îles ici au fur et à mesure
 };
 
