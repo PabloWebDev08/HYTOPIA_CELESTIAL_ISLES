@@ -114,14 +114,14 @@ startServer((defaultWorld) => {
    * debugging physics.
    */
 
-  // Pour activer le debug rendering sur un monde d'île spécifique:
-  // const island1World = islandWorldManager.getWorldForIsland("island1");
-  // island1World?.simulation.enableDebugRendering(true);
-
   // Crée le gestionnaire de mondes d'îles et initialise tous les mondes
   // Tous les mondes d'îles sont créés ici, y compris island1
   const islandWorldManager = new IslandWorldManager(islandMapMapping);
   islandWorldManager.initializeWorlds();
+
+  // Pour activer le debug rendering sur un monde d'île spécifique:
+  // const island3World = islandWorldManager.getWorldForIsland("island3");
+  // island3World?.simulation.enableDebugRendering(true);
 
   // Configure le handler pour rediriger automatiquement les nouveaux joueurs vers island1
   // Les joueurs ne rejoindront plus le defaultWorld mais directement le monde de island1

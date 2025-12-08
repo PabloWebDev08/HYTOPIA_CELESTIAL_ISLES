@@ -133,11 +133,25 @@ export function createSpinningSawEntities(
     (entity as any)._startPosition = defaultStartPosition;
     (entity as any)._spinningSawWorld = world;
 
+    // Calcule les halfExtents en fonction du modelScale
+    // Les valeurs de base sont pour modelScale: 1
+    const baseHalfExtents = {
+      x: 0.2,
+      y: 1,
+      z: 1,
+    };
+    const modelScale = spinningSaw.modelScale || 1;
+    const scaledHalfExtents = {
+      x: baseHalfExtents.x * modelScale,
+      y: baseHalfExtents.y * modelScale,
+      z: baseHalfExtents.z * modelScale,
+    };
+
     // Ajoute un collider sensor pour détecter les collisions avec les joueurs
     // Le sensor permet de détecter les collisions sans bloquer le mouvement du joueur
     entity.createAndAddChildCollider({
-      shape: ColliderShape.BALL,
-      radius: 1.0, // Rayon pour détecter les collisions avec les joueurs
+      shape: ColliderShape.BLOCK,
+      halfExtents: scaledHalfExtents,
       isSensor: true, // Sensor = détecte les collisions sans bloquer
       collisionGroups: {
         belongsTo: [CollisionGroup.ENTITY_SENSOR],

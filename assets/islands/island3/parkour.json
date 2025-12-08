@@ -21,6 +21,312 @@
         "requiredJumpForce": 0,
         "size": { "width": 6, "height": 1, "depth": 6 }
       }
+    },
+    {
+      "id": "1-platform",
+      "name": "Plateforme 1",
+      "position": { "x": 18.1, "y": 40, "z": 28.74 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "2-platform",
+      "name": "Plateforme 2",
+      "position": { "x": 34.89, "y": 50, "z": 40.61 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 1, "depth": 3 }
+      }
+    },
+    {
+      "id": "3-platform",
+      "name": "Plateforme 3",
+      "position": { "x": 37.31, "y": 50, "z": 22.49 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "4-platform",
+      "name": "Plateforme 4",
+      "position": { "x": 37.31, "y": 50, "z": 3.52 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 3, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "5-platform",
+      "name": "Plateforme 5",
+      "position": { "x": 37.31, "y": 50, "z": -15.59 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "6-platform",
+      "name": "Plateforme 6",
+      "position": { "x": 37.72, "y": 60, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "7-platform",
+      "name": "Plateforme 7",
+      "position": { "x": 17, "y": 60, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "8-platform",
+      "name": "Plateforme 8",
+      "position": { "x": -3, "y": 60, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "9-platform",
+      "name": "Plateforme 9",
+      "position": { "x": -23, "y": 60, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "10-platform",
+      "name": "Plateforme 10",
+      "position": { "x": -34.11, "y": 70, "z": -25.66 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "11-platform",
+      "name": "Plateforme 11",
+      "position": { "x": -21.84, "y": 80, "z": -11.51 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "12-platform",
+      "name": "Plateforme 12",
+      "position": { "x": -34.69, "y": 90, "z": 2.28 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "13-platform",
+      "name": "Plateforme 13",
+      "position": { "x": -24.53, "y": 100, "z": 13.7 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "14-platform",
+      "name": "Plateforme 14",
+      "position": { "x": -25.12, "y": 100, "z": 33.5 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "15-platform",
+      "name": "Plateforme 15",
+      "position": { "x": -5.75, "y": 110, "z": 34.37 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "16-platform",
+      "name": "Plateforme 16",
+      "position": { "x": 10.06, "y": 110, "z": 34.3 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "17-platform",
+      "name": "Plateforme 17",
+      "position": { "x": 26.92, "y": 110, "z": 34.41 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 2 }
+      }
+    },
+    {
+      "id": "18-platform",
+      "name": "Plateforme 18",
+      "position": { "x": 47.1, "y": 110, "z": 34.47 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-magenta.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 6, "height": 1, "depth": 6 }
+      }
     }
   ]
 }

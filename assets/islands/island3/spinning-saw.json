@@ -7,8 +7,99 @@
     {
       "id": "saw-1",
       "name": "Spinning Saw 1",
-      "position": { "x": -0.56, "y": 31, "z": 15.93 },
+      "position": { "x": 18.12, "y": 40.5, "z": 28.54 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-2",
+      "name": "Spinning Saw 2",
+      "position": { "x": 36.53, "y": 50.5, "z": 22.57 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-3",
+      "name": "Spinning Saw 3",
+      "position": { "x": 38.15, "y": 50.5, "z": 3.6 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-4",
+      "name": "Spinning Saw 4",
+      "position": { "x": 36.65, "y": 50.5, "z": -15.59 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-5",
+      "name": "Spinning Saw 5",
+      "position": { "x": 27.41, "y": 60.5, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
+    },
+    {
+      "id": "saw-6",
+      "name": "Spinning Saw 6",
+      "position": { "x": 7, "y": 60.5, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
+    },
+    {
+      "id": "saw-7",
+      "name": "Spinning Saw 7",
+      "position": { "x": -13, "y": 60.5, "z": -36.38 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
+    },
+    {
+      "id": "saw-8",
+      "name": "Spinning Saw 8",
+      "position": { "x": -24.49, "y": 100.5, "z": 13.27 },
+      "rotation": { "x": 0, "y": 1, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-9",
+      "name": "Spinning Saw 9",
+      "position": { "x": -7.38, "y": 110.5, "z": 34.32 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-10",
+      "name": "Spinning Saw 10",
+      "position": { "x": -4.32, "y": 110.5, "z": 34.32 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-11",
+      "name": "Spinning Saw 11",
+      "position": { "x": 8.4, "y": 110.5, "z": 34.3 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-12",
+      "name": "Spinning Saw 12",
+      "position": { "x": 10.04, "y": 110.5, "z": 33.63 },
+      "rotation": { "x": 0, "y": 1, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-13",
+      "name": "Spinning Saw 13",
+      "position": { "x": 26.87, "y": 110.5, "z": 35.18 },
+      "rotation": { "x": 0, "y": 1, "z": 0, "w": 1 },
+      "modelScale": 1
+    },
+    {
+      "id": "saw-14",
+      "name": "Spinning Saw 14",
+      "position": { "x": 26.93, "y": 110.5, "z": 33.79 },
+      "rotation": { "x": 0, "y": 1, "z": 0, "w": 1 },
       "modelScale": 1
     }
   ]
