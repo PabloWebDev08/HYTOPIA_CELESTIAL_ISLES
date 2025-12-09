@@ -548,15 +548,26 @@ and also configure additional buttons for mobile compatibility.
       ×
     </button>
   </div>
+  <h3 class="particle-section-title">FIRE</h3>
   <div class="particle-grid">
     <div class="particle-card" data-particle="particle1">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FIRE</div>
     </div>
+    <div class="particle-card" data-particle="particle4">
+      <div class="particle-card-background"></div>
+      <div class="particle-card-name">FIRE-01</div>
+    </div>
+  </div>
+  <h3 class="particle-section-title">MAGIC</h3>
+  <div class="particle-grid">
     <div class="particle-card" data-particle="particle2">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC</div>
     </div>
+  </div>
+  <h3 class="particle-section-title">SMOKE</h3>
+  <div class="particle-grid">
     <div class="particle-card" data-particle="particle3">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE</div>
@@ -1546,7 +1557,7 @@ and also configure additional buttons for mobile compatibility.
   }
 
   .map-card[data-island="island3"] .map-card-background {
-    background-image: url("{{CDN_ASSETS_URL}}/models/dollar-coin.svg");
+    background-image: url("{{CDN_ASSETS_URL}}/models/imgs-islands/island-3.png");
   }
 
   .map-card-name {
@@ -1642,9 +1653,9 @@ and also configure additional buttons for mobile compatibility.
   .particle-floating-group {
     display: none;
     position: fixed;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background: rgba(255, 200, 0, 0.95);
     border: 2px solid #000;
     border-radius: 8px;
@@ -1653,6 +1664,28 @@ and also configure additional buttons for mobile compatibility.
     z-index: 2000;
     width: 95%;
     max-width: 400px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Permet le scroll vertical sur mobile sans interférer avec le joystick */
+  body.mobile .particle-floating-group {
+    touch-action: pan-y !important;
+    bottom: 20px; /* Même marge qu'en haut pour éviter qu'il touche le bas de l'écran */
+    max-height: calc(100vh - 40px); /* 20px en haut + 20px en bas */
+  }
+
+  /* Assure que tous les éléments enfants permettent aussi le scroll */
+  body.mobile .particle-floating-group * {
+    touch-action: pan-y !important;
+  }
+
+  /* Exception pour les boutons interactifs qui doivent utiliser manipulation */
+  body.mobile .particle-close-button,
+  body.mobile .particle-card {
+    touch-action: manipulation !important;
+    pointer-events: auto !important;
   }
 
   .particle-floating-group.active {
@@ -1666,6 +1699,10 @@ and also configure additional buttons for mobile compatibility.
     margin-bottom: 12px;
     padding-bottom: 8px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    background: rgba(255, 200, 0, 0.95);
+    z-index: 10;
   }
 
   .particle-floating-title {
@@ -1673,6 +1710,15 @@ and also configure additional buttons for mobile compatibility.
     font-weight: bold;
     color: #fff;
     margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-family: "Arial", sans-serif;
+  }
+
+  .particle-section-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    margin: 10px 0 6px 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     font-family: "Arial", sans-serif;
   }
@@ -1693,6 +1739,7 @@ and also configure additional buttons for mobile compatibility.
     transition: all 0.2s ease;
     font-family: "Arial", sans-serif;
     font-weight: bold;
+    flex-shrink: 0;
   }
 
   .particle-close-button:hover {
@@ -1715,6 +1762,17 @@ and also configure additional buttons for mobile compatibility.
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba(255, 200, 0, 0.95);
+  }
+
+  /* Styles spécifiques pour mobile - cartes plus petites avec taille max fixe */
+  body.mobile .particle-grid {
+    grid-template-columns: repeat(auto-fit, minmax(70px, 100px));
+    gap: 6px;
+  }
+
+  body.mobile .particle-card {
+    max-width: 100px;
+    max-height: 56.25px; /* 16/9 ratio pour 100px de largeur */
   }
 
   .particle-card:hover {
@@ -1747,6 +1805,10 @@ and also configure additional buttons for mobile compatibility.
     background-image: url("{{CDN_ASSETS_URL}}/models/imgs-particles/particle-smoke.png");
   }
 
+  .particle-card[data-particle="particle4"] .particle-card-background {
+    background-image: url("{{CDN_ASSETS_URL}}/models/imgs-particles/particle-fire.png");
+  }
+
   .particle-card-name {
     position: relative;
     z-index: 1;
@@ -1755,25 +1817,78 @@ and also configure additional buttons for mobile compatibility.
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     font-family: "Arial", sans-serif;
   }
 
-  /* Styles pour tablette et desktop */
-  @media screen and (min-width: 481px) {
+  /* Mobile paysage (orientation landscape) - téléphone à 180° */
+  @media screen and (orientation: landscape) and (max-height: 500px) {
+    .particle-floating-group {
+      width: 90%;
+      max-width: 700px;
+      max-height: calc(100vh - 20px);
+      padding: 10px;
+      top: 10px;
+      transform: translateX(-50%);
+    }
+
+    .particle-floating-title {
+      font-size: 18px;
+    }
+
+    .particle-section-title {
+      font-size: 16px;
+      margin: 8px 0 6px 0;
+    }
+
+    .particle-close-button {
+      width: 28px;
+      height: 28px;
+      font-size: 20px;
+    }
+
+    .particle-floating-header {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+    }
+
+    .particle-grid {
+      grid-template-columns: repeat(auto-fit, minmax(90px, 120px));
+      gap: 10px;
+    }
+
+    .particle-card {
+      max-width: 120px;
+      max-height: 67.5px; /* 16/9 ratio pour 120px de largeur */
+    }
+
+    .particle-card-name {
+      font-size: 13px;
+    }
+  }
+
+  /* Tablette portrait et écrans moyens */
+  @media screen and (min-width: 481px) and (orientation: portrait) {
     .particle-floating-group {
       width: 85%;
       max-width: 500px;
       padding: 16px;
       border-width: 2px;
       border-radius: 10px;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .particle-floating-title {
       font-size: 18px;
+    }
+
+    .particle-section-title {
+      font-size: 16px;
+      margin: 12px 0 8px 0;
     }
 
     .particle-close-button {
@@ -1788,13 +1903,15 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .particle-grid {
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
       gap: 10px;
     }
 
     .particle-card {
       border-width: 2px;
       border-radius: 8px;
+      max-width: 110px;
+      max-height: 61.875px; /* 16/9 ratio pour 110px de largeur */
     }
 
     .particle-card-name {
@@ -1802,6 +1919,7 @@ and also configure additional buttons for mobile compatibility.
     }
   }
 
+  /* Tablette paysage et desktop */
   @media screen and (min-width: 769px) {
     .particle-floating-group {
       width: 80%;
@@ -1809,10 +1927,17 @@ and also configure additional buttons for mobile compatibility.
       padding: 20px;
       border-width: 3px;
       border-radius: 12px;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .particle-floating-title {
       font-size: 22px;
+    }
+
+    .particle-section-title {
+      font-size: 18px;
+      margin: 12px 0 8px 0;
     }
 
     .particle-close-button {
@@ -1827,8 +1952,13 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .particle-grid {
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 150px));
       gap: 14px;
+    }
+
+    .particle-card {
+      max-width: 150px;
+      max-height: 84.375px; /* 16/9 ratio pour 150px de largeur */
     }
 
     .particle-card-name {
