@@ -217,7 +217,7 @@ class SpeechBubbleEntity extends Entity {
 
   constructor(
     title: string = "Attention !",
-    message: string = "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 3."
+    message: string = "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 4."
   ) {
     super({
       modelUri: "models/environment/Gameplay/speech-bubble.gltf",

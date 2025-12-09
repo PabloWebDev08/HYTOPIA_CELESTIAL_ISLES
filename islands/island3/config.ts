@@ -30,14 +30,14 @@ export const island3Config = {
   // Positions des bulles de dialogue
   speechBubbles: {
     mainBubble: {
-      x: 0,
-      y: 0,
-      z: 0,
-      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      x: 1.59,
+      y: 151.29,
+      z: 3.48,
+      rotation: { x: 0, y: 1, z: 0, w: 1 },
     } as PositionWithRotation,
   },
   // Positions des flèches
   arrows: {
-    startArrow: { x: 0, y: 0, z: 0 } as Position,
+    startArrow: { x: 0.53, y: 14.79, z: 3.95 } as Position,
   },
 };

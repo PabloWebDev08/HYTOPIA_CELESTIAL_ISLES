@@ -3,5 +3,104 @@
     "name": "Coins - Island 3",
     "description": "Coins à collecter dans l'île céleste 3"
   },
-  "coins": []
+  "coins": [
+    {
+      "id": "coin-1",
+      "name": "Coin 1",
+      "position": { "x": 0.74, "y": 31, "z": 17.4 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-2",
+      "name": "Coin 2",
+      "position": { "x": 34.61, "y": 51.29, "z": 40.5 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-3",
+      "name": "Coin 3",
+      "position": { "x": 32.98, "y": 51.29, "z": -22.06 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-4",
+      "name": "Coin 4",
+      "position": { "x": 37.98, "y": 61.29, "z": -36.33 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-5",
+      "name": "Coin 5",
+      "position": { "x": 17.33, "y": 61.29, "z": -36.34 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-6",
+      "name": "Coin 6",
+      "position": { "x": -2.96, "y": 61.29, "z": -36.34 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-7",
+      "name": "Coin 7",
+      "position": { "x": -22.92, "y": 61.29, "z": -36.34 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-8",
+      "name": "Coin 8",
+      "position": { "x": -24.52, "y": 101.29, "z": 14.03 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-9",
+      "name": "Coin 9",
+      "position": { "x": -25.16, "y": 101.29, "z": 33.42 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-10",
+      "name": "Coin 10",
+      "position": { "x": 46.9, "y": 111.29, "z": 34.02 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-11",
+      "name": "Coin 11",
+      "position": { "x": 47.11, "y": 111.29, "z": -50.26 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-12",
+      "name": "Coin 12",
+      "position": { "x": -36.11, "y": 121.29, "z": -50.46 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-13",
+      "name": "Coin 13",
+      "position": { "x": -16.71, "y": 141.29, "z": 13.66 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 2
+    },
+    {
+      "id": "coin-14",
+      "name": "Coin 14",
+      "position": { "x": -2.17, "y": 151.29, "z": 0.37 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "modelScale": 4
+    }
+  ]
 }
