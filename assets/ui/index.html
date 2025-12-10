@@ -24,36 +24,19 @@ and also configure additional buttons for mobile compatibility.
     // Écoute les mises à jour des particules possédées depuis le serveur
     if (data.type === "owned-particles-update") {
       const ownedParticles = data.ownedParticles || [];
-      // Cache le prix pour toutes les particules possédées et affiche le bouton Edit
+      // Cache le prix pour toutes les particules possédées
       const particleCards = document.querySelectorAll(".particle-card");
       particleCards.forEach((card) => {
         const particleId = card.getAttribute("data-particle");
         const priceElement = card.querySelector(".particle-card-price");
-        let editButton = card.querySelector(".particle-card-edit-button");
 
         if (particleId && priceElement) {
           if (ownedParticles.includes(particleId)) {
             // Cache le prix si la particule est possédée
             priceElement.style.display = "none";
-
-            // Crée le bouton Edit s'il n'existe pas
-            if (!editButton) {
-              editButton = document.createElement("button");
-              editButton.className = "particle-card-edit-button";
-              editButton.textContent = "Edit";
-              editButton.setAttribute("data-particle", particleId);
-              // Insère le bouton à la même position que le prix
-              priceElement.parentNode.insertBefore(editButton, priceElement);
-            }
-            // Affiche le bouton Edit
-            editButton.style.display = "flex";
           } else {
             // Affiche le prix si la particule n'est pas possédée
             priceElement.style.display = "flex";
-            // Cache le bouton Edit s'il existe
-            if (editButton) {
-              editButton.style.display = "none";
-            }
           }
         }
       });
@@ -2699,40 +2682,6 @@ and also configure additional buttons for mobile compatibility.
   /* Cache le prix pour les particules possédées */
   .particle-card.owned .particle-card-price {
     display: none;
-  }
-
-  /* Styles pour le bouton Edit - même style que le prix */
-  .particle-card-edit-button {
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    z-index: 2;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    background: rgba(255, 200, 0, 0.95);
-    border: 1px solid #000;
-    border-radius: 4px;
-    height: 18px;
-    padding: 2px 4px;
-    box-sizing: border-box;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-    font-family: "Arial", sans-serif;
-    font-size: 8px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    cursor: pointer;
-    outline: none;
-  }
-
-  .particle-card-edit-button:hover {
-    background: rgba(255, 220, 0, 0.95);
-  }
-
-  .particle-card-edit-button:active {
-    background: rgba(255, 180, 0, 0.95);
   }
 
   /* Mobile paysage (orientation landscape) - téléphone à 180° */

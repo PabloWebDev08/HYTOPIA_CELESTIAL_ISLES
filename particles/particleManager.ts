@@ -142,6 +142,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle4: {
     textureUri: "particles/fire_01.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -159,6 +161,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle5: {
     textureUri: "particles/magic_01.png",
     colorStart: { r: 200, g: 100, b: 255 },
+    colorEnd: { r: 100, g: 50, b: 200 },
+    colorEndVariance: { r: 15, g: 10, b: 20 },
     sizeStart: 0.1,
     sizeStartVariance: 0.02,
     sizeEnd: 0.5,
@@ -176,6 +180,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle6: {
     textureUri: "particles/magic_02.png",
     colorStart: { r: 200, g: 100, b: 255 },
+    colorEnd: { r: 100, g: 50, b: 200 },
+    colorEndVariance: { r: 15, g: 10, b: 20 },
     sizeStart: 0.1,
     sizeStartVariance: 0.02,
     sizeEnd: 0.5,
@@ -193,6 +199,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle7: {
     textureUri: "particles/magic_03.png",
     colorStart: { r: 200, g: 100, b: 255 },
+    colorEnd: { r: 100, g: 50, b: 200 },
+    colorEndVariance: { r: 15, g: 10, b: 20 },
     sizeStart: 0.1,
     sizeStartVariance: 0.02,
     sizeEnd: 0.5,
@@ -210,6 +218,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle8: {
     textureUri: "particles/magic_04.png",
     colorStart: { r: 200, g: 100, b: 255 },
+    colorEnd: { r: 100, g: 50, b: 200 },
+    colorEndVariance: { r: 15, g: 10, b: 20 },
     sizeStart: 0.1,
     sizeStartVariance: 0.02,
     sizeEnd: 0.5,
@@ -227,6 +237,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle9: {
     textureUri: "particles/magic_05.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -244,6 +256,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle10: {
     textureUri: "particles/smoke_01.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -261,6 +275,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle11: {
     textureUri: "particles/smoke_02.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -278,6 +294,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle12: {
     textureUri: "particles/smoke_03.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -295,6 +313,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle13: {
     textureUri: "particles/smoke_04.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -312,6 +332,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle14: {
     textureUri: "particles/smoke_05.png",
     colorStart: { r: 150, g: 150, b: 150 },
+    colorEnd: { r: 80, g: 80, b: 80 },
+    colorEndVariance: { r: 10, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -329,6 +351,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle15: {
     textureUri: "particles/circle_01.png",
     colorStart: { r: 255, g: 150, b: 150 },
+    colorEnd: { r: 200, g: 100, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -346,6 +370,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle16: {
     textureUri: "particles/circle_02.png",
     colorStart: { r: 255, g: 150, b: 150 },
+    colorEnd: { r: 200, g: 100, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -363,6 +389,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle17: {
     textureUri: "particles/circle_03.png",
     colorStart: { r: 255, g: 150, b: 150 },
+    colorEnd: { r: 200, g: 100, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -380,6 +408,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle18: {
     textureUri: "particles/circle_04.png",
     colorStart: { r: 255, g: 150, b: 150 },
+    colorEnd: { r: 200, g: 100, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -397,6 +427,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle19: {
     textureUri: "particles/circle_05.png",
     colorStart: { r: 255, g: 150, b: 150 },
+    colorEnd: { r: 200, g: 100, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -413,7 +445,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle20: {
     textureUri: "particles/dirt_01.png",
-    colorStart: { r: 255, g: 150, b: 150 },
+    colorStart: { r: 139, g: 90, b: 43 },
+    colorEnd: { r: 80, g: 50, b: 20 },
+    colorEndVariance: { r: 10, g: 8, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -430,7 +464,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle21: {
     textureUri: "particles/dirt_02.png",
-    colorStart: { r: 255, g: 150, b: 150 },
+    colorStart: { r: 139, g: 90, b: 43 },
+    colorEnd: { r: 80, g: 50, b: 20 },
+    colorEndVariance: { r: 10, g: 8, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -447,7 +483,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle22: {
     textureUri: "particles/dirt_03.png",
-    colorStart: { r: 255, g: 150, b: 150 },
+    colorStart: { r: 139, g: 90, b: 43 },
+    colorEnd: { r: 80, g: 50, b: 20 },
+    colorEndVariance: { r: 10, g: 8, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -465,6 +503,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle23: {
     textureUri: "particles/flame_01.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -482,6 +522,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle24: {
     textureUri: "particles/flame_02.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -499,6 +541,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle25: {
     textureUri: "particles/flame_03.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -516,6 +560,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle26: {
     textureUri: "particles/flame_04.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -533,6 +579,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle27: {
     textureUri: "particles/flame_05.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -550,6 +598,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle28: {
     textureUri: "particles/flame_06.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 255, g: 50, b: 0 },
+    colorEndVariance: { r: 20, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -566,7 +616,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle29: {
     textureUri: "particles/light_01.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 200, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -583,7 +635,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle30: {
     textureUri: "particles/light_02.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 200, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -600,7 +654,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle31: {
     textureUri: "particles/light_03.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 200, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -618,7 +674,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   //Light 4
   particle32: {
     textureUri: "particles/flare_01.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 200, b: 100 },
+    colorEndVariance: { r: 15, g: 10, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -635,7 +693,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle33: {
     textureUri: "particles/muzzle_01.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 200, b: 150 },
+    colorEnd: { r: 255, g: 100, b: 50 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -652,7 +712,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle34: {
     textureUri: "particles/muzzle_02.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 200, b: 150 },
+    colorEnd: { r: 255, g: 100, b: 50 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -669,7 +731,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle35: {
     textureUri: "particles/muzzle_03.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 200, b: 150 },
+    colorEnd: { r: 255, g: 100, b: 50 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -686,7 +750,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle36: {
     textureUri: "particles/muzzle_04.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 200, b: 150 },
+    colorEnd: { r: 255, g: 100, b: 50 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -703,7 +769,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle37: {
     textureUri: "particles/muzzle_05.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 200, b: 150 },
+    colorEnd: { r: 255, g: 100, b: 50 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -721,6 +789,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle38: {
     textureUri: "particles/scorch_01.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 200, g: 50, b: 0 },
+    colorEndVariance: { r: 15, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -738,6 +808,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle39: {
     textureUri: "particles/scorch_02.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 200, g: 50, b: 0 },
+    colorEndVariance: { r: 15, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -755,6 +827,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle40: {
     textureUri: "particles/scorch_03.png",
     colorStart: { r: 255, g: 150, b: 0 },
+    colorEnd: { r: 200, g: 50, b: 0 },
+    colorEndVariance: { r: 15, g: 10, b: 5 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -771,7 +845,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle41: {
     textureUri: "particles/spark_01.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 150, b: 0 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -788,7 +864,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle42: {
     textureUri: "particles/spark_02.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 150, b: 0 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -805,7 +883,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle43: {
     textureUri: "particles/spark_03.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 150, b: 0 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -822,7 +902,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle44: {
     textureUri: "particles/spark_04.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 150, b: 0 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -839,7 +921,9 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   },
   particle45: {
     textureUri: "particles/spark_05.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 255, b: 200 },
+    colorEnd: { r: 255, g: 150, b: 0 },
+    colorEndVariance: { r: 20, g: 15, b: 10 },
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
