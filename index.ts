@@ -42,7 +42,10 @@ import island3Map from "./assets/map_island_3.json";
 import { IslandManager } from "./islands/islandManager";
 import { IslandWorldManager } from "./islands/worldManager";
 import { initializePlayerInWorld as initializePlayerInWorldHelper } from "./islands/shared/playerInitialization";
-import { setupPlayerUIHandlers } from "./islands/shared/playerUIHandlers";
+import {
+  setupPlayerUIHandlers,
+  cleanupJumpAudio,
+} from "./islands/shared/playerUIHandlers";
 import { registerAllCommands } from "./islands/shared/commands";
 
 /**
@@ -182,6 +185,9 @@ startServer((defaultWorld) => {
         particleEmitter.despawn();
         playerParticleEmitters.delete(player.id);
       }
+
+      // Nettoie le cache audio de saut du joueur
+      cleanupJumpAudio(player.id);
     });
   });
 

@@ -258,8 +258,14 @@ function handleJumpEvents(
     const playerId = playerEntity.player.id;
     let jumpAudio = jumpAudioCache.get(playerId);
 
-    if (!jumpAudio) {
-      // Crée une nouvelle instance Audio seulement si elle n'existe pas encore
+    // Vérifie si l'instance Audio existe et si l'entité attachée est toujours valide
+    // Après un changement de map, l'entité peut être désactivée, il faut donc recréer l'audio
+    if (
+      !jumpAudio ||
+      !jumpAudio.attachedToEntity ||
+      !jumpAudio.attachedToEntity.isSpawned
+    ) {
+      // Crée une nouvelle instance Audio si elle n'existe pas ou si l'entité attachée n'est plus valide
       jumpAudio = new Audio({
         uri: "audio/sfx/cartoon-jump.mp3",
         loop: false,
@@ -269,7 +275,7 @@ function handleJumpEvents(
       jumpAudioCache.set(playerId, jumpAudio);
     }
 
-    // Joue le son (réutilise l'instance existante)
+    // Joue le son (réutilise l'instance existante si elle est valide)
     jumpAudio.play(world);
 
     // Réinitialise la barre de charge
