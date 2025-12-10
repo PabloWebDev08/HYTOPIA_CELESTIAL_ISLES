@@ -66,6 +66,32 @@ function isPlayerOnGround(playerEntity: DefaultPlayerEntity): boolean {
 }
 
 /**
+ * Vérifie si le joueur peut sauter (au sol ou dans l'eau)
+ * Permet le saut même dans l'eau après la mise à jour du SDK
+ * @param playerEntity - L'entité du joueur
+ * @returns true si le joueur peut sauter, false sinon
+ */
+function canPlayerJump(playerEntity: DefaultPlayerEntity): boolean {
+  const controller = playerEntity.controller;
+
+  // Vérifie si le joueur est au sol
+  const isGrounded = isPlayerOnGround(playerEntity);
+
+  // Vérifie si le joueur est dans l'eau (isSwimming est une propriété de DefaultPlayerEntityController)
+  let isSwimming = false;
+  if (
+    controller &&
+    "isSwimming" in controller &&
+    typeof controller.isSwimming === "boolean"
+  ) {
+    isSwimming = controller.isSwimming;
+  }
+
+  // Le joueur peut sauter s'il est au sol OU dans l'eau
+  return isGrounded || isSwimming;
+}
+
+/**
  * Gère la sélection d'île par le joueur
  * @param player - Le joueur
  * @param world - Le monde actuel
@@ -222,9 +248,9 @@ function handleJumpEvents(
   }
 
   if (data.type === "jump-held") {
-    // Vérifie si le joueur est au sol avant de permettre le saut
-    // Utilise la méthode optimisée qui utilise les capteurs de collision du contrôleur
-    if (!isPlayerOnGround(playerEntity)) {
+    // Vérifie si le joueur peut sauter (au sol ou dans l'eau)
+    // Permet le saut dans l'eau après la mise à jour du SDK
+    if (!canPlayerJump(playerEntity)) {
       jumpChargeSceneUI.setState({ progress: 0, visible: false });
       return;
     }
