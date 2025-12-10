@@ -93,11 +93,14 @@ and also configure additional buttons for mobile compatibility.
       }
 
       chargeBarContainer.style.display = "flex";
-      const progress = Math.min(Math.max(state.progress || 0, 0), 100);
-      chargeBarFill.style.width = progress + "%";
+      // Le serveur envoie maintenant progress entre 0 et 1 (normalisé)
+      // On convertit en pourcentage pour l'affichage CSS
+      const progressNormalized = Math.min(Math.max(state.progress || 0, 0), 1);
+      const progressPercent = progressNormalized * 100;
+      chargeBarFill.style.width = progressPercent + "%";
 
-      // Animation de pulsation quand presque pleine
-      if (progress >= 80) {
+      // Animation de pulsation quand presque pleine (80% = 0.8)
+      if (progressNormalized >= 0.8) {
         chargeBarFill.style.animation =
           "chargePulse3D 0.5s ease-in-out infinite";
       } else {
@@ -273,7 +276,9 @@ and also configure additional buttons for mobile compatibility.
     chargeUpdateInterval = setInterval(() => {
       if (jumpStartTime !== null) {
         const elapsed = Date.now() - jumpStartTime;
-        const progress = Math.min((elapsed / maxHoldDuration) * 100, 100);
+        // Normalise la progression entre 0 et 1 (au lieu de 0-100)
+        // Cela correspond à ce que le serveur attend maintenant
+        const progress = Math.min(elapsed / maxHoldDuration, 1);
 
         // Envoie la progression au serveur pour mettre à jour la Scene UI
         hytopia.sendData({

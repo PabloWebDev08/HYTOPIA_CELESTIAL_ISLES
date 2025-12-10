@@ -1,5 +1,5 @@
 // Gestionnaire de mondes pour les îles
-import { World, WorldManager, Player } from "hytopia";
+import { World, WorldManager, Player, type WorldMap } from "hytopia";
 import { IslandManager } from "./islandManager";
 
 /**
@@ -7,7 +7,7 @@ import { IslandManager } from "./islandManager";
  * Doit correspondre au mapping dans index.ts
  */
 export interface IslandMapMapping {
-  [islandId: string]: any; // Type de la map JSON
+  [islandId: string]: WorldMap;
 }
 
 /**

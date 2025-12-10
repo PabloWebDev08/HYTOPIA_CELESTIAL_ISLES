@@ -34,6 +34,7 @@ import {
   Player,
   WorldLoopEvent,
 } from "hytopia";
+import type { WorldMap } from "hytopia";
 
 import island1Map from "./assets/map_island_1.json";
 import island2Map from "./assets/map_island_2.json";
@@ -43,12 +44,23 @@ import { IslandWorldManager } from "./islands/worldManager";
 import { initializePlayerInWorld as initializePlayerInWorldHelper } from "./islands/shared/playerInitialization";
 import { setupPlayerUIHandlers } from "./islands/shared/playerUIHandlers";
 import { registerAllCommands } from "./islands/shared/commands";
-import type { PlayerCoinData } from "./islands/shared/types";
+
+/**
+ * Constantes de configuration du jeu
+ */
+const GAME_CONFIG = {
+  /** Seuil de chute en dessous duquel le joueur est repositionné */
+  FALL_THRESHOLD_Y: -50,
+  /** Intervalle de vérification de la position des joueurs (en millisecondes) */
+  PLAYER_POSITION_CHECK_INTERVAL_MS: 1000,
+  /** Volume par défaut de la musique d'ambiance */
+  DEFAULT_MUSIC_VOLUME: 0.1,
+} as const;
 
 /**
  * Mapping entre les IDs d'îles et leurs maps correspondantes
  */
-const islandMapMapping: Record<string, any> = {
+const islandMapMapping: Record<string, WorldMap> = {
   island1: island1Map,
   island2: island2Map,
   island3: island3Map,
@@ -66,12 +78,6 @@ const islandMapMapping: Record<string, any> = {
  */
 
 startServer((defaultWorld) => {
-  /**
-   * Note: Le paramètre defaultWorld n'est plus utilisé dans cette architecture.
-   * Tous les joueurs sont maintenant redirigés vers les mondes d'îles créés
-   * par IslandWorldManager via le worldSelectionHandler.
-   */
-
   /**
    * Enable debug rendering of the physics simulation.
    * This will overlay lines in-game representing colliders,
@@ -93,10 +99,10 @@ startServer((defaultWorld) => {
   // island3World?.simulation.enableDebugRendering(true);
 
   // Configure le handler pour rediriger automatiquement les nouveaux joueurs vers island1
-  // Les joueurs ne rejoindront plus le defaultWorld mais directement le monde de island1
+  // Utilise defaultWorld comme fallback si island1 n'est pas disponible
   PlayerManager.instance.worldSelectionHandler = async (player: Player) => {
     const island1World = islandWorldManager.getWorldForIsland("island1");
-    return island1World || undefined;
+    return island1World || defaultWorld;
   };
 
   // Map pour tracker les entités de joueurs par monde et par ID de joueur
@@ -146,13 +152,9 @@ startServer((defaultWorld) => {
    * Les joueurs rejoignent maintenant directement les mondes d'îles via worldSelectionHandler
    */
   islandWorldManager.getAllWorlds().forEach((islandWorld) => {
-    // Trouve l'ID de l'île correspondant à ce monde
-    let islandId = "";
-    islandWorldManager.getAvailableIslandIds().forEach((id) => {
-      if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
-        islandId = id;
-      }
-    });
+    // Récupère l'ID de l'île correspondant à ce monde
+    const islandId = islandWorldManager.getIslandIdForWorld(islandWorld);
+    if (!islandId) return;
 
     const islandManager =
       islandWorldManager.getIslandManagerForIsland(islandId);
@@ -196,13 +198,9 @@ startServer((defaultWorld) => {
     // Initialise l'accumulateur de temps pour ce monde
     worldTickAccumulators.set(islandWorld, 0);
 
-    // Trouve l'ID de l'île correspondant à ce monde
-    let islandId = "";
-    islandWorldManager.getAvailableIslandIds().forEach((id) => {
-      if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
-        islandId = id;
-      }
-    });
+    // Récupère l'ID de l'île correspondant à ce monde
+    const islandId = islandWorldManager.getIslandIdForWorld(islandWorld);
+    if (!islandId) return;
 
     const islandManager =
       islandWorldManager.getIslandManagerForIsland(islandId);
@@ -214,10 +212,13 @@ startServer((defaultWorld) => {
       const currentAccumulator = worldTickAccumulators.get(islandWorld) || 0;
       const newAccumulator = currentAccumulator + tickDeltaMs;
 
-      // Vérifie toutes les secondes (1000ms)
-      if (newAccumulator >= 1000) {
-        // Réinitialise l'accumulateur
-        worldTickAccumulators.set(islandWorld, newAccumulator - 1000);
+      // Vérifie périodiquement selon l'intervalle configuré
+      if (newAccumulator >= GAME_CONFIG.PLAYER_POSITION_CHECK_INTERVAL_MS) {
+        // Réinitialise l'accumulateur en conservant le reste
+        worldTickAccumulators.set(
+          islandWorld,
+          newAccumulator - GAME_CONFIG.PLAYER_POSITION_CHECK_INTERVAL_MS
+        );
 
         const currentIsland = islandManager.getCurrentIsland();
         if (!currentIsland) return;
@@ -229,9 +230,9 @@ startServer((defaultWorld) => {
         const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
         if (!worldPlayerMap) return;
 
-        worldPlayerMap.forEach((playerEntity, playerId) => {
-          // Vérifie si le joueur est en dessous de y = -50
-          if (playerEntity.position.y < -50) {
+        worldPlayerMap.forEach((playerEntity) => {
+          // Vérifie si le joueur est en dessous du seuil de chute
+          if (playerEntity.position.y < GAME_CONFIG.FALL_THRESHOLD_Y) {
             // Repositionne le joueur au point de départ de l'île
             playerEntity.setPosition(startPosition);
           }
@@ -244,23 +245,6 @@ startServer((defaultWorld) => {
   });
 
   /**
-   * Handle player leaving the game. The PlayerEvent.LEFT_WORLD
-   * event is emitted to the world when a player leaves the game.
-   * Because HYTOPIA is not opinionated on join and
-   * leave game logic, we are responsible for cleaning
-   * up the player and any entities associated with them
-   * after they leave. We can easily do this by
-   * getting all the known PlayerEntity instances for
-   * the player who left by using our world's EntityManager
-   * instance.
-   *
-   * The HYTOPIA SDK is heavily driven by events, you
-   * can find documentation on how the event system works,
-   * here: https://dev.hytopia.com/sdk-guides/events
-   */
-  // Note: Les handlers LEFT_WORLD sont déjà configurés ci-dessus pour chaque monde
-
-  /**
    * Enregistre toutes les commandes du jeu
    */
   registerAllCommands({
@@ -270,13 +254,30 @@ startServer((defaultWorld) => {
   /**
    * Play some peaceful ambient music to
    * set the mood!
-   * On joue la musique dans tous les mondes d'îles
+   * On joue une musique différente pour chaque île
+   * Vous pouvez modifier les chemins de fichiers audio pour chaque île
    */
+  const islandMusicMapping: Record<string, string> = {
+    island1: "audio/music/hytopia-main-theme.mp3",
+    island2: "audio/music/snow-theme-looping.mp3", // Changez ce chemin pour une musique différente
+    island3: "audio/music/night-theme-looping.mp3", // Changez ce chemin pour une musique différente
+    // Ajoutez d'autres îles ici au fur et à mesure
+  };
+
   islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+    // Récupère l'ID de l'île correspondant à ce monde
+    const islandId = islandWorldManager.getIslandIdForWorld(islandWorld);
+    if (!islandId) return;
+
+    // Récupère la musique associée à cette île, ou utilise une musique par défaut
+    const musicUri =
+      islandMusicMapping[islandId] || "audio/music/jungle-theme-looping.mp3";
+
+    // Joue la musique spécifique à cette île
     new Audio({
-      uri: "audio/music/jungle-theme-looping.mp3",
+      uri: musicUri,
       loop: true,
-      volume: 0.1,
+      volume: GAME_CONFIG.DEFAULT_MUSIC_VOLUME,
     }).play(islandWorld);
   });
 });

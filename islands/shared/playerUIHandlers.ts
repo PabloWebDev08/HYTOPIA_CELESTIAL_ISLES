@@ -7,6 +7,7 @@ import {
   SceneUI,
   Audio,
   ParticleEmitter,
+  type WorldMap,
 } from "hytopia";
 import { IslandWorldManager } from "../worldManager";
 import { ParticleManager } from "../../particles/particleManager";
@@ -22,41 +23,46 @@ export interface PlayerUIHandlersDependencies {
   islandWorldManager: IslandWorldManager;
   playerEntitiesByWorld: Map<World, Map<string, DefaultPlayerEntity>>;
   playerParticleEmitters: Map<string, ParticleEmitter>;
-  islandMapMapping: Record<string, any>;
+  islandMapMapping: Record<string, WorldMap>;
 }
 
 /**
- * Vérifie si le joueur est au sol
- * @param playerEntity - L'entité du joueur
- * @param world - Le monde où vérifier
- * @returns true si le joueur est au sol
+ * Interface pour les données d'événement de saut
  */
-function isPlayerOnGround(
-  playerEntity: DefaultPlayerEntity,
-  world: World
-): boolean {
-  const playerPosition = playerEntity.position;
-  const raycastOrigin = {
-    x: playerPosition.x,
-    y: playerPosition.y - 0.5,
-    z: playerPosition.z,
-  };
-  const raycastDirection = { x: 0, y: -1, z: 0 };
-  const raycastDistance = 1.0;
+interface JumpEventData {
+  type: "jump-held" | "jump-charge-update";
+  duration?: number;
+  progress?: number;
+  visible?: boolean;
+}
 
-  const raycastResult = world.simulation.raycast(
-    raycastOrigin,
-    raycastDirection,
-    raycastDistance,
-    {
-      filterExcludeRigidBody: playerEntity.rawRigidBody,
-    }
-  );
+/**
+ * Vérifie si le joueur est au sol en utilisant le contrôleur du SDK
+ * Cette méthode est beaucoup plus performante que le raycast, surtout pour mobile
+ * @param playerEntity - L'entité du joueur
+ * @returns true si le joueur est au sol, false sinon
+ */
+function isPlayerOnGround(playerEntity: DefaultPlayerEntity): boolean {
+  // Utilise la propriété isGrounded du contrôleur qui utilise des capteurs de collision
+  // C'est beaucoup plus performant que le raycast, surtout pour mobile
+  // DefaultPlayerEntity utilise toujours DefaultPlayerEntityController par défaut
+  const controller = playerEntity.controller;
 
-  return (
-    raycastResult?.hitBlock !== undefined ||
-    raycastResult?.hitEntity !== undefined
-  );
+  // Vérifie si le contrôleur a la propriété isGrounded (propriété de DefaultPlayerEntityController)
+  // Utilise une vérification de type basée sur les propriétés plutôt que instanceof
+  if (
+    controller &&
+    "isGrounded" in controller &&
+    typeof controller.isGrounded === "boolean"
+  ) {
+    return controller.isGrounded;
+  }
+
+  // Fallback: si le contrôleur n'est pas disponible ou n'a pas isGrounded,
+  // utilise une vérification basée sur la vélocité verticale comme sécurité
+  // Cela évite les sauts en l'air si le contrôleur n'est pas encore initialisé
+  const velocity = playerEntity.linearVelocity;
+  return velocity.y <= 0.1; // Considère au sol si la vélocité verticale est faible ou négative
 }
 
 /**
@@ -190,7 +196,15 @@ function handleSelectParticle(
 }
 
 /**
+ * Cache pour les instances Audio de saut par joueur
+ * Permet de réutiliser les instances Audio au lieu d'en créer de nouvelles à chaque saut
+ * Cela améliore les performances, surtout sur mobile
+ */
+const jumpAudioCache = new Map<string, Audio>();
+
+/**
  * Gère les événements de saut (jump-held et jump-charge-update)
+ * Optimisé pour mobile avec utilisation des bonnes pratiques du SDK
  * @param playerEntity - L'entité du joueur
  * @param world - Le monde actuel
  * @param jumpChargeSceneUI - La SceneUI de la barre de charge
@@ -200,43 +214,86 @@ function handleJumpEvents(
   playerEntity: DefaultPlayerEntity,
   world: World,
   jumpChargeSceneUI: SceneUI,
-  data: any
+  data: JumpEventData
 ): void {
+  // Validation de base
+  if (!playerEntity.isSpawned || !world) {
+    return;
+  }
+
   if (data.type === "jump-held") {
     // Vérifie si le joueur est au sol avant de permettre le saut
-    if (!isPlayerOnGround(playerEntity, world)) {
+    // Utilise la méthode optimisée qui utilise les capteurs de collision du contrôleur
+    if (!isPlayerOnGround(playerEntity)) {
       jumpChargeSceneUI.setState({ progress: 0, visible: false });
       return;
     }
 
-    const duration = data.duration || 0;
+    // Vérifie également la vélocité verticale pour éviter les doubles sauts
+    // Si le joueur monte déjà rapidement, ignore le saut (protection anti-spam)
+    const currentVelocity = playerEntity.linearVelocity;
+    if (currentVelocity.y > 2) {
+      jumpChargeSceneUI.setState({ progress: 0, visible: false });
+      return;
+    }
+
+    const duration = Math.max(0, data.duration || 0);
 
     // Configuration du saut
     const minJumpForce = 10;
     const maxJumpForce = 50;
     const maxHoldDuration = 1000;
 
+    // Calcule la force de saut basée sur la durée de maintien
     const normalizedDuration = Math.min(duration / maxHoldDuration, 1);
     const jumpForce =
       minJumpForce + normalizedDuration * (maxJumpForce - minJumpForce);
 
+    // Applique l'impulsion de saut
+    // Note: applyImpulse est la méthode recommandée par le SDK pour les sauts personnalisés
     playerEntity.applyImpulse({ x: 0, y: jumpForce, z: 0 });
 
-    // Joue le son de saut attaché au joueur
-    new Audio({
-      uri: "audio/sfx/cartoon-jump.mp3",
-      loop: false,
-      volume: 0.5,
-      attachedToEntity: playerEntity,
-    }).play(world);
+    // Joue le son de saut en réutilisant l'instance Audio si elle existe
+    // Cela évite de créer une nouvelle instance à chaque saut, améliorant les performances
+    const playerId = playerEntity.player.id;
+    let jumpAudio = jumpAudioCache.get(playerId);
 
+    if (!jumpAudio) {
+      // Crée une nouvelle instance Audio seulement si elle n'existe pas encore
+      jumpAudio = new Audio({
+        uri: "audio/sfx/cartoon-jump.mp3",
+        loop: false,
+        volume: 0.5,
+        attachedToEntity: playerEntity,
+      });
+      jumpAudioCache.set(playerId, jumpAudio);
+    }
+
+    // Joue le son (réutilise l'instance existante)
+    jumpAudio.play(world);
+
+    // Réinitialise la barre de charge
     jumpChargeSceneUI.setState({ progress: 0, visible: false });
   } else if (data.type === "jump-charge-update") {
+    // Met à jour la barre de charge pendant le maintien du bouton
+    // Clamp les valeurs pour éviter les valeurs invalides
+    const progress = Math.max(0, Math.min(1, data.progress || 0));
+    const visible = data.visible ?? false;
+
     jumpChargeSceneUI.setState({
-      progress: data.progress || 0,
-      visible: data.visible || false,
+      progress,
+      visible,
     });
   }
+}
+
+/**
+ * Nettoie le cache Audio pour un joueur donné
+ * À appeler quand un joueur quitte le monde pour éviter les fuites mémoire
+ * @param playerId - L'ID du joueur
+ */
+export function cleanupJumpAudio(playerId: string): void {
+  jumpAudioCache.delete(playerId);
 }
 
 /**
@@ -273,8 +330,12 @@ export function setupPlayerUIHandlers(
     }
 
     if (data.type === "jump-held" || data.type === "jump-charge-update") {
-      handleJumpEvents(playerEntity, world, jumpChargeSceneUI, data);
+      handleJumpEvents(
+        playerEntity,
+        world,
+        jumpChargeSceneUI,
+        data as JumpEventData
+      );
     }
   });
 }
-

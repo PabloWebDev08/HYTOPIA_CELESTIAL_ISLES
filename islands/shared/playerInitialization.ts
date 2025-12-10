@@ -6,6 +6,7 @@ import {
   CollisionGroup,
   ParticleEmitter,
   SceneUI,
+  type WorldMap,
 } from "hytopia";
 import { IslandManager } from "../islandManager";
 import { IslandWorldManager } from "../worldManager";
@@ -22,7 +23,7 @@ export interface PlayerInitializationDependencies {
   islandWorldManager: IslandWorldManager;
   playerEntitiesByWorld: Map<World, Map<string, DefaultPlayerEntity>>;
   playerParticleEmitters: Map<string, ParticleEmitter>;
-  islandMapMapping: Record<string, any>;
+  islandMapMapping: Record<string, WorldMap>;
 }
 
 /**
@@ -31,14 +32,10 @@ export interface PlayerInitializationDependencies {
  * @returns Les données persistées initialisées
  */
 export function initializePlayerData(player: Player): PlayerCoinData {
-  const existingData = player.getPersistedData() as
-    | PlayerCoinData
-    | undefined;
+  const existingData = player.getPersistedData() as PlayerCoinData | undefined;
 
   // S'assure que les particules par défaut sont toujours incluses
-  const ownedParticles = mergeDefaultParticles(
-    existingData?.ownedParticles
-  );
+  const ownedParticles = mergeDefaultParticles(existingData?.ownedParticles);
 
   const playerData: PlayerCoinData = {
     gold: existingData?.gold ?? 0,
@@ -152,9 +149,7 @@ export function setupPlayerParticles(
  * Configure les groupes de collision pour l'entité du joueur
  * @param playerEntity - L'entité du joueur
  */
-export function setupPlayerCollisions(
-  playerEntity: DefaultPlayerEntity
-): void {
+export function setupPlayerCollisions(playerEntity: DefaultPlayerEntity): void {
   // Configure les groupes de collision
   playerEntity.setCollisionGroupsForSolidColliders({
     belongsTo: [CollisionGroup.PLAYER],
@@ -186,14 +181,10 @@ export function setupPlayerUI(player: Player): void {
 
   // Envoie l'or initial du joueur et les particules possédées à l'UI
   setTimeout(async () => {
-    const playerData = player.getPersistedData() as
-      | PlayerCoinData
-      | undefined;
+    const playerData = player.getPersistedData() as PlayerCoinData | undefined;
     const gold = playerData?.gold ?? 0;
     // S'assure que les particules par défaut sont toujours incluses
-    const ownedParticles = mergeDefaultParticles(
-      playerData?.ownedParticles
-    );
+    const ownedParticles = mergeDefaultParticles(playerData?.ownedParticles);
     player.ui.sendData({
       type: "gold-update",
       gold: gold,
@@ -246,11 +237,7 @@ export function setupJumpChargeBar(
  */
 export function sendWelcomeMessages(player: Player, world: World): void {
   // Messages de bienvenue
-  world.chatManager.sendPlayerMessage(
-    player,
-    "Welcome to the game!",
-    "00FF00"
-  );
+  world.chatManager.sendPlayerMessage(player, "Welcome to the game!", "00FF00");
   world.chatManager.sendPlayerMessage(
     player,
     "Use WASD to move around & space to jump."
@@ -330,4 +317,3 @@ export function initializePlayerInWorld(
     jumpChargeSceneUI,
   };
 }
-
