@@ -2358,8 +2358,11 @@ and also configure additional buttons for mobile compatibility.
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
+    margin-bottom: 14px;
+    padding-top: 8px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.3);
     position: sticky;
     top: 0;
@@ -2429,13 +2432,13 @@ and also configure additional buttons for mobile compatibility.
 
   /* Styles spécifiques pour mobile - cartes plus petites avec taille max fixe */
   body.mobile .particle-grid {
-    grid-template-columns: repeat(auto-fit, minmax(70px, 100px));
-    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 130px));
+    gap: 8px;
   }
 
   body.mobile .particle-card {
-    max-width: 100px;
-    max-height: 56.25px; /* 16/9 ratio pour 100px de largeur */
+    max-width: 130px;
+    max-height: 73.125px; /* 16/9 ratio pour 130px de largeur */
   }
 
   .particle-card:hover {
@@ -2735,19 +2738,22 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .particle-floating-header {
-      margin-bottom: 10px;
-      padding-bottom: 8px;
+      margin-bottom: 14px;
+      padding-top: 8px;
+      padding-bottom: 10px;
+      padding-left: 12px;
+      padding-right: 12px;
       border-radius: 8px;
     }
 
     .particle-grid {
-      grid-template-columns: repeat(auto-fit, minmax(90px, 120px));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 150px));
+      gap: 12px;
     }
 
     .particle-card {
-      max-width: 120px;
-      max-height: 67.5px; /* 16/9 ratio pour 120px de largeur */
+      max-width: 150px;
+      max-height: 84.375px; /* 16/9 ratio pour 150px de largeur */
     }
 
     .particle-card-name {
@@ -2804,20 +2810,23 @@ and also configure additional buttons for mobile compatibility.
 
     .particle-floating-header {
       margin-bottom: 14px;
+      padding-top: 8px;
       padding-bottom: 10px;
+      padding-left: 12px;
+      padding-right: 12px;
       border-radius: 8px;
     }
 
     .particle-grid {
-      grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 130px));
+      gap: 12px;
     }
 
     .particle-card {
       border-width: 2px;
       border-radius: 8px;
-      max-width: 110px;
-      max-height: 61.875px; /* 16/9 ratio pour 110px de largeur */
+      max-width: 130px;
+      max-height: 73.125px; /* 16/9 ratio pour 130px de largeur */
     }
 
     .particle-card-name {
@@ -2874,8 +2883,11 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .particle-floating-header {
-      margin-bottom: 18px;
-      padding-bottom: 14px;
+      margin-bottom: 14px;
+      padding-top: 8px;
+      padding-bottom: 10px;
+      padding-left: 12px;
+      padding-right: 12px;
       border-radius: 8px;
     }
 
