@@ -32,6 +32,7 @@ import {
   PlayerManager,
   World,
   Player,
+  WorldLoopEvent,
 } from "hytopia";
 
 import island1Map from "./assets/map_island_1.json";
@@ -185,42 +186,62 @@ startServer((defaultWorld) => {
   /**
    * Vérifie périodiquement la position Y des joueurs
    * Si un joueur tombe en dessous de y = -50, on le repositionne au point de départ de son île
+   * Utilise les événements WorldLoopEvent.TICK_START au lieu de setInterval pour une meilleure intégration avec le SDK
    */
-  setInterval(() => {
-    // Parcourt tous les mondes d'îles
-    islandWorldManager.getAllWorlds().forEach((islandWorld) => {
-      // Trouve l'ID de l'île correspondant à ce monde
-      let islandId = "";
-      islandWorldManager.getAvailableIslandIds().forEach((id) => {
-        if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
-          islandId = id;
-        }
-      });
+  // Map pour tracker le temps accumulé par monde (en millisecondes)
+  const worldTickAccumulators = new Map<World, number>();
 
-      // Récupère le gestionnaire d'îles pour ce monde
-      const islandManager =
-        islandWorldManager.getIslandManagerForIsland(islandId);
-      if (!islandManager) return;
+  // Configure les listeners d'événements de tick pour chaque monde d'île
+  islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+    // Initialise l'accumulateur de temps pour ce monde
+    worldTickAccumulators.set(islandWorld, 0);
 
-      const currentIsland = islandManager.getCurrentIsland();
-      if (!currentIsland) return;
-
-      // Récupère la position de départ de l'île
-      const startPosition = currentIsland.getStartPosition();
-
-      // Parcourt tous les joueurs dans ce monde
-      const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
-      if (!worldPlayerMap) return;
-
-      worldPlayerMap.forEach((playerEntity, playerId) => {
-        // Vérifie si le joueur est en dessous de y = -50
-        if (playerEntity.position.y < -50) {
-          // Repositionne le joueur au point de départ de l'île
-          playerEntity.setPosition(startPosition);
-        }
-      });
+    // Trouve l'ID de l'île correspondant à ce monde
+    let islandId = "";
+    islandWorldManager.getAvailableIslandIds().forEach((id) => {
+      if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
+        islandId = id;
+      }
     });
-  }, 1000); // Vérifie toutes les secondes
+
+    const islandManager =
+      islandWorldManager.getIslandManagerForIsland(islandId);
+    if (!islandManager) return;
+
+    // Écoute les événements de tick du WorldLoop de ce monde
+    islandWorld.loop.on(WorldLoopEvent.TICK_START, ({ tickDeltaMs }) => {
+      // Accumule le temps depuis la dernière vérification
+      const currentAccumulator = worldTickAccumulators.get(islandWorld) || 0;
+      const newAccumulator = currentAccumulator + tickDeltaMs;
+
+      // Vérifie toutes les secondes (1000ms)
+      if (newAccumulator >= 1000) {
+        // Réinitialise l'accumulateur
+        worldTickAccumulators.set(islandWorld, newAccumulator - 1000);
+
+        const currentIsland = islandManager.getCurrentIsland();
+        if (!currentIsland) return;
+
+        // Récupère la position de départ de l'île
+        const startPosition = currentIsland.getStartPosition();
+
+        // Parcourt tous les joueurs dans ce monde
+        const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
+        if (!worldPlayerMap) return;
+
+        worldPlayerMap.forEach((playerEntity, playerId) => {
+          // Vérifie si le joueur est en dessous de y = -50
+          if (playerEntity.position.y < -50) {
+            // Repositionne le joueur au point de départ de l'île
+            playerEntity.setPosition(startPosition);
+          }
+        });
+      } else {
+        // Met à jour l'accumulateur
+        worldTickAccumulators.set(islandWorld, newAccumulator);
+      }
+    });
+  });
 
   /**
    * Handle player leaving the game. The PlayerEvent.LEFT_WORLD

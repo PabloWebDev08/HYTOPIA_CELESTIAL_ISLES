@@ -7,6 +7,7 @@ import {
   DefaultPlayerEntity,
   CollisionGroup,
   ColliderShape,
+  WorldLoopEvent,
 } from "hytopia";
 // Import par défaut pour compatibilité avec le code existant
 import spinningSawDataDefault from "../../assets/islands/island3/spinning-saw.json";
@@ -73,6 +74,7 @@ function lerpPosition(start: Position, end: Position, t: number): Position {
 
 /**
  * Configure le mouvement linéaire d'une entité entre des waypoints
+ * Utilise les événements WorldLoopEvent.TICK_START au lieu de setInterval pour une meilleure intégration avec le SDK
  * @param entity - L'entité à déplacer
  * @param movement - La configuration du mouvement
  */
@@ -85,36 +87,43 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
     return;
   }
 
+  // Vérifie que l'entité est spawnée et a un monde
+  if (!entity.isSpawned || !entity.world) {
+    console.warn(
+      `Mouvement linéaire ignoré pour ${entity.name}: l'entité doit être spawnée`
+    );
+    return;
+  }
+
+  const world = entity.world;
   let currentWaypointIndex = 0;
   let currentPosition = { ...movement.waypoints[0] };
   let targetWaypointIndex = 1;
   let targetWaypoint = movement.waypoints[targetWaypointIndex];
-  let startTime = Date.now();
+  let elapsedTimeMs = 0; // Temps écoulé en millisecondes depuis le début du segment actuel
 
-  // Intervalle de mise à jour (60 fois par seconde pour un mouvement fluide)
-  const updateInterval = 1000 / 60; // ~16.67ms
-
-  // Stocke l'interval ID pour pouvoir le nettoyer plus tard
-  const intervalId = setInterval(() => {
+  // Fonction de mise à jour appelée à chaque tick du monde
+  const tickHandler = ({ tickDeltaMs }: { tickDeltaMs: number }) => {
     // Vérifie que l'entité est toujours spawnée
-    if (!entity.isSpawned) {
-      clearInterval(intervalId);
+    if (!entity.isSpawned || !entity.world) {
+      // Nettoie le listener si l'entité n'est plus spawnée
+      world.loop.off(WorldLoopEvent.TICK_START, tickHandler);
       return;
     }
+
+    // Accumule le temps écoulé depuis le début du segment actuel
+    elapsedTimeMs += tickDeltaMs;
 
     // Calcule la distance entre le waypoint de départ et d'arrivée du segment actuel
     const startWaypoint = movement.waypoints![currentWaypointIndex];
     const endWaypoint = movement.waypoints![targetWaypointIndex];
     const segmentDistance = getDistance(startWaypoint, endWaypoint);
 
-    // Calcule le temps écoulé depuis le début du segment
-    const elapsedTime = (Date.now() - startTime) / 1000; // en secondes
-
-    // Calcule le temps nécessaire pour parcourir ce segment à la vitesse donnée
-    const timeToReach = segmentDistance / movement.speed;
+    // Calcule le temps nécessaire pour parcourir ce segment à la vitesse donnée (en millisecondes)
+    const timeToReachMs = (segmentDistance / movement.speed) * 1000;
 
     // Calcule le progrès (0 à 1) vers le waypoint cible
-    let progress = elapsedTime / timeToReach;
+    let progress = elapsedTimeMs / timeToReachMs;
 
     if (progress >= 1.0) {
       // A atteint le waypoint cible
@@ -133,15 +142,15 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
           // En boucle, retourne au début
           targetWaypointIndex = 0;
         } else {
-          // Pas de boucle, arrête le mouvement
-          clearInterval(intervalId);
+          // Pas de boucle, arrête le mouvement en retirant le listener
+          world.loop.off(WorldLoopEvent.TICK_START, tickHandler);
           return;
         }
       }
 
       // Met à jour le waypoint cible et réinitialise le temps
       targetWaypoint = movement.waypoints![targetWaypointIndex];
-      startTime = Date.now();
+      elapsedTimeMs = 0;
     } else {
       // Interpole la position entre le waypoint actuel et le suivant
       currentPosition = lerpPosition(startWaypoint, endWaypoint, progress);
@@ -149,10 +158,14 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
       // calcule correctement les collisions et pousse les entités en contact (comme le joueur)
       entity.setNextKinematicPosition(currentPosition);
     }
-  }, updateInterval);
+  };
 
-  // Stocke l'interval ID sur l'entité pour pouvoir le nettoyer si nécessaire
-  (entity as any)._movementIntervalId = intervalId;
+  // Écoute les événements de tick du WorldLoop du monde
+  world.loop.on(WorldLoopEvent.TICK_START, tickHandler);
+
+  // Stocke la référence au handler sur l'entité pour pouvoir le nettoyer si nécessaire
+  (entity as any)._movementTickHandler = tickHandler;
+  (entity as any)._movementWorld = world;
 }
 
 /**
