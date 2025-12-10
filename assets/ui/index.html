@@ -2311,7 +2311,12 @@ and also configure additional buttons for mobile compatibility.
   /* Permet le scroll vertical sur mobile sans interférer avec le joystick */
   body.mobile .particle-floating-group {
     touch-action: pan-y !important;
-    bottom: 20px; /* Même marge qu'en haut pour éviter qu'il touche le bas de l'écran */
+    top: 20px !important; /* Marge en haut égale à celle du bas */
+    bottom: 20px !important; /* Marge en bas pour éviter qu'il touche le bas de l'écran */
+    left: 50% !important; /* Assure le centrage horizontal */
+    transform: translateX(
+      -50%
+    ) !important; /* Réinitialise le transform pour mobile */
     max-height: calc(100vh - 40px); /* 20px en haut + 20px en bas */
   }
 
