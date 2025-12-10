@@ -1311,6 +1311,10 @@ and also configure additional buttons for mobile compatibility.
     .gold-display.gold-updated {
       transform: scale(1.08);
     }
+
+    .hamburger-button {
+      height: 44px;
+    }
   }
 
   /* Styles pour desktop */
@@ -1343,6 +1347,10 @@ and also configure additional buttons for mobile compatibility.
     .gold-display.gold-updated {
       transform: scale(1.1);
     }
+
+    .hamburger-button {
+      height: 50px;
+    }
   }
 
   /* Styles spécifiques pour la classe mobile de Hytopia */
@@ -1373,6 +1381,14 @@ and also configure additional buttons for mobile compatibility.
 
   body.mobile .gold-display.gold-updated {
     transform: scale(1.05);
+  }
+
+  body.mobile .hamburger-button {
+    height: 40px;
+    width: 40px;
+    padding: 8px;
+    border-width: 2px;
+    border-radius: 6px;
   }
 
   /* By default, we hide the mobile controls */
@@ -1568,7 +1584,6 @@ and also configure additional buttons for mobile compatibility.
   @media screen and (min-width: 481px) {
     .hamburger-button {
       width: 44px;
-      height: 44px;
       border-width: 2px;
       border-radius: 8px;
       padding: 10px;
@@ -1599,7 +1614,6 @@ and also configure additional buttons for mobile compatibility.
   @media screen and (min-width: 769px) {
     .hamburger-button {
       width: 50px;
-      height: 50px;
       border-width: 3px;
       border-radius: 8px;
       padding: 10px;
