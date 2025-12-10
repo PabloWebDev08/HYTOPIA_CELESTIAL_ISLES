@@ -61,6 +61,8 @@ export type ParticleType =
 interface ParticleConfig {
   textureUri: string;
   colorStart: { r: number; g: number; b: number };
+  colorEnd?: { r: number; g: number; b: number }; // Couleur de fin (optionnelle)
+  colorEndVariance?: { r: number; g: number; b: number }; // Variance de la couleur de fin (optionnelle)
   sizeStart: number;
   sizeStartVariance: number;
   sizeEnd: number;
@@ -83,7 +85,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle1: {
     // Particule de feu (configuration actuelle)
     textureUri: "particles/fire.png",
-    colorStart: { r: 255, g: 150, b: 0 },
+    colorStart: { r: 255, g: 150, b: 0 }, // Orange/jaune au départ
+    colorEnd: { r: 255, g: 50, b: 0 }, // Rouge foncé à la fin
     sizeStart: 0.1,
     sizeStartVariance: 0.03,
     sizeEnd: 0.5,
@@ -101,7 +104,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle2: {
     // Particule magique
     textureUri: "particles/magic.png",
-    colorStart: { r: 200, g: 100, b: 255 },
+    colorStart: { r: 200, g: 100, b: 255 }, // Violet au départ
+    colorEnd: { r: 100, g: 50, b: 200 }, // Violet foncé à la fin
     sizeStart: 0.1,
     sizeStartVariance: 0.02,
     sizeEnd: 0.5,
@@ -119,7 +123,8 @@ const PARTICLE_CONFIGS: Record<ParticleType, ParticleConfig> = {
   particle3: {
     // Particule de fumée
     textureUri: "particles/smoke.png",
-    colorStart: { r: 150, g: 150, b: 150 },
+    colorStart: { r: 150, g: 150, b: 150 }, // Gris clair au départ
+    colorEnd: { r: 80, g: 80, b: 80 }, // Gris foncé à la fin
     sizeStart: 0.1,
     sizeStartVariance: 0.04,
     sizeEnd: 0.5,
@@ -960,6 +965,8 @@ export class ParticleManager {
       offset: config.offset,
       textureUri: config.textureUri,
       colorStart: config.colorStart,
+      colorEnd: config.colorEnd, // Couleur de fin (si définie)
+      colorEndVariance: config.colorEndVariance, // Variance de la couleur de fin (si définie)
       sizeStart: config.sizeStart,
       sizeStartVariance: config.sizeStartVariance,
       sizeEnd: config.sizeEnd,
