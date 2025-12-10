@@ -20,6 +20,26 @@ and also configure additional buttons for mobile compatibility.
         }, 300);
       }
     }
+
+    // Écoute les mises à jour des particules possédées depuis le serveur
+    if (data.type === "owned-particles-update") {
+      const ownedParticles = data.ownedParticles || [];
+      // Cache le prix pour toutes les particules possédées
+      const particleCards = document.querySelectorAll(".particle-card");
+      particleCards.forEach((card) => {
+        const particleId = card.getAttribute("data-particle");
+        const priceElement = card.querySelector(".particle-card-price");
+        if (particleId && priceElement) {
+          if (ownedParticles.includes(particleId)) {
+            // Cache le prix si la particule est possédée
+            priceElement.style.display = "none";
+          } else {
+            // Affiche le prix si la particule n'est pas possédée
+            priceElement.style.display = "flex";
+          }
+        }
+      });
+    }
   });
 
   // Enregistre le template Scene UI pour la barre de charge verticale
@@ -553,10 +573,26 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle1">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FIRE</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle4">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FIRE-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -565,26 +601,74 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle2">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle5">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle6">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle7">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle8">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle9">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MAGIC-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -593,26 +677,74 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle3">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle10">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle11">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle12">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle13">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle14">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SMOKE-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -621,22 +753,62 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle15">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">CIRCLE-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle16">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">CIRCLE-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle17">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">CIRCLE-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle18">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">CIRCLE-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle19">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">CIRCLE-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -645,14 +817,38 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle20">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">DIRT-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle21">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">DIRT-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle22">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">DIRT-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -661,26 +857,74 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle23">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle24">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle25">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle26">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle27">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle28">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">FLAME-06</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -689,18 +933,50 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle29">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">LIGHT-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle30">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">LIGHT-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle31">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">LIGHT-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle32">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">LIGHT-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -709,22 +985,62 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle33">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MUZZLE-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle34">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MUZZLE-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle35">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MUZZLE-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle36">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MUZZLE-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle37">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">MUZZLE-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -733,14 +1049,38 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle38">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SCORCH-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle39">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SCORCH-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle40">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SCORCH-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -749,22 +1089,62 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle41">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SPARK-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle42">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SPARK-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle43">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SPARK-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle44">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SPARK-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle45">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">SPARK-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 
@@ -773,22 +1153,62 @@ and also configure additional buttons for mobile compatibility.
     <div class="particle-card" data-particle="particle46">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">STAR-01</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle47">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">STAR-02</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle48">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">STAR-03</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle49">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">STAR-04</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
     <div class="particle-card" data-particle="particle50">
       <div class="particle-card-background"></div>
       <div class="particle-card-name">STAR-05</div>
+      <div class="particle-card-price">
+        <span class="particle-card-price-amount">15</span>
+        <img
+          src="{{CDN_ASSETS_URL}}/models/dollar-coin.svg"
+          alt="Gold"
+          class="particle-card-price-icon"
+        />
+      </div>
     </div>
   </div>
 </div>
@@ -2223,6 +2643,46 @@ and also configure additional buttons for mobile compatibility.
     font-family: "Arial", sans-serif;
   }
 
+  /* Styles pour le prix de la particule - Mobile First */
+  .particle-card-price {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255, 200, 0, 0.95);
+    border: 1px solid #000;
+    border-radius: 4px;
+    height: 18px;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    font-family: "Arial", sans-serif;
+  }
+
+  .particle-card-price-amount {
+    font-size: 8px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    min-width: 12px;
+    text-align: center;
+  }
+
+  .particle-card-price-icon {
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Cache le prix pour les particules possédées */
+  .particle-card.owned .particle-card-price {
+    display: none;
+  }
+
   /* Mobile paysage (orientation landscape) - téléphone à 180° */
   @media screen and (orientation: landscape) and (max-height: 500px) {
     .particle-floating-group {
@@ -2266,6 +2726,26 @@ and also configure additional buttons for mobile compatibility.
 
     .particle-card-name {
       font-size: 10px;
+    }
+
+    .particle-card-price {
+      height: 20px;
+      padding: 3px 5px;
+      border-width: 1px;
+      border-radius: 5px;
+      gap: 4px;
+      bottom: 5px;
+      left: 5px;
+    }
+
+    .particle-card-price-amount {
+      font-size: 9px;
+      min-width: 14px;
+    }
+
+    .particle-card-price-icon {
+      width: 12px;
+      height: 12px;
     }
   }
 
@@ -2316,6 +2796,27 @@ and also configure additional buttons for mobile compatibility.
     .particle-card-name {
       font-size: 11px;
     }
+
+    .particle-card-price {
+      height: 22px;
+      padding: 3px 6px;
+      border-width: 2px;
+      border-radius: 5px;
+      gap: 4px;
+      bottom: 6px;
+      left: 6px;
+    }
+
+    .particle-card-price-amount {
+      font-size: 10px;
+      min-width: 16px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .particle-card-price-icon {
+      width: 14px;
+      height: 14px;
+    }
   }
 
   /* Tablette paysage et desktop */
@@ -2362,6 +2863,28 @@ and also configure additional buttons for mobile compatibility.
 
     .particle-card-name {
       font-size: 12px;
+    }
+
+    .particle-card-price {
+      height: 24px;
+      padding: 4px 7px;
+      border-width: 2px;
+      border-radius: 6px;
+      gap: 5px;
+      bottom: 6px;
+      left: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .particle-card-price-amount {
+      font-size: 11px;
+      min-width: 18px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .particle-card-price-icon {
+      width: 16px;
+      height: 16px;
     }
   }
 </style>

@@ -42,7 +42,7 @@ class WelcomeNPC extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Bienvenue sur l'île céleste 3 !",
         message:
-          "Si tu es ici, c'est que tu as reussi l'ile Celeste 2. Félicitations !<br> Maintenant, le niveau va devenir plus difficile, prends ton temps et observe.<br> Bon courage Naufragé et rendez vous sur l'ile Celeste 3 !",
+          "Te voila sur la la derniere ile !<br>(de cette version)<br> Le niveau augmente encore un peu, mais pour un naufragé comme toi, c'est pas un problème !<br> Bon courage et amuse toi bien !",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });

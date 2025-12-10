@@ -51,6 +51,11 @@ import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland3Leaderboard } from "./islands/island3/welcomeNPCS";
 import { ParticleManager } from "./particles/particleManager";
 import type { ParticleType } from "./particles/particleManager";
+import {
+  purchaseParticle,
+  ownsParticle,
+  DEFAULT_PARTICLES,
+} from "./islands/shared/particlePurchase";
 
 /**
  * Interface pour les données persistées du joueur concernant les coins
@@ -60,6 +65,7 @@ interface PlayerCoinData {
   collectedCoins?: string[];
   selectedIsland?: string; // Île sélectionnée par le joueur
   selectedParticle?: string; // Particule sélectionnée par le joueur
+  ownedParticles?: string[]; // Particules possédées par le joueur
 }
 
 /**
@@ -154,6 +160,13 @@ startServer((defaultWorld) => {
     const existingData = player.getPersistedData() as
       | PlayerCoinData
       | undefined;
+
+    // S'assure que les particules par défaut sont toujours incluses
+    const existingOwnedParticles = existingData?.ownedParticles || [];
+    const ownedParticles = [
+      ...new Set([...DEFAULT_PARTICLES, ...existingOwnedParticles]),
+    ];
+
     const playerData: PlayerCoinData = {
       gold: existingData?.gold ?? 0,
       collectedCoins: existingData?.collectedCoins ?? [],
@@ -161,6 +174,7 @@ startServer((defaultWorld) => {
       selectedParticle:
         existingData?.selectedParticle ??
         ParticleManager.getDefaultParticleType(),
+      ownedParticles: ownedParticles,
     };
     player.setPersistedData(playerData as Record<string, unknown>);
 
@@ -233,15 +247,24 @@ startServer((defaultWorld) => {
     // Charge l'UI du jeu pour ce joueur
     player.ui.load("ui/index.html");
 
-    // Envoie l'or initial du joueur à l'UI
+    // Envoie l'or initial du joueur et les particules possédées à l'UI
     setTimeout(async () => {
       const playerData = player.getPersistedData() as
         | PlayerCoinData
         | undefined;
       const gold = playerData?.gold ?? 0;
+      // S'assure que les particules par défaut sont toujours incluses
+      const existingOwnedParticles = playerData?.ownedParticles || [];
+      const ownedParticles = [
+        ...new Set([...DEFAULT_PARTICLES, ...existingOwnedParticles]),
+      ];
       player.ui.sendData({
         type: "gold-update",
         gold: gold,
+      });
+      player.ui.sendData({
+        type: "owned-particles-update",
+        ownedParticles: ownedParticles,
       });
     }, 100);
 
@@ -320,9 +343,28 @@ startServer((defaultWorld) => {
       }
 
       if (data.type === "select-particle") {
-        // Sauvegarde la particule sélectionnée dans les données persistées du joueur
+        // Gère la sélection/achat de particule
         const particleId = data.particleId as string;
         if (particleId && ParticleManager.isValidParticleType(particleId)) {
+          // Vérifie si le joueur possède déjà la particule
+          const alreadyOwned = ownsParticle(player, particleId);
+
+          // Si la particule n'est pas possédée, tente de l'acheter
+          if (!alreadyOwned) {
+            const purchaseSuccess = purchaseParticle(player, world, particleId);
+            if (!purchaseSuccess) {
+              // L'achat a échoué (pas assez d'or)
+              world.chatManager.sendPlayerMessage(
+                player,
+                "Il vous manque de l'OR",
+                "FF0000"
+              );
+              return; // Arrête ici, ne sélectionne pas la particule
+            }
+          }
+
+          // La particule est maintenant possédée (soit elle l'était déjà, soit l'achat a réussi)
+          // Sauvegarde la particule sélectionnée dans les données persistées du joueur
           const currentData = player.getPersistedData() as PlayerCoinData;
           player.setPersistedData({
             ...currentData,
