@@ -40,9 +40,9 @@ class WelcomeNPC extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la tête du NPC
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Bienvenue sur l'île céleste 3 !",
+        title: "Dernière étape : l’Île Céleste 3 !",
         message:
-          "Te voila sur la la derniere ile !<br>(de cette version)<br> Le niveau augmente encore un peu, mais pour un naufragé comme toi, c'est pas un problème !<br> Bon courage et amuse toi bien !",
+          "Te voilà arrivé sur la dernière île… (du moins, pour cette version !) <br> Le défi monte encore d’un cran, mais pour un naufragé aussi déterminé que toi, ça ne devrait pas poser problème !<br> Donne tout, amuse-toi, et montre que tu peux conquérir les cieux !",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -217,7 +217,7 @@ class SpeechBubbleEntity extends Entity {
 
   constructor(
     title: string = "Attention !",
-    message: string = "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 4."
+    message: string = "Si tu ne vois aucun coin ici, patiente 30 secondes : un autre aventurier est sûrement passé avant toi !<br> N’oublie surtout pas de ramasser au moins un coin pour être qualifié et débloquer l’accès à l’Île Céleste 4."
   ) {
     super({
       modelUri: "models/environment/Gameplay/speech-bubble.gltf",

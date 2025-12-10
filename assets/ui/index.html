@@ -1820,14 +1820,14 @@ and also configure additional buttons for mobile compatibility.
 
   .skeleton-leaderboard-subtitle {
     font-size: 9px;
-    color: #fff;
+    color: #000;
     margin: 0;
     opacity: 0.9;
   }
 
   .skeleton-leaderboard-count {
     font-size: 8px;
-    color: #fff;
+    color: #000;
     margin: 2px 0 0 0;
     opacity: 0.8;
     font-style: italic;
@@ -2047,61 +2047,65 @@ and also configure additional buttons for mobile compatibility.
   }
 
   body.mobile .welcome-npc-card-title {
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 8px;
   }
 
   body.mobile .welcome-npc-card-message {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
   }
 
   body.mobile .skeleton-leaderboard-container {
     max-width: 280px;
-    max-height: 320px;
-    padding: 8px;
+    max-height: none; /* Supprime la limite de hauteur pour éviter le scroll */
+    padding: 6px; /* Réduit le padding */
     border-width: 2px;
     transform: translateY(-50px); /* Déplace la card vers le haut */
+    overflow-y: visible; /* Pas de scroll */
   }
 
   body.mobile .skeleton-leaderboard-header {
-    margin-bottom: 8px;
-    padding-bottom: 8px;
+    margin-bottom: 4px; /* Réduit la marge */
+    padding-bottom: 4px; /* Réduit le padding */
   }
 
   body.mobile .skeleton-leaderboard-title {
-    font-size: 14px;
+    font-size: 12px; /* Réduit la taille du titre */
+    margin: 0 0 2px 0; /* Réduit la marge */
   }
 
   body.mobile .skeleton-leaderboard-subtitle {
-    font-size: 9px;
+    font-size: 8px; /* Réduit la taille */
+    margin: 0; /* Supprime les marges */
   }
 
   body.mobile .skeleton-leaderboard-count {
-    font-size: 8px;
-    margin: 2px 0 0 0;
+    font-size: 7px; /* Réduit la taille */
+    margin: 1px 0 0 0; /* Réduit la marge */
   }
 
   body.mobile .skeleton-leaderboard-list {
-    gap: 4px;
+    gap: 2px; /* Réduit l'espacement entre les entrées */
   }
 
   body.mobile .skeleton-leaderboard-name {
-    font-size: 11px;
-    margin: 0 4px;
+    font-size: 10px; /* Réduit la taille du nom */
+    margin: 0 3px; /* Réduit les marges */
   }
 
   body.mobile .skeleton-leaderboard-date {
-    font-size: 8px;
+    font-size: 7px; /* Réduit la taille de la date */
   }
 
   body.mobile .skeleton-leaderboard-entry {
-    padding: 4px 8px;
+    padding: 3px 6px; /* Réduit le padding des entrées */
+    min-height: 20px; /* Hauteur minimale réduite */
   }
 
   body.mobile .skeleton-leaderboard-rank {
-    font-size: 13px;
-    min-width: 20px;
+    font-size: 11px; /* Réduit la taille du rang */
+    min-width: 18px; /* Réduit la largeur minimale */
   }
 
   /* Styles pour le floating group de sélection de map - Mobile First */
@@ -2360,6 +2364,7 @@ and also configure additional buttons for mobile compatibility.
     position: sticky;
     top: 0;
     background: rgba(255, 200, 0, 0.95);
+    border-radius: 8px;
     z-index: 10;
   }
 
@@ -2732,6 +2737,7 @@ and also configure additional buttons for mobile compatibility.
     .particle-floating-header {
       margin-bottom: 10px;
       padding-bottom: 8px;
+      border-radius: 8px;
     }
 
     .particle-grid {
@@ -2799,6 +2805,7 @@ and also configure additional buttons for mobile compatibility.
     .particle-floating-header {
       margin-bottom: 14px;
       padding-bottom: 10px;
+      border-radius: 8px;
     }
 
     .particle-grid {
@@ -2869,6 +2876,7 @@ and also configure additional buttons for mobile compatibility.
     .particle-floating-header {
       margin-bottom: 18px;
       padding-bottom: 14px;
+      border-radius: 8px;
     }
 
     .particle-grid {

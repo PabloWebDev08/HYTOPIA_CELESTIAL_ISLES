@@ -42,7 +42,7 @@ class WelcomeNPC extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Bienvenue sur l'île céleste 2 !",
         message:
-          "Si tu es ici, c'est que tu as reussi l'ile Celeste 1. Félicitations !<br> Maintenant, le niveau va devenir plus difficile, prends ton temps et observe.<br> Bon courage Naufragé et rendez vous sur l'ile Celeste 3 !",
+          "Si tu as atteint cette île, c’est que tu as vaincu l’Île Céleste 1… Bravo, aventurier !<br> Mais attention : à partir d’ici, les choses se corsent.<br> Prends ton temps, observe bien ton environnement et avance avec stratégie.<br> Bonne chance, naufragé… et rendez-vous sur l’Île Céleste 3 !",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -217,7 +217,7 @@ class SpeechBubbleEntity extends Entity {
 
   constructor(
     title: string = "Attention !",
-    message: string = "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 3."
+    message: string = "Si tu ne vois aucun coin ici, patiente 30 secondes : un autre aventurier est sûrement passé avant toi !<br> N’oublie surtout pas de ramasser au moins un coin pour être qualifié et débloquer l’accès à l’Île Céleste 3."
   ) {
     super({
       modelUri: "models/environment/Gameplay/speech-bubble.gltf",

@@ -39,9 +39,9 @@ class WelcomeNPC extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la tête du NPC
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Holla naufragé !",
+        title: "Hola, jeune naufragé !",
         message:
-          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voila sur l'ile céleste 1!<br> Ici la gravité n'est plus la même !<br> Tu vois ces petites particules,<br> elles t'aident a sauter plus haut !<br> Reste appuiyez sur la touche saut,<br> pour t'envoler !<br> Sur cette ile, une seule issue,<br> atteindre le sommet !",
+          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voilà sur l'île céleste 1 !<br> Ici la gravité n'est plus la même !<br> Tu vois ces petites particules,<br>elles t'aident à sauter plus haut !<br> Reste appuyé sur la touche saut,<br> pour t'envoler !<br> Sur cette ile, une seule issue,<br> atteindre le sommet !",
       },
       viewDistance: 30, // Visible jusqu'à 15 blocs de distance
     });
@@ -254,7 +254,7 @@ class SpeechBubbleEntity extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Attention !",
         message:
-          "Si aucun coins n'est visible, attendez 30 secondes, c'est que quelqu'un est passez avant vous. RAMASSEZ LE COIN POUR ETRE QUALIFIER POUR L'ile Celeste 2.",
+          "Si tu ne vois aucun coin ici, patiente 30 secondes : un autre aventurier est sûrement passé avant toi !<br> N’oublie surtout pas de ramasser au moins un coin pour être qualifié et débloquer l’accès à l’Île Céleste 2.",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
