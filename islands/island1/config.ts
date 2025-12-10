@@ -17,7 +17,7 @@ export const island1Config = {
 
   // Positions des bateaux
   boats: {
-    mainBoat: { x: 26.95, y: 12, z: 35.6 } as Position,
+    mainBoat: { x: 26.95, y: 12.5, z: 35.6 } as Position,
   },
 
   // Positions des bulles de dialogue
