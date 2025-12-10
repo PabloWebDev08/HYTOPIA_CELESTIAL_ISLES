@@ -26,25 +26,33 @@
 import {
   startServer,
   Audio,
+  DefaultPlayerEntity,
   PlayerEvent,
-  PersistenceManager,
+  ParticleEmitter,
   PlayerManager,
+  World,
   Player,
 } from "hytopia";
 
-import { getLeaderboard } from "./islands/shared/coin";
+import island1Map from "./assets/map_island_1.json";
+import island2Map from "./assets/map_island_2.json";
+import island3Map from "./assets/map_island_3.json";
+import { IslandManager } from "./islands/islandManager";
 import { IslandWorldManager } from "./islands/worldManager";
-import {
-  islandMapMapping,
-  islandLeaderboardUpdaters,
-} from "./config/islandConfig";
-import { PlayerService } from "./player/playerService";
-import { PlayerUIHandler } from "./player/playerUIHandler";
-import {
-  getPlayerWorld,
-  getIslandManagerForWorld,
-  registerCommandOnAllWorlds,
-} from "./utils/worldHelpers";
+import { initializePlayerInWorld as initializePlayerInWorldHelper } from "./islands/shared/playerInitialization";
+import { setupPlayerUIHandlers } from "./islands/shared/playerUIHandlers";
+import { registerAllCommands } from "./islands/shared/commands";
+import type { PlayerCoinData } from "./islands/shared/types";
+
+/**
+ * Mapping entre les IDs d'îles et leurs maps correspondantes
+ */
+const islandMapMapping: Record<string, any> = {
+  island1: island1Map,
+  island2: island2Map,
+  island3: island3Map,
+  // Ajoutez d'autres îles ici au fur et à mesure
+};
 
 /**
  * startServer is always the entry point for our game.
@@ -90,15 +98,47 @@ startServer((defaultWorld) => {
     return island1World || undefined;
   };
 
-  // Crée le service de gestion des joueurs
-  const playerService = new PlayerService();
+  // Map pour tracker les entités de joueurs par monde et par ID de joueur
+  // Structure: Map<World, Map<playerId, DefaultPlayerEntity>>
+  const playerEntitiesByWorld = new Map<
+    World,
+    Map<string, DefaultPlayerEntity>
+  >();
 
-  // Crée le gestionnaire d'événements UI pour les joueurs
-  const playerUIHandler = new PlayerUIHandler(
-    playerService,
-    islandWorldManager,
-    islandMapMapping
-  );
+  // Map pour tracker les émetteurs de particules par joueur
+  // Structure: Map<playerId, ParticleEmitter>
+  const playerParticleEmitters = new Map<string, ParticleEmitter>();
+
+  /**
+   * Fonction helper pour initialiser un joueur dans un monde donné
+   * Cette fonction est utilisée pour tous les mondes d'îles gérés par islandWorldManager
+   */
+  const initializePlayerInWorld = (
+    player: Player,
+    world: World,
+    islandManager: IslandManager
+  ): void => {
+    // Utilise la fonction helper pour initialiser le joueur
+    const { playerEntity, jumpChargeSceneUI } = initializePlayerInWorldHelper(
+      player,
+      world,
+      islandManager,
+      {
+        islandWorldManager,
+        playerEntitiesByWorld,
+        playerParticleEmitters,
+        islandMapMapping,
+      }
+    );
+
+    // Configure les handlers d'événements UI
+    setupPlayerUIHandlers(player, world, playerEntity, jumpChargeSceneUI, {
+      islandWorldManager,
+      playerEntitiesByWorld,
+      playerParticleEmitters,
+      islandMapMapping,
+    });
+  };
 
   /**
    * Configure les handlers JOINED_WORLD et LEFT_WORLD pour chaque monde d'île
@@ -119,31 +159,67 @@ startServer((defaultWorld) => {
 
     // Handler JOINED_WORLD pour ce monde d'île
     islandWorld.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
-      // Initialise le joueur dans le monde
-      playerService.initializePlayerInWorld(
-        player,
-        islandWorld,
-        islandManager,
-        islandWorldManager
-      );
-
-      // Configure les handlers UI pour ce joueur
-      playerUIHandler.setupUIHandlers(player, islandWorld);
+      initializePlayerInWorld(player, islandWorld, islandManager);
     });
 
     // Handler LEFT_WORLD pour ce monde d'île
     islandWorld.on(PlayerEvent.LEFT_WORLD, ({ player }) => {
-      // Nettoie les ressources du joueur
-      playerService.cleanupPlayer(player, islandWorld);
+      islandWorld.entityManager
+        .getPlayerEntitiesByPlayer(player)
+        .forEach((entity) => entity.despawn());
+
+      const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
+      if (worldPlayerMap) {
+        worldPlayerMap.delete(player.id);
+      }
+
+      // Nettoie l'émetteur de particules du joueur
+      const particleEmitter = playerParticleEmitters.get(player.id);
+      if (particleEmitter) {
+        particleEmitter.despawn();
+        playerParticleEmitters.delete(player.id);
+      }
     });
   });
 
   /**
    * Vérifie périodiquement la position Y des joueurs
-   * Si un joueur tombe en dessous du seuil, on le repositionne au point de départ de son île
+   * Si un joueur tombe en dessous de y = -50, on le repositionne au point de départ de son île
    */
   setInterval(() => {
-    playerService.checkAndRepositionFallenPlayers(islandWorldManager);
+    // Parcourt tous les mondes d'îles
+    islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+      // Trouve l'ID de l'île correspondant à ce monde
+      let islandId = "";
+      islandWorldManager.getAvailableIslandIds().forEach((id) => {
+        if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
+          islandId = id;
+        }
+      });
+
+      // Récupère le gestionnaire d'îles pour ce monde
+      const islandManager =
+        islandWorldManager.getIslandManagerForIsland(islandId);
+      if (!islandManager) return;
+
+      const currentIsland = islandManager.getCurrentIsland();
+      if (!currentIsland) return;
+
+      // Récupère la position de départ de l'île
+      const startPosition = currentIsland.getStartPosition();
+
+      // Parcourt tous les joueurs dans ce monde
+      const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
+      if (!worldPlayerMap) return;
+
+      worldPlayerMap.forEach((playerEntity, playerId) => {
+        // Vérifie si le joueur est en dessous de y = -50
+        if (playerEntity.position.y < -50) {
+          // Repositionne le joueur au point de départ de l'île
+          playerEntity.setPosition(startPosition);
+        }
+      });
+    });
   }, 1000); // Vérifie toutes les secondes
 
   /**
@@ -164,279 +240,11 @@ startServer((defaultWorld) => {
   // Note: Les handlers LEFT_WORLD sont déjà configurés ci-dessus pour chaque monde
 
   /**
-   * A silly little easter egg command. When a player types
-   * "/rocket" in the game, they'll get launched into the air!
+   * Enregistre toutes les commandes du jeu
    */
-  registerCommandOnAllWorlds(
-    "/rocket",
-    (player) => {
-      const playerWorld = getPlayerWorld(player, islandWorldManager);
-      if (playerWorld) {
-        playerWorld.entityManager
-          .getPlayerEntitiesByPlayer(player)
-          .forEach((entity) => {
-            entity.applyImpulse({ x: 0, y: 20, z: 0 });
-          });
-      }
-    },
-    islandWorldManager
-  );
-
-  /**
-   * Commande pour téléporter le joueur à une plateforme spécifique
-   * Usage: /teleport <platform-id>
-   * Exemple: /teleport start-platform
-   */
-  registerCommandOnAllWorlds(
-    "/teleport",
-    (player, args) => {
-      const playerWorld = getPlayerWorld(player, islandWorldManager);
-      if (!playerWorld) return;
-
-      // Vérifie qu'un ID de plateforme a été fourni
-      // args est un tableau de mots séparés par des espaces après /teleport
-      if (!args || args.length === 0) {
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          "Usage: /teleport <platform-id>",
-          "FF0000"
-        );
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          "Exemple: /teleport start-platform",
-          "FF0000"
-        );
-        return;
-      }
-
-      const platformId = args[0];
-      const islandManager = getIslandManagerForWorld(
-        playerWorld,
-        islandWorldManager
-      );
-      if (!islandManager) {
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          "Aucune île n'est actuellement chargée.",
-          "FF0000"
-        );
-        return;
-      }
-
-      const currentIsland = islandManager.getCurrentIsland();
-      if (!currentIsland) {
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          "Aucune île n'est actuellement chargée.",
-          "FF0000"
-        );
-        return;
-      }
-
-      const platformPosition =
-        currentIsland.getPlatformPositionById(platformId);
-
-      // Vérifie si la plateforme existe
-      if (!platformPosition) {
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          `Plateforme avec l'ID "${platformId}" introuvable.`,
-          "FF0000"
-        );
-        return;
-      }
-
-      // Téléporte toutes les entités du joueur à la position de la plateforme
-      // On ajoute un petit offset en Y pour être au-dessus de la plateforme
-      const teleportPosition = {
-        x: platformPosition.x,
-        y: platformPosition.y + 2, // 2 blocs au-dessus de la plateforme
-        z: platformPosition.z,
-      };
-
-      playerWorld.entityManager
-        .getPlayerEntitiesByPlayer(player)
-        .forEach((entity) => {
-          entity.setPosition(teleportPosition);
-        });
-
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        `Téléporté vers la plateforme "${platformId}"`,
-        "00FF00"
-      );
-    },
-    islandWorldManager
-  );
-
-  /**
-   * Commande pour réinitialiser les données persistées des coins du joueur
-   * Usage: /resetcoins
-   */
-  registerCommandOnAllWorlds(
-    "/resetcoins",
-    async (player) => {
-      const playerWorld = getPlayerWorld(player, islandWorldManager);
-      if (!playerWorld) return;
-      // Réinitialise les données des coins du joueur
-      player.setPersistedData({
-        gold: 0,
-        collectedCoins: [],
-      });
-
-      // Supprime l'entrée du joueur de tous les leaderboards (toutes les îles)
-      try {
-        const globalData = (await PersistenceManager.instance.getGlobalData(
-          "game-leaderboard"
-        )) as Record<string, any> | undefined;
-
-        if (globalData) {
-          // Liste des IDs d'îles disponibles
-          const islandIds = ["island1", "island2"];
-
-          // Met à jour chaque leaderboard d'île
-          for (const islandId of islandIds) {
-            const leaderboardKey = `leaderboard-${islandId}`;
-            const leaderboard = globalData[leaderboardKey] as
-              | Array<{ playerName: string; timestamp: number }>
-              | undefined;
-
-            if (leaderboard && leaderboard.length > 0) {
-              // Filtre pour retirer toutes les entrées de ce joueur
-              const updatedLeaderboard = leaderboard.filter(
-                (entry) => entry.playerName !== player.username
-              );
-
-              // Sauvegarde le leaderboard mis à jour
-              globalData[leaderboardKey] = updatedLeaderboard;
-
-              // Met à jour le leaderboard des skeleton soldiers de cette île
-              const updateLeaderboard = islandLeaderboardUpdaters[islandId];
-              if (updateLeaderboard) {
-                try {
-                  updateLeaderboard(updatedLeaderboard);
-                  console.log(
-                    `[ResetCoins] Leaderboard mis à jour pour ${islandId}`
-                  );
-                } catch (error) {
-                  console.error(
-                    `[ResetCoins] Erreur lors de la mise à jour du leaderboard pour ${islandId}:`,
-                    error
-                  );
-                }
-              } else {
-                console.warn(
-                  `[ResetCoins] Aucune fonction de mise à jour trouvée pour l'île ${islandId}`
-                );
-              }
-            }
-          }
-
-          // Sauvegarde tous les leaderboards mis à jour
-          await PersistenceManager.instance.setGlobalData(
-            "game-leaderboard",
-            globalData
-          );
-        }
-      } catch (error) {
-        console.error("Erreur lors de la suppression du leaderboard:", error);
-      }
-
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        "Vos données de coins et votre entrée au leaderboard ont été réinitialisées !",
-        "FFD700"
-      );
-    },
-    islandWorldManager
-  );
-
-  /**
-   * Commande pour afficher le leaderboard des joueurs qui ont collecté le dernier coin
-   * Usage: /leaderboard [islandId]
-   * Si islandId n'est pas spécifié, utilise l'île actuelle du joueur
-   */
-  registerCommandOnAllWorlds(
-    "/leaderboard",
-    async (player, args) => {
-      const playerWorld = getPlayerWorld(player, islandWorldManager);
-      if (!playerWorld) return;
-
-      // Détermine quelle île utiliser
-      let islandId = "island1"; // Par défaut
-      if (args && args.length > 0) {
-        // Si un argument est fourni, utilise-le
-        islandId = args[0];
-      } else {
-        // Sinon, détermine l'île depuis le monde du joueur
-        islandWorldManager.getAvailableIslandIds().forEach((id) => {
-          if (islandWorldManager.getWorldForIsland(id) === playerWorld) {
-            islandId = id;
-          }
-        });
-      }
-
-      const leaderboard = await getLeaderboard(islandId);
-
-      if (leaderboard.length === 0) {
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          "Aucun joueur n'a encore collecté le dernier coin.",
-          "FFD700"
-        );
-        return;
-      }
-
-      // Envoie le titre du leaderboard
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        "═══════════════════════════════════",
-        "FFD700"
-      );
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        `🏆 LEADERBOARD - ${islandId.toUpperCase()} - Dernier Coin Collecté`,
-        "FFD700"
-      );
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        "═══════════════════════════════════",
-        "FFD700"
-      );
-
-      // Affiche chaque joueur du leaderboard avec son rang et la date
-      leaderboard.forEach((entry, index) => {
-        const rank = index + 1;
-        const date = new Date(entry.timestamp);
-        const dateStr = date.toLocaleDateString("fr-FR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-        let rankEmoji = "";
-        if (rank === 1) rankEmoji = "🥇";
-        else if (rank === 2) rankEmoji = "🥈";
-        else if (rank === 3) rankEmoji = "🥉";
-        else rankEmoji = `${rank}.`;
-
-        playerWorld.chatManager.sendPlayerMessage(
-          player,
-          `${rankEmoji} ${entry.playerName} - ${dateStr}`,
-          rank <= 3 ? "FFD700" : "FFFFFF"
-        );
-      });
-
-      playerWorld.chatManager.sendPlayerMessage(
-        player,
-        "═══════════════════════════════════",
-        "FFD700"
-      );
-    },
-    islandWorldManager
-  );
+  registerAllCommands({
+    islandWorldManager,
+  });
 
   /**
    * Play some peaceful ambient music to

@@ -1,15 +1,5 @@
 import { Player, World } from "hytopia";
-
-/**
- * Interface pour les données persistées du joueur concernant les coins et particules
- */
-interface PlayerCoinData {
-  gold?: number;
-  collectedCoins?: string[];
-  selectedIsland?: string;
-  selectedParticle?: string;
-  ownedParticles?: string[]; // Particules possédées par le joueur
-}
+import type { PlayerCoinData } from "./types";
 
 /**
  * Prix d'une particule en or
@@ -20,6 +10,19 @@ export const PARTICLE_COST = 15;
  * Particules données par défaut à tous les joueurs (gratuites)
  */
 export const DEFAULT_PARTICLES = ["particle1", "particle2", "particle3"];
+
+/**
+ * Fusionne les particules possédées par le joueur avec les particules par défaut
+ * S'assure que les particules par défaut sont toujours incluses
+ * @param ownedParticles - Les particules possédées par le joueur (peut être undefined ou null)
+ * @returns Un tableau avec toutes les particules (par défaut + possédées), sans doublons
+ */
+export function mergeDefaultParticles(
+  ownedParticles?: string[] | null
+): string[] {
+  const existingOwnedParticles = ownedParticles || [];
+  return [...new Set([...DEFAULT_PARTICLES, ...existingOwnedParticles])];
+}
 
 /**
  * Vérifie si le joueur peut acheter une particule
@@ -127,9 +130,7 @@ export function purchaseParticle(
 
   // Met à jour les particules possédées dans l'UI du joueur
   // S'assure que les particules par défaut sont toujours incluses
-  const allOwnedParticles = [
-    ...new Set([...DEFAULT_PARTICLES, ...playerData.ownedParticles]),
-  ];
+  const allOwnedParticles = mergeDefaultParticles(playerData.ownedParticles);
   player.ui.sendData({
     type: "owned-particles-update",
     ownedParticles: allOwnedParticles,

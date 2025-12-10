@@ -18,24 +18,7 @@ import coinDataDefault from "../../assets/islands/island1/coin.json";
 import coinDataIsland1 from "../../assets/islands/island1/coin.json";
 import coinDataIsland2 from "../../assets/islands/island2/coin.json";
 import coinDataIsland3 from "../../assets/islands/island3/coin.json";
-// Import des fonctions de mise à jour du leaderboard pour chaque île
-import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "../island1/welcomeNPCS";
-import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "../island2/welcomeNPCS";
-import { updateAllSkeletonSoldiersLeaderboard as updateIsland3Leaderboard } from "../island3/welcomeNPCS";
-
-/**
- * Mapping entre les IDs d'îles et leurs fonctions de mise à jour du leaderboard
- * Utilise un mapping statique pour éviter les problèmes d'import dynamique
- */
-const islandLeaderboardUpdaters: Record<
-  string,
-  (leaderboard: Array<{ playerName: string; timestamp: number }>) => void
-> = {
-  island1: updateIsland1Leaderboard,
-  island2: updateIsland2Leaderboard,
-  island3: updateIsland3Leaderboard,
-  // Ajoutez d'autres îles ici au fur et à mesure
-};
+import { updateIslandLeaderboard } from "./leaderboard";
 
 export interface Position {
   x: number;
@@ -66,13 +49,7 @@ export interface CoinConfig {
   coins: Coin[];
 }
 
-/**
- * Interface pour les données persistées du joueur concernant les coins
- */
-interface PlayerCoinData {
-  gold?: number;
-  collectedCoins?: string[];
-}
+import type { PlayerCoinData } from "./types";
 
 /**
  * Interface pour une entrée du leaderboard
@@ -294,24 +271,10 @@ async function addToLeaderboard(
     console.log(
       `[Coin] Mise à jour du leaderboard pour l'île ${islandId} avec ${leaderboard.length} entrées`
     );
-    const updateLeaderboard = islandLeaderboardUpdaters[islandId];
-    if (updateLeaderboard) {
-      try {
-        updateLeaderboard(leaderboard);
-        console.log(
-          `[Coin] Leaderboard mis à jour avec succès pour l'île ${islandId}`
-        );
-      } catch (error) {
-        console.error(
-          `[Coin] Erreur lors de la mise à jour du leaderboard pour ${islandId}:`,
-          error
-        );
-      }
-    } else {
-      console.warn(
-        `[Coin] Aucune fonction de mise à jour trouvée pour l'île ${islandId}`
-      );
-    }
+    updateIslandLeaderboard(islandId, leaderboard);
+    console.log(
+      `[Coin] Leaderboard mis à jour avec succès pour l'île ${islandId}`
+    );
   } catch (error) {
     console.error("Erreur lors de l'ajout au leaderboard:", error);
   }

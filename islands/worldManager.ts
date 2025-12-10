@@ -1,5 +1,5 @@
 // Gestionnaire de mondes pour les îles
-import { World, WorldManager } from "hytopia";
+import { World, WorldManager, Player } from "hytopia";
 import { IslandManager } from "./islandManager";
 
 /**
@@ -87,5 +87,50 @@ export class IslandWorldManager {
    */
   getAvailableIslandIds(): string[] {
     return Array.from(this.worlds.keys());
+  }
+
+  /**
+   * Récupère l'ID de l'île correspondant à un monde donné
+   * @param world - Le monde pour lequel trouver l'ID de l'île
+   * @returns L'ID de l'île ou null si le monde n'est pas géré par ce manager
+   */
+  getIslandIdForWorld(world: World): string | null {
+    for (const [islandId, islandWorld] of this.worlds.entries()) {
+      if (islandWorld === world) {
+        return islandId;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Récupère le monde où se trouve un joueur
+   * @param player - Le joueur pour lequel trouver le monde
+   * @returns Le monde où se trouve le joueur ou null si le joueur n'est dans aucun monde géré
+   */
+  getPlayerWorld(player: Player): World | null {
+    // Vérifie chaque monde d'île
+    for (const islandWorld of this.worlds.values()) {
+      const islandPlayers =
+        islandWorld.entityManager.getPlayerEntitiesByPlayer(player);
+      if (islandPlayers.length > 0) {
+        return islandWorld;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Récupère le gestionnaire d'îles pour un monde donné
+   * @param world - Le monde pour lequel trouver le gestionnaire d'îles
+   * @returns Le gestionnaire d'îles ou null si le monde n'est pas géré
+   */
+  getIslandManagerForWorld(world: World): IslandManager | null {
+    // Trouve l'ID de l'île correspondant à ce monde
+    const islandId = this.getIslandIdForWorld(world);
+    if (!islandId) {
+      return null;
+    }
+    return this.getIslandManagerForIsland(islandId);
   }
 }
