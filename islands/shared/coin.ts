@@ -10,9 +10,14 @@ import {
   ColliderShape,
   Audio,
   PersistenceManager,
+  Player,
 } from "hytopia";
 // Import par défaut pour compatibilité avec le code existant
 import coinDataDefault from "../../assets/islands/island1/coin.json";
+// Import des données de coins pour chaque île
+import coinDataIsland1 from "../../assets/islands/island1/coin.json";
+import coinDataIsland2 from "../../assets/islands/island2/coin.json";
+import coinDataIsland3 from "../../assets/islands/island3/coin.json";
 // Import des fonctions de mise à jour du leaderboard pour chaque île
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland1Leaderboard } from "../island1/welcomeNPCS";
 import { updateAllSkeletonSoldiersLeaderboard as updateIsland2Leaderboard } from "../island2/welcomeNPCS";
@@ -172,6 +177,23 @@ async function handleCoinCollection(
   if (isFirstTimeLastCoin) {
     // Le joueur a collecté le dernier coin pour la première fois, on l'ajoute au leaderboard
     await addToLeaderboard(world, player, islandId);
+
+    // Vérifie si cela déverrouille l'île suivante
+    const nextIslandId = getNextIslandId(islandId);
+    if (nextIslandId) {
+      // Envoie un message à l'UI pour déverrouiller l'île suivante
+      player.ui.sendData({
+        type: "island-unlocked",
+        islandId: nextIslandId,
+      });
+
+      // Envoie un message de félicitations pour le déverrouillage de l'île suivante
+      world.chatManager.sendPlayerMessage(
+        player,
+        `🔓 Félicitations ! L'${nextIslandId} est maintenant déverrouillée ! Vous pouvez y accéder depuis le menu Maps.`,
+        "00FF00"
+      );
+    }
   }
 
   // Désactive le coin temporairement (même si on ne l'ajoute pas au leaderboard)
@@ -301,12 +323,96 @@ async function addToLeaderboard(
  * @param coinData - Les données JSON des coins
  * @returns L'ID du dernier coin ou null si aucun coin
  */
-function getLastCoinId(coinData: CoinConfig): string | null {
+export function getLastCoinId(coinData: CoinConfig): string | null {
   if (!coinData.coins || coinData.coins.length === 0) {
     return null;
   }
   // Le dernier coin est le dernier élément du tableau
   return coinData.coins[coinData.coins.length - 1].id;
+}
+
+/**
+ * Mapping entre les IDs d'îles et leurs données de coins
+ */
+const islandCoinDataMap: Record<string, CoinConfig> = {
+  island1: coinDataIsland1 as CoinConfig,
+  island2: coinDataIsland2 as CoinConfig,
+  island3: coinDataIsland3 as CoinConfig,
+};
+
+/**
+ * Récupère l'ID du dernier coin pour une île spécifique
+ * @param islandId - L'ID de l'île (ex: "island1", "island2")
+ * @returns L'ID du dernier coin ou null si l'île n'existe pas
+ */
+export function getLastCoinIdForIsland(islandId: string): string | null {
+  const coinData = islandCoinDataMap[islandId];
+  if (!coinData) {
+    return null;
+  }
+  return getLastCoinId(coinData);
+}
+
+/**
+ * Mapping des prérequis pour déverrouiller chaque île
+ * Chaque île nécessite d'avoir collecté le dernier coin de l'île précédente
+ */
+const islandUnlockRequirements: Record<string, string | null> = {
+  island1: null, // L'île 1 est toujours accessible
+  island2: "island1", // Nécessite le dernier coin de l'île 1
+  island3: "island2", // Nécessite le dernier coin de l'île 2
+};
+
+/**
+ * Récupère l'ID de l'île suivante pour une île donnée
+ * @param islandId - L'ID de l'île actuelle
+ * @returns L'ID de l'île suivante ou null s'il n'y en a pas
+ */
+function getNextIslandId(islandId: string): string | null {
+  // Mapping inverse : quelle île est déverrouillée par cette île
+  const islandUnlockMap: Record<string, string | null> = {
+    island1: "island2", // L'île 1 déverrouille l'île 2
+    island2: "island3", // L'île 2 déverrouille l'île 3
+    island3: null, // L'île 3 n'a pas d'île suivante
+  };
+  return islandUnlockMap[islandId] || null;
+}
+
+/**
+ * Vérifie si un joueur a déverrouillé une île spécifique
+ * @param player - Le joueur à vérifier
+ * @param targetIslandId - L'ID de l'île cible (ex: "island2", "island3")
+ * @returns true si l'île est déverrouillée, false sinon
+ */
+export function hasUnlockedIsland(
+  player: Player,
+  targetIslandId: string
+): boolean {
+  // L'île 1 est toujours accessible
+  if (targetIslandId === "island1") {
+    return true;
+  }
+
+  // Récupère l'île prérequise
+  const requiredIslandId = islandUnlockRequirements[targetIslandId];
+  if (!requiredIslandId) {
+    // Si aucune île prérequise n'est définie, l'île est accessible
+    return true;
+  }
+
+  // Récupère l'ID du dernier coin de l'île prérequise
+  const requiredLastCoinId = getLastCoinIdForIsland(requiredIslandId);
+  if (!requiredLastCoinId) {
+    // Si aucun dernier coin n'est trouvé, l'île n'est pas accessible
+    return false;
+  }
+
+  // Récupère les données persistées du joueur
+  const playerData = player.getPersistedData() as PlayerCoinData | undefined;
+  const collectedCoins = playerData?.collectedCoins || [];
+
+  // Vérifie si le joueur a collecté le dernier coin de l'île prérequise
+  return collectedCoins.includes(requiredLastCoinId);
 }
 
 /**

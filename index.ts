@@ -42,7 +42,11 @@ import {
 import island1Map from "./assets/map_island_1.json";
 import island2Map from "./assets/map_island_2.json";
 import island3Map from "./assets/map_island_3.json";
-import { getLeaderboard } from "./islands/shared/coin";
+import {
+  getLeaderboard,
+  hasUnlockedIsland,
+  getLastCoinIdForIsland,
+} from "./islands/shared/coin";
 import { IslandManager } from "./islands/islandManager";
 import { IslandWorldManager } from "./islands/worldManager";
 // Import des fonctions de mise à jour du leaderboard pour chaque île
@@ -266,6 +270,17 @@ startServer((defaultWorld) => {
         type: "owned-particles-update",
         ownedParticles: ownedParticles,
       });
+
+      // Envoie l'état de déverrouillage des îles à l'UI
+      const islandsStatus = {
+        island1: { unlocked: true }, // L'île 1 est toujours accessible
+        island2: { unlocked: hasUnlockedIsland(player, "island2") },
+        island3: { unlocked: hasUnlockedIsland(player, "island3") },
+      };
+      player.ui.sendData({
+        type: "islands-unlock-status",
+        islands: islandsStatus,
+      });
     }, 100);
 
     // Crée une Scene UI pour la barre de charge verticale au-dessus du joueur
@@ -311,6 +326,17 @@ startServer((defaultWorld) => {
         // Sauvegarde l'île sélectionnée dans les données persistées du joueur
         const islandId = data.islandId as string;
         if (islandId && islandMapMapping[islandId]) {
+          // Vérifie si l'île est déverrouillée
+          if (!hasUnlockedIsland(player, islandId)) {
+            // L'île est verrouillée, envoie un message d'erreur au joueur
+            world.chatManager.sendPlayerMessage(
+              player,
+              `🔒 Cette île est verrouillée ! Vous devez collecter le dernier coin de l'île précédente pour y accéder.`,
+              "FF0000"
+            );
+            return;
+          }
+
           const currentData = player.getPersistedData() as PlayerCoinData;
           player.setPersistedData({
             ...currentData,
@@ -508,6 +534,46 @@ startServer((defaultWorld) => {
       }
     });
   });
+
+  /**
+   * Vérifie périodiquement la position Y des joueurs
+   * Si un joueur tombe en dessous de y = -50, on le repositionne au point de départ de son île
+   */
+  setInterval(() => {
+    // Parcourt tous les mondes d'îles
+    islandWorldManager.getAllWorlds().forEach((islandWorld) => {
+      // Trouve l'ID de l'île correspondant à ce monde
+      let islandId = "";
+      islandWorldManager.getAvailableIslandIds().forEach((id) => {
+        if (islandWorldManager.getWorldForIsland(id) === islandWorld) {
+          islandId = id;
+        }
+      });
+
+      // Récupère le gestionnaire d'îles pour ce monde
+      const islandManager =
+        islandWorldManager.getIslandManagerForIsland(islandId);
+      if (!islandManager) return;
+
+      const currentIsland = islandManager.getCurrentIsland();
+      if (!currentIsland) return;
+
+      // Récupère la position de départ de l'île
+      const startPosition = currentIsland.getStartPosition();
+
+      // Parcourt tous les joueurs dans ce monde
+      const worldPlayerMap = playerEntitiesByWorld.get(islandWorld);
+      if (!worldPlayerMap) return;
+
+      worldPlayerMap.forEach((playerEntity, playerId) => {
+        // Vérifie si le joueur est en dessous de y = -50
+        if (playerEntity.position.y < -50) {
+          // Repositionne le joueur au point de départ de l'île
+          playerEntity.setPosition(startPosition);
+        }
+      });
+    });
+  }, 1000); // Vérifie toutes les secondes
 
   /**
    * Handle player leaving the game. The PlayerEvent.LEFT_WORLD

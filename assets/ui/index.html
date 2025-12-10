@@ -41,6 +41,41 @@ and also configure additional buttons for mobile compatibility.
         }
       });
     }
+
+    // Écoute les mises à jour de l'état de déverrouillage des îles
+    if (data.type === "islands-unlock-status") {
+      const islands = data.islands || {};
+      const mapCards = document.querySelectorAll(".map-card");
+      mapCards.forEach((card) => {
+        const islandId = card.getAttribute("data-island");
+        if (islandId && islands[islandId]) {
+          const isUnlocked = islands[islandId].unlocked;
+          if (isUnlocked) {
+            card.classList.remove("locked");
+          } else {
+            card.classList.add("locked");
+          }
+        }
+      });
+    }
+
+    // Écoute les messages de déverrouillage d'île
+    if (data.type === "island-unlocked") {
+      const islandId = data.islandId;
+      if (islandId) {
+        const mapCard = document.querySelector(
+          `.map-card[data-island="${islandId}"]`
+        );
+        if (mapCard) {
+          mapCard.classList.remove("locked");
+          // Animation de déverrouillage (optionnel)
+          mapCard.classList.add("unlocked-animation");
+          setTimeout(() => {
+            mapCard.classList.remove("unlocked-animation");
+          }, 1000);
+        }
+      }
+    }
   });
 
   // Enregistre le template Scene UI pour la barre de charge verticale
@@ -451,6 +486,12 @@ and also configure additional buttons for mobile compatibility.
   const mapCards = document.querySelectorAll(".map-card");
   mapCards.forEach((card) => {
     card.addEventListener("click", () => {
+      // Vérifie si l'île est verrouillée
+      if (card.classList.contains("locked")) {
+        // Affiche un message d'erreur (le serveur enverra aussi un message)
+        return;
+      }
+
       const islandId = card.getAttribute("data-island");
       if (islandId) {
         // Envoie le message au serveur pour changer d'île
@@ -546,11 +587,11 @@ and also configure additional buttons for mobile compatibility.
       <div class="map-card-background"></div>
       <div class="map-card-name">Island 1</div>
     </div>
-    <div class="map-card" data-island="island2">
+    <div class="map-card locked" data-island="island2">
       <div class="map-card-background"></div>
       <div class="map-card-name">Island 2</div>
     </div>
-    <div class="map-card" data-island="island3">
+    <div class="map-card locked" data-island="island3">
       <div class="map-card-background"></div>
       <div class="map-card-name">Island 3</div>
     </div>
@@ -2060,13 +2101,13 @@ and also configure additional buttons for mobile compatibility.
   }
 
   body.mobile .welcome-npc-card-title {
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 8px;
     font-family: "Caudex", serif;
   }
 
   body.mobile .welcome-npc-card-message {
-    font-size: 12px;
+    font-size: 10px;
     line-height: 1.3;
     font-family: "Caudex", serif;
   }
@@ -2205,6 +2246,48 @@ and also configure additional buttons for mobile compatibility.
   .map-card:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Styles pour les îles verrouillées */
+  .map-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    position: relative;
+  }
+
+  .map-card.locked:hover {
+    transform: scale(1);
+    box-shadow: none;
+  }
+
+  .map-card.locked::after {
+    content: "🔒";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* Animation de déverrouillage */
+  .map-card.unlocked-animation {
+    animation: unlockPulse 1s ease-in-out;
+  }
+
+  @keyframes unlockPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 
   .map-card-background {
@@ -2772,7 +2855,7 @@ and also configure additional buttons for mobile compatibility.
     }
 
     .particle-card-name {
-      font-size: 10px;
+      font-size: 8px;
     }
 
     .particle-card-price {
