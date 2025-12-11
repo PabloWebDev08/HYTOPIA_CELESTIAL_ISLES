@@ -79,7 +79,7 @@ const islandMapMapping: Record<string, WorldMap> = {
 const islandSkyboxMapping: Record<string, string> = {
   island1: "skyboxes/partly-cloudy", // Exemple : skybox personnalisée pour island1
   island2: "skyboxes/sunset", // Exemple : skybox personnalisée pour island2
-  island3: "skyboxes/sunset", // Exemple : skybox personnalisée pour island3
+  island3: "skyboxes/partly-big-cloudy", // Exemple : skybox personnalisée pour island3
 };
 
 /**
