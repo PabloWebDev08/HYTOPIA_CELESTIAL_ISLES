@@ -71,6 +71,17 @@ const islandMapMapping: Record<string, WorldMap> = {
 };
 
 /**
+ * Mapping optionnel entre les IDs d'îles et leurs skyboxes
+ * Si une île n'est pas présente dans ce mapping, le skybox par défaut sera utilisé
+ * Exemples de skyboxes disponibles : "skyboxes/partly-cloudy", "skyboxes/sunset", etc.
+ */
+const islandSkyboxMapping: Record<string, string> = {
+  island1: "skyboxes/partly-cloudy", // Exemple : skybox personnalisée pour island1
+  island2: "skyboxes/sunset", // Exemple : skybox personnalisée pour island2
+  island3: "skyboxes/sunset", // Exemple : skybox personnalisée pour island3
+};
+
+/**
  * startServer is always the entry point for our game.
  * It accepts a single function where we should do any
  * setup necessary for our game. The init function is
@@ -94,7 +105,12 @@ startServer((defaultWorld) => {
 
   // Crée le gestionnaire de mondes d'îles et initialise tous les mondes
   // Tous les mondes d'îles sont créés ici, y compris island1
-  const islandWorldManager = new IslandWorldManager(islandMapMapping);
+  // Le deuxième paramètre (islandSkyboxMapping) est optionnel
+  // Si vous ne le spécifiez pas, toutes les îles utiliseront le skybox par défaut
+  const islandWorldManager = new IslandWorldManager(
+    islandMapMapping,
+    islandSkyboxMapping
+  );
   islandWorldManager.initializeWorlds();
 
   // Pour activer le debug rendering sur un monde d'île spécifique:

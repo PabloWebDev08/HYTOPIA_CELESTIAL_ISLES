@@ -11,6 +11,14 @@ export interface IslandMapMapping {
 }
 
 /**
+ * Mapping optionnel entre les IDs d'îles et leurs skyboxes
+ * Si une île n'a pas de skybox spécifiée, le skybox par défaut sera utilisé
+ */
+export interface IslandSkyboxMapping {
+  [islandId: string]: string;
+}
+
+/**
  * Gestionnaire de mondes pour les îles
  * Crée et gère un monde séparé pour chaque île
  */
@@ -18,13 +26,20 @@ export class IslandWorldManager {
   private worlds: Map<string, World> = new Map();
   private islandManagers: Map<string, IslandManager> = new Map();
   private islandMapMapping: IslandMapMapping;
+  private islandSkyboxMapping: IslandSkyboxMapping;
+  private defaultSkybox: string = "skyboxes/partly-cloudy";
 
   /**
    * Initialise le gestionnaire de mondes d'îles
    * @param islandMapMapping - Mapping entre les IDs d'îles et leurs maps
+   * @param islandSkyboxMapping - Mapping optionnel entre les IDs d'îles et leurs skyboxes
    */
-  constructor(islandMapMapping: IslandMapMapping) {
+  constructor(
+    islandMapMapping: IslandMapMapping,
+    islandSkyboxMapping?: IslandSkyboxMapping
+  ) {
     this.islandMapMapping = islandMapMapping;
+    this.islandSkyboxMapping = islandSkyboxMapping || {};
   }
 
   /**
@@ -36,10 +51,14 @@ export class IslandWorldManager {
     Object.keys(this.islandMapMapping).forEach((islandId) => {
       const mapData = this.islandMapMapping[islandId];
 
+      // Récupère la skybox spécifique à cette île, ou utilise le défaut
+      const skyboxUri =
+        this.islandSkyboxMapping[islandId] || this.defaultSkybox;
+
       // Crée un nouveau monde pour cette île
       const world = WorldManager.instance.createWorld({
         name: `Island ${islandId}`,
-        skyboxUri: "skyboxes/partly-cloudy", // Utilise le skybox par défaut
+        skyboxUri: skyboxUri,
       });
 
       // Charge la map dans ce monde

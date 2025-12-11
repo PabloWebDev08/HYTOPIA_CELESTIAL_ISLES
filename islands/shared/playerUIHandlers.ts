@@ -301,8 +301,10 @@ function handleJumpEvents(
       jumpAudioCache.set(playerId, jumpAudio);
     }
 
-    // Joue le son (réutilise l'instance existante si elle est valide)
-    jumpAudio.play(world);
+    // Joue le son en forçant la relecture (restart: true)
+    // Cela permet de jouer le son même s'il est déjà en cours de lecture
+    // Sans restart: true, play() ne fait rien si l'audio est déjà en train de jouer
+    jumpAudio.play(world, true);
 
     // Réinitialise la barre de charge
     jumpChargeSceneUI.setState({ progress: 0, visible: false });
