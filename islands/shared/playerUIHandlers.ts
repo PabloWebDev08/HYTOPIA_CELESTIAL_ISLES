@@ -229,6 +229,18 @@ function handleSelectParticle(
 const jumpAudioCache = new Map<string, Audio>();
 
 /**
+ * Cache pour suivre l'état de nage précédent de chaque joueur
+ * Permet de détecter quand le joueur entre dans l'eau
+ */
+const playerSwimmingStateCache = new Map<string, boolean>();
+
+/**
+ * Cache pour les instances Audio d'éclaboussure par joueur
+ * Permet de réutiliser les instances Audio pour les sons d'eau
+ */
+const splashAudioCache = new Map<string, Audio>();
+
+/**
  * Gère les événements de saut (jump-held et jump-charge-update)
  * Optimisé pour mobile avec utilisation des bonnes pratiques du SDK
  * @param playerEntity - L'entité du joueur
@@ -322,12 +334,67 @@ function handleJumpEvents(
 }
 
 /**
+ * Vérifie si le joueur vient d'entrer dans l'eau et joue le son d'éclaboussure si nécessaire
+ * @param playerEntity - L'entité du joueur
+ * @param world - Le monde actuel
+ */
+export function checkWaterEntry(
+  playerEntity: DefaultPlayerEntity,
+  world: World
+): void {
+  const controller = playerEntity.controller;
+  if (!controller) return;
+
+  // Vérifie si le joueur est dans l'eau
+  let isSwimming = false;
+  if (
+    "isSwimming" in controller &&
+    typeof controller.isSwimming === "boolean"
+  ) {
+    isSwimming = controller.isSwimming;
+  }
+
+  const playerId = playerEntity.player.id;
+  const wasSwimming = playerSwimmingStateCache.get(playerId) ?? false;
+
+  // Si le joueur vient d'entrer dans l'eau (transition de false à true)
+  if (!wasSwimming && isSwimming) {
+    // Récupère ou crée l'instance Audio d'éclaboussure
+    let splashAudio = splashAudioCache.get(playerId);
+
+    // Vérifie si l'instance Audio existe et si l'entité attachée est toujours valide
+    if (
+      !splashAudio ||
+      !splashAudio.attachedToEntity ||
+      !splashAudio.attachedToEntity.isSpawned
+    ) {
+      // Crée une nouvelle instance Audio si elle n'existe pas ou si l'entité attachée n'est plus valide
+      splashAudio = new Audio({
+        uri: "audio/sfx/liquid/large-splash.mp3",
+        loop: false,
+        volume: 0.5,
+        attachedToEntity: playerEntity,
+      });
+      splashAudioCache.set(playerId, splashAudio);
+    }
+
+    // Joue le son d'éclaboussure
+    splashAudio.play(world, true);
+  }
+
+  // Met à jour l'état de nage dans le cache
+  playerSwimmingStateCache.set(playerId, isSwimming);
+}
+
+/**
  * Nettoie le cache Audio pour un joueur donné
  * À appeler quand un joueur quitte le monde pour éviter les fuites mémoire
  * @param playerId - L'ID du joueur
  */
 export function cleanupJumpAudio(playerId: string): void {
   jumpAudioCache.delete(playerId);
+  splashAudioCache.delete(playerId);
+  playerSwimmingStateCache.delete(playerId);
 }
 
 /**

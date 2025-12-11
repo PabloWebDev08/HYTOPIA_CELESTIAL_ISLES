@@ -8,6 +8,7 @@ import {
   CollisionGroup,
   ColliderShape,
   WorldLoopEvent,
+  Audio,
 } from "hytopia";
 // Import par défaut pour compatibilité avec le code existant
 import spinningSawDataDefault from "../../assets/islands/island3/spinning-saw.json";
@@ -325,6 +326,14 @@ export function createSpinningSawEntities(
         // Récupère la position de départ stockée dans l'entité
         const storedStartPosition = (entity as any)._startPosition as Position;
         const storedWorld = (entity as any)._spinningSawWorld as World;
+
+        // Joue le son de collision avec la scie rotative
+        new Audio({
+          uri: "audio/sfx/damage/fall-big.mp3",
+          loop: false,
+          volume: 0.5,
+          attachedToEntity: playerEntity,
+        }).play(storedWorld);
 
         // Gère la collision et téléporte le joueur
         await handleSpinningSawCollision(

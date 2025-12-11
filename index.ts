@@ -45,6 +45,7 @@ import { initializePlayerInWorld as initializePlayerInWorldHelper } from "./isla
 import {
   setupPlayerUIHandlers,
   cleanupJumpAudio,
+  checkWaterEntry,
 } from "./islands/shared/playerUIHandlers";
 import { registerAllCommands } from "./islands/shared/commands";
 
@@ -257,6 +258,11 @@ startServer((defaultWorld) => {
           if (playerEntity.position.y < GAME_CONFIG.FALL_THRESHOLD_Y) {
             // Repositionne le joueur au point de départ de l'île
             playerEntity.setPosition(startPosition);
+          }
+
+          // Vérifie si le joueur vient d'entrer dans l'eau et joue le son d'éclaboussure
+          if (playerEntity.isSpawned) {
+            checkWaterEntry(playerEntity, islandWorld);
           }
         });
       } else {
