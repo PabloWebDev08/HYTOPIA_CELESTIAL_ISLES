@@ -280,9 +280,9 @@ startServer((defaultWorld) => {
    * Vous pouvez modifier les chemins de fichiers audio pour chaque île
    */
   const islandMusicMapping: Record<string, string> = {
-    island1: "audio/music/hytopia-main-theme.mp3",
-    island2: "audio/music/snow-theme-looping.mp3", // Changez ce chemin pour une musique différente
-    island3: "audio/music/night-theme-looping.mp3", // Changez ce chemin pour une musique différente
+    island1: "audio/music/rizzlas-morning-vibes.mp3",
+    island2: "audio/music/space-ambient.mp3", // Changez ce chemin pour une musique différente
+    island3: "audio/music/the-infinite-pulse.mp3", // Changez ce chemin pour une musique différente
     // Ajoutez d'autres îles ici au fur et à mesure
   };
 

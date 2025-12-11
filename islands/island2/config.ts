@@ -41,7 +41,7 @@ export const island2Config = {
       rotation: { x: 0, y: 1, z: 0, w: 1 },
       title: "Attention !",
       message:
-        "Attendez que la plateforme soit sur le chemin retour pour commencer a sauter.",
+        "Attends que la plateforme revienne vers toi avant de commencer à sauter.",
     } as PositionWithRotation & { title?: string; message?: string },
   },
 
