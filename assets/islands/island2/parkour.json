@@ -23,6 +23,40 @@
       }
     },
     {
+      "id": "start-platform-bis",
+      "name": "Plateforme de départ bis",
+      "position": { "x": -1.75, "y": 18, "z": 9.94 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-aqua.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "start-platform-bis-1",
+      "name": "Plateforme de départ bis 1",
+      "position": { "x": -1.75, "y": 16, "z": 9.94 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-aqua.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "1-platform",
       "name": "Plateforme 1",
       "position": { "x": 2, "y": 30, "z": 25.71 },
@@ -94,6 +128,23 @@
       }
     },
     {
+      "id": "3-platform-bis",
+      "name": "Plateforme 3 bis",
+      "position": { "x": 20.73, "y": 48, "z": 42.68 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-aqua.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "4-platform",
       "name": "Plateforme 4",
       "position": { "x": 20.73, "y": 60, "z": 49.71 },
@@ -108,6 +159,23 @@
         "type": "platform",
         "requiredJumpForce": 0,
         "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "4-platform-bis",
+      "name": "Plateforme 4 bis",
+      "position": { "x": 20.73, "y": 58, "z": 49.71 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     },
     {
@@ -155,6 +223,23 @@
       }
     },
     {
+      "id": "6-platform-bis",
+      "name": "Plateforme 6 bis",
+      "position": { "x": -25.11, "y": 68, "z": 49.71 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "7-platform",
       "name": "Plateforme 7",
       "position": { "x": -38.91, "y": 70, "z": 30.35 },
@@ -169,6 +254,40 @@
         "type": "platform",
         "requiredJumpForce": 0,
         "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "7-platform-bis",
+      "name": "Plateforme 7 bis",
+      "position": { "x": -38.91, "y": 68, "z": 30.35 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "7-platform-bis-1",
+      "name": "Plateforme 7 bis 1",
+      "position": { "x": -38.91, "y": 66, "z": 30.35 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     },
     {
@@ -403,6 +522,40 @@
       }
     },
     {
+      "id": "20-platform-bis",
+      "name": "Plateforme 20 bis",
+      "position": { "x": -26, "y": 78, "z": -43.44 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-purple.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "20-platform-bis-1",
+      "name": "Plateforme 20 bis 1",
+      "position": { "x": -26, "y": 76, "z": -43.44 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-purple.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "21-platform",
       "name": "Plateforme 21",
       "position": { "x": -15, "y": 85, "z": -43.44 },
@@ -485,6 +638,40 @@
         "type": "platform",
         "requiredJumpForce": 0,
         "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "25-platform-bis",
+      "name": "Plateforme 25 bis",
+      "position": { "x": 38, "y": 103, "z": -43.44 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-aqua.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "25-platform-bis-1",
+      "name": "Plateforme 25 bis 1",
+      "position": { "x": 38, "y": 101, "z": -43.44 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-aqua.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     },
     {
@@ -600,6 +787,40 @@
       }
     },
     {
+      "id": "31-platform-bis",
+      "name": "Plateforme 31 bis",
+      "position": { "x": 23, "y": 113, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "31-platform-bis-1",
+      "name": "Plateforme 31 bis 1",
+      "position": { "x": 23, "y": 111, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "32-platform",
       "name": "Plateforme 32",
       "position": { "x": 4, "y": 115, "z": 31.04 },
@@ -644,6 +865,40 @@
       }
     },
     {
+      "id": "33-platform-bis",
+      "name": "Plateforme 33 bis",
+      "position": { "x": -15, "y": 113, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "33-platform-bis-1",
+      "name": "Plateforme 33 bis 1",
+      "position": { "x": -15, "y": 111, "z": 31.83 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-light-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
+      }
+    },
+    {
       "id": "34-platform",
       "name": "Plateforme 34",
       "position": { "x": -34, "y": 115, "z": 31.83 },
@@ -685,6 +940,40 @@
         "type": "platform",
         "requiredJumpForce": 0,
         "size": { "width": 6, "height": 1, "depth": 6 }
+      }
+    },
+    {
+      "id": "35-platform-bis",
+      "name": "Plateforme 35 bis",
+      "position": { "x": -34.07, "y": 123, "z": 8.97 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "35-platform-bis-1",
+      "name": "Plateforme 35 bis 1",
+      "position": { "x": -34.07, "y": 121, "z": 8.97 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-blue.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     },
     {
@@ -764,6 +1053,40 @@
         "type": "platform",
         "requiredJumpForce": 0,
         "size": { "width": 8, "height": 1, "depth": 8 }
+      }
+    },
+    {
+      "id": "end-platform-bis",
+      "name": "Plateforme de fin bis",
+      "position": { "x": 36.79, "y": 143, "z": 14.79 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 4, "height": 1, "depth": 4 }
+      }
+    },
+    {
+      "id": "end-platform-bis-1",
+      "name": "Plateforme de fin bis 1",
+      "position": { "x": 36.79, "y": 141, "z": 14.79 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "blockTextureUri": "models/blocks/glass-white.png",
+      "modelScale": 1,
+      "modelPreferredShape": "box",
+      "rigidBodyOptions": {
+        "type": "fixed"
+      },
+      "parkourData": {
+        "type": "platform",
+        "requiredJumpForce": 0,
+        "size": { "width": 2, "height": 1, "depth": 2 }
       }
     }
   ]
