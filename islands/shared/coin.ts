@@ -171,6 +171,15 @@ async function handleCoinCollection(
         "00FF00"
       );
     }
+
+    // Message spécial pour l'île 3 (même s'il n'y a pas d'île suivante à déverrouiller)
+    if (islandId === "island3") {
+      world.chatManager.sendPlayerMessage(
+        player,
+        "L'ile 4 arrive bientot",
+        "00FF00"
+      );
+    }
   }
 
   // Désactive le coin temporairement (même si on ne l'ajoute pas au leaderboard)
