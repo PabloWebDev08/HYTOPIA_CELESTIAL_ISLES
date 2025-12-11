@@ -12,6 +12,7 @@ import { Island3 } from "./island3/island";
 export class IslandManager {
   private islands: Map<string, Island> = new Map();
   private currentIsland: Island | null = null;
+  private currentIslandId: string | null = null;
   private world: World | null = null;
 
   /**
@@ -45,6 +46,16 @@ export class IslandManager {
       throw new Error("IslandManager n'a pas été initialisé avec un monde");
     }
 
+    // IMPORTANT:
+    // Ce projet utilise un monde séparé par île (voir IslandWorldManager).
+    // On charge donc l'île une seule fois au démarrage du monde.
+    // Quand un joueur rejoint le monde, on ne doit PAS recharger l'île,
+    // sinon cela despawn/respawn toutes les entités et peut provoquer
+    // des messages "removed" reçus avant les "spawn" côté client.
+    if (this.currentIslandId === islandId) {
+      return;
+    }
+
     const island = this.islands.get(islandId);
     if (!island) {
       throw new Error(`Île avec l'ID "${islandId}" introuvable`);
@@ -58,6 +69,7 @@ export class IslandManager {
     // Initialise la nouvelle île
     island.initialize(this.world);
     this.currentIsland = island;
+    this.currentIslandId = islandId;
   }
 
   /**

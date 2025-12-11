@@ -232,6 +232,22 @@ export function createParkourEntities(
 
   // Crée chaque obstacle
   for (const obstacle of config.obstacles) {
+    // Validation : chaque obstacle doit avoir soit blockTextureUri soit modelUri
+    if (!obstacle.blockTextureUri && !obstacle.modelUri) {
+      console.error(
+        `Erreur: L'obstacle "${obstacle.name}" (id: ${obstacle.id}) n'a ni blockTextureUri ni modelUri. Cet obstacle sera ignoré.`
+      );
+      continue; // Ignore cet obstacle et passe au suivant
+    }
+
+    // Validation : chaque obstacle doit avoir une position
+    if (!obstacle.position) {
+      console.error(
+        `Erreur: L'obstacle "${obstacle.name}" (id: ${obstacle.id}) n'a pas de position. Cet obstacle sera ignoré.`
+      );
+      continue; // Ignore cet obstacle et passe au suivant
+    }
+
     // Prépare les options de l'entité
     const entityOptions: any = {
       name: obstacle.name,
@@ -247,6 +263,9 @@ export function createParkourEntities(
         y: obstacle.parkourData.size.height / 2,
         z: obstacle.parkourData.size.depth / 2,
       };
+      // IMPORTANT: Ne pas inclure modelScale, modelPreferredShape, modelLoopedAnimations
+      // ou autres propriétés de modèle glTF pour les entités de bloc
+      // car cela peut causer des erreurs côté client lors du démarrage des animations
     } else if (obstacle.modelUri) {
       // Sinon, on utilise un modèle 3D si modelUri est présent
       entityOptions.modelUri = obstacle.modelUri;
@@ -285,38 +304,51 @@ export function createParkourEntities(
     }
 
     // Crée l'entité
-    const entity = new Entity(entityOptions);
+    try {
+      const entity = new Entity(entityOptions);
 
-    // Convertit la rotation en Quaternion si fournie
-    // Le JSON contient déjà une quaternion complète (x, y, z, w)
-    const rotation = obstacle.rotation
-      ? new Quaternion(
-          obstacle.rotation.x,
-          obstacle.rotation.y,
-          obstacle.rotation.z,
-          obstacle.rotation.w
-        )
-      : undefined;
+      // Convertit la rotation en Quaternion si fournie
+      // Le JSON contient déjà une quaternion complète (x, y, z, w)
+      const rotation = obstacle.rotation
+        ? new Quaternion(
+            obstacle.rotation.x,
+            obstacle.rotation.y,
+            obstacle.rotation.z,
+            obstacle.rotation.w
+          )
+        : undefined;
 
-    // Spawn l'entité dans le monde avec sa position et rotation
-    entity.spawn(world, obstacle.position, rotation);
+      // Spawn l'entité dans le monde avec sa position et rotation
+      entity.spawn(world, obstacle.position, rotation);
 
-    // Stocke la position originale pour référence future
-    (entity as any)._originalPosition = obstacle.position;
+      // Stocke la position originale pour référence future
+      (entity as any)._originalPosition = obstacle.position;
 
-    // Si l'entité a un mouvement, configurez-le ici
-    if (obstacle.movement?.enabled) {
-      if (obstacle.movement.type === "linear" && obstacle.movement.waypoints) {
-        setupLinearMovement(entity, obstacle.movement);
-      } else if (obstacle.movement.type === "rotation") {
-        // TODO: Implémenter la logique de rotation si nécessaire
-        console.warn(
-          `Le mouvement de type "rotation" n'est pas encore implémenté pour ${obstacle.name}`
-        );
+      // Si l'entité a un mouvement, configurez-le ici
+      if (obstacle.movement?.enabled) {
+        if (
+          obstacle.movement.type === "linear" &&
+          obstacle.movement.waypoints
+        ) {
+          setupLinearMovement(entity, obstacle.movement);
+        } else if (obstacle.movement.type === "rotation") {
+          // TODO: Implémenter la logique de rotation si nécessaire
+          console.warn(
+            `Le mouvement de type "rotation" n'est pas encore implémenté pour ${obstacle.name}`
+          );
+        }
       }
-    }
 
-    entities.push(entity);
+      entities.push(entity);
+    } catch (error) {
+      console.error(
+        `Erreur lors de la création de l'entité pour l'obstacle "${obstacle.name}" (id: ${obstacle.id}):`,
+        error
+      );
+      console.error("Options de l'entité:", entityOptions);
+      console.error("Position:", obstacle.position);
+      // Continue avec le prochain obstacle au lieu de planter
+    }
   }
 
   return entities;
