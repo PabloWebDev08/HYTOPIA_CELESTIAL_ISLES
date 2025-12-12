@@ -151,6 +151,9 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
   let targetWaypointIndex = 1;
   let targetWaypoint = movement.waypoints[targetWaypointIndex];
   let elapsedTimeMs = 0; // Temps écoulé en millisecondes depuis le début du segment actuel
+  // Petit délai de démarrage pour éviter d'envoyer des updates de position
+  // avant que le client ait reçu/traité le spawn de l'entité (notamment au changement de monde).
+  let startupDelayRemainingMs = 250;
 
   // Fonction de mise à jour appelée à chaque tick du monde
   const tickHandler = ({ tickDeltaMs }: { tickDeltaMs: number }) => {
@@ -158,6 +161,24 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
     if (!entity.isSpawned || !entity.world) {
       // Nettoie le listener si l'entité n'est plus spawnée
       world.loop.off(WorldLoopEvent.TICK_START, tickHandler);
+      return;
+    }
+
+    // IMPORTANT (SDK-friendly):
+    // Lors d'un changement de monde, Player.joinWorld() provoque une reconnexion côté client.
+    // Pendant un court instant, le client peut recevoir des updates d'entités kinematic
+    // avant d'avoir traité leurs SPAWN → ce qui génère les erreurs "Entity X not created".
+    // On permet donc au monde de demander un gel temporaire des mouvements réseau.
+    const suppressUntilMs = (world as any)._suppressKinematicUpdatesUntilMs as
+      | number
+      | undefined;
+    if (typeof suppressUntilMs === "number" && Date.now() < suppressUntilMs) {
+      return;
+    }
+
+    // Attend un court instant avant de commencer le mouvement
+    if (startupDelayRemainingMs > 0) {
+      startupDelayRemainingMs -= tickDeltaMs;
       return;
     }
 

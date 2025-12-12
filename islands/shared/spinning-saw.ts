@@ -102,6 +102,9 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
   let targetWaypointIndex = 1;
   let targetWaypoint = movement.waypoints[targetWaypointIndex];
   let elapsedTimeMs = 0; // Temps écoulé en millisecondes depuis le début du segment actuel
+  // Petit délai de démarrage pour éviter d'envoyer des updates de position
+  // avant que le client ait reçu/traité le spawn de l'entité (notamment au changement de monde).
+  let startupDelayRemainingMs = 250;
 
   // Fonction de mise à jour appelée à chaque tick du monde
   const tickHandler = ({ tickDeltaMs }: { tickDeltaMs: number }) => {
@@ -109,6 +112,20 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
     if (!entity.isSpawned || !entity.world) {
       // Nettoie le listener si l'entité n'est plus spawnée
       world.loop.off(WorldLoopEvent.TICK_START, tickHandler);
+      return;
+    }
+
+    // Gel temporaire demandé par le monde (voir islands/shared/parkour.ts pour le contexte)
+    const suppressUntilMs = (world as any)._suppressKinematicUpdatesUntilMs as
+      | number
+      | undefined;
+    if (typeof suppressUntilMs === "number" && Date.now() < suppressUntilMs) {
+      return;
+    }
+
+    // Attend un court instant avant de commencer le mouvement
+    if (startupDelayRemainingMs > 0) {
+      startupDelayRemainingMs -= tickDeltaMs;
       return;
     }
 

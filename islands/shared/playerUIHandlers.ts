@@ -128,6 +128,39 @@ function handleSelectIsland(
   // Récupère le monde correspondant à l'île sélectionnée
   const targetWorld = deps.islandWorldManager.getWorldForIsland(islandId);
   if (targetWorld) {
+    // IMPORTANT (SDK-friendly):
+    // Player.joinWorld() implique une reconnexion côté client. Pour éviter que le client
+    // reçoive des updates d'entités kinematic avant leurs SPAWN, on gèle temporairement
+    // les mouvements réseau dans le monde cible.
+    // (voir check dans islands/shared/parkour.ts)
+    (targetWorld as any)._suppressKinematicUpdatesUntilMs = Date.now() + 1200;
+
+    // IMPORTANT:
+    // On nettoie les ressources du joueur AVANT le changement de monde.
+    // Sinon, le handler LEFT_WORLD (ancien monde) peut despawn après que le client
+    // ait déjà réinitialisé son EntityManager pour le nouveau monde, ce qui génère
+    // des erreurs du type "Entity X not created ... missing fields" côté client.
+    const worldPlayerMap = deps.playerEntitiesByWorld.get(world);
+    const playerEntity = worldPlayerMap?.get(player.id);
+    if (playerEntity?.isSpawned) {
+      playerEntity.despawn();
+    }
+    if (worldPlayerMap) {
+      worldPlayerMap.delete(player.id);
+      // Optionnel: si plus aucun joueur tracké dans ce monde, on peut nettoyer la map
+      if (worldPlayerMap.size === 0) {
+        deps.playerEntitiesByWorld.delete(world);
+      }
+    }
+
+    const particleEmitter = deps.playerParticleEmitters.get(player.id);
+    if (particleEmitter) {
+      particleEmitter.despawn();
+      deps.playerParticleEmitters.delete(player.id);
+    }
+
+    cleanupJumpAudio(player.id);
+
     // Fait rejoindre le joueur au monde de l'île sélectionnée
     // Cela déclenchera LEFT_WORLD sur le monde actuel et JOINED_WORLD sur le nouveau monde
     player.joinWorld(targetWorld);
@@ -279,7 +312,7 @@ function handleJumpEvents(
 
     // Configuration du saut
     const minJumpForce = 10;
-    const maxJumpForce = 50;
+    const maxJumpForce = 45;
     const maxHoldDuration = 1000;
 
     // Calcule la force de saut basée sur la durée de maintien
