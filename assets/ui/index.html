@@ -11,6 +11,25 @@ and also configure additional buttons for mobile compatibility.
     hytopia.sendData({ type: "ui-ready" });
   }
 
+  // ------------------------------------------------------------
+  // SFX UI (mobile-first)
+  // NOTE: Le son ne peut se jouer sur mobile que suite à un geste utilisateur (click/tap).
+  // On utilise donc cette fonction uniquement dans des handlers de clic existants (menu, boutons, cards).
+  // ------------------------------------------------------------
+  const UI_POP_SFX_URL = "{{CDN_ASSETS_URL}}/audio/sfx/minimal-ui-pop.mp3";
+
+  function playUiPop() {
+    try {
+      const audio = new Audio(UI_POP_SFX_URL);
+      audio.preload = "auto";
+      audio.volume = 0.8;
+      // Ignore silencieusement si le navigateur bloque la lecture (autoplay policy, etc.)
+      audio.play().catch(() => {});
+    } catch (error) {
+      // Ne casse jamais l'UI si l'audio échoue
+    }
+  }
+
   // Garantit l'envoi même si le script est évalué après le chargement du DOM.
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", notifyServerUIReady);
@@ -365,6 +384,7 @@ and also configure additional buttons for mobile compatibility.
   hamburgerButton.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    playUiPop();
     hamburgerDropdown.classList.toggle("active");
     hamburgerButton.classList.toggle("active");
   });
@@ -398,6 +418,7 @@ and also configure additional buttons for mobile compatibility.
     mapsLinkElement.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      playUiPop();
       mapsFloatingGroup.classList.add("active");
       // Ferme aussi le menu hamburger
       hamburgerDropdown.classList.remove("active");
@@ -410,6 +431,7 @@ and also configure additional buttons for mobile compatibility.
     mapsCloseButton.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      playUiPop();
       mapsFloatingGroup.classList.remove("active");
     });
   }
@@ -447,6 +469,7 @@ and also configure additional buttons for mobile compatibility.
     particleLinkElement.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      playUiPop();
       particleFloatingGroup.classList.add("active");
       // Ferme aussi le menu hamburger
       hamburgerDropdown.classList.remove("active");
@@ -459,6 +482,7 @@ and also configure additional buttons for mobile compatibility.
     particleCloseButton.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      playUiPop();
       particleFloatingGroup.classList.remove("active");
     });
   }
@@ -480,6 +504,7 @@ and also configure additional buttons for mobile compatibility.
   const mapCards = document.querySelectorAll(".map-card");
   mapCards.forEach((card) => {
     card.addEventListener("click", () => {
+      playUiPop();
       // Vérifie si l'île est verrouillée
       if (card.classList.contains("locked")) {
         // Affiche un message d'erreur (le serveur enverra aussi un message)
@@ -506,6 +531,7 @@ and also configure additional buttons for mobile compatibility.
   const particleCards = document.querySelectorAll(".particle-card");
   particleCards.forEach((card) => {
     card.addEventListener("click", () => {
+      playUiPop();
       const particleId = card.getAttribute("data-particle");
       if (particleId) {
         // Envoie le message au serveur pour changer de particule
@@ -2871,6 +2897,8 @@ and also configure additional buttons for mobile compatibility.
     .particle-floating-group {
       width: 80%;
       max-width: 600px;
+      aspect-ratio: 16 / 9;
+      max-height: 337.5px; /* 600px * 9/16 pour respecter le ratio 16:9 */
       padding: 20px;
       border-width: 3px;
       border-radius: 12px;

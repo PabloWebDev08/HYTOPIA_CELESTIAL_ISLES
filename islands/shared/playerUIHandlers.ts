@@ -344,6 +344,12 @@ const playerSwimmingStateCache = new Map<string, boolean>();
 const splashAudioCache = new Map<string, Audio>();
 
 /**
+ * Cache pour les instances Audio "nage" (boucle) par joueur
+ * Mobile-first: on réutilise l'instance au lieu d'en recréer une à chaque entrée/sortie de l'eau
+ */
+const swimLoopAudioCache = new Map<string, Audio>();
+
+/**
  * Gère les événements de saut (jump-held et jump-charge-update)
  * Optimisé pour mobile avec utilisation des bonnes pratiques du SDK
  * @param playerEntity - L'entité du joueur
@@ -495,7 +501,7 @@ export function checkWaterEntry(
       splashAudio = new Audio({
         uri: "audio/sfx/liquid/large-splash.mp3",
         loop: false,
-        volume: 0.5,
+        volume: 0.25,
         attachedToEntity: playerEntity,
       });
       splashAudioCache.set(playerId, splashAudio);
@@ -503,6 +509,33 @@ export function checkWaterEntry(
 
     // Joue le son d'éclaboussure
     splashAudio.play(world, true);
+
+    // Démarre le son de nage (boucle) tant que le joueur est dans l'eau
+    let swimAudio = swimLoopAudioCache.get(playerId);
+
+    // Vérifie si l'instance Audio existe et si l'entité attachée est toujours valide
+    if (
+      !swimAudio ||
+      !swimAudio.attachedToEntity ||
+      !swimAudio.attachedToEntity.isSpawned
+    ) {
+      swimAudio = new Audio({
+        uri: "audio/sfx/swimming-sounds.mp3",
+        loop: true,
+        volume: 0.25,
+        attachedToEntity: playerEntity,
+      });
+      swimLoopAudioCache.set(playerId, swimAudio);
+    }
+
+    // restart=true: garantit un démarrage immédiat à l'entrée dans l'eau
+    swimAudio.play(world, true);
+  }
+
+  // Si le joueur vient de sortir de l'eau (transition de true à false)
+  if (wasSwimming && !isSwimming) {
+    const swimAudio = swimLoopAudioCache.get(playerId);
+    swimAudio?.pause();
   }
 
   // Met à jour l'état de nage dans le cache
@@ -517,6 +550,9 @@ export function checkWaterEntry(
 export function cleanupJumpAudio(playerId: string): void {
   jumpAudioCache.delete(playerId);
   splashAudioCache.delete(playerId);
+  const swimAudio = swimLoopAudioCache.get(playerId);
+  swimAudio?.pause();
+  swimLoopAudioCache.delete(playerId);
   playerSwimmingStateCache.delete(playerId);
   stopJumpChargeProgressUpdates(playerId);
 }

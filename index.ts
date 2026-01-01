@@ -318,7 +318,7 @@ startServer((defaultWorld) => {
                 windstormAudio = new Audio({
                   uri: "audio/sfx/windstorm-ambience.mp3",
                   loop: true,
-                  volume: 0.3,
+                  volume: 0.25,
                   attachedToEntity: playerEntity,
                 });
                 windstormAudioCache.set(playerId, windstormAudio);
