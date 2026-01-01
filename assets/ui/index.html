@@ -4,6 +4,20 @@ and also configure additional buttons for mobile compatibility.
 -->
 
 <script>
+  // Handshake UI → serveur:
+  // On notifie le serveur que l'UI est prête à recevoir les données initiales (gold, particules, îles).
+  // Cela évite un `setTimeout` côté serveur (fragile selon device/perf/mobile).
+  function notifyServerUIReady() {
+    hytopia.sendData({ type: "ui-ready" });
+  }
+
+  // Garantit l'envoi même si le script est évalué après le chargement du DOM.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", notifyServerUIReady);
+  } else {
+    notifyServerUIReady();
+  }
+
   // Écoute les mises à jour d'or depuis le serveur
   hytopia.onData((data) => {
     if (data.type === "gold-update") {
@@ -253,9 +267,11 @@ and also configure additional buttons for mobile compatibility.
   // Variables partagées pour la gestion du saut chargé (mobile + clavier)
   const mobileJumpButton = document.getElementById("mobile-jump-button");
   let jumpStartTime = null; // Variable pour enregistrer le moment où le bouton est pressé
-  let chargeUpdateInterval = null; // Interval pour mettre à jour la barre de charge
   let isJumpCharging = false; // Flag pour éviter les doubles déclenchements
-  const maxHoldDuration = 1000; // Durée maximale en ms (doit correspondre au serveur)
+  // NOTE: la durée max est gérée côté serveur (doit correspondre à sa constante).
+  // IMPORTANT (mobile-first):
+  // On n'envoie PLUS la progression (0→1) via le réseau.
+  // L'UI envoie seulement un start/stop, et le serveur anime la progression côté SceneUI.
 
   // Fonction réutilisable pour démarrer le saut chargé
   function startJumpCharge() {
@@ -265,29 +281,10 @@ and also configure additional buttons for mobile compatibility.
 
     jumpStartTime = Date.now(); // Enregistre le moment où le bouton est pressé
 
-    // Affiche la barre de charge Scene UI au-dessus du joueur
+    // Démarre l'affichage de la barre de charge Scene UI (progress calculé côté serveur)
     hytopia.sendData({
-      type: "jump-charge-update",
-      progress: 0,
-      visible: true,
+      type: "jump-charge-start",
     });
-
-    // Démarre la mise à jour de la barre de charge Scene UI
-    chargeUpdateInterval = setInterval(() => {
-      if (jumpStartTime !== null) {
-        const elapsed = Date.now() - jumpStartTime;
-        // Normalise la progression entre 0 et 1 (au lieu de 0-100)
-        // Cela correspond à ce que le serveur attend maintenant
-        const progress = Math.min(elapsed / maxHoldDuration, 1);
-
-        // Envoie la progression au serveur pour mettre à jour la Scene UI
-        hytopia.sendData({
-          type: "jump-charge-update",
-          progress: progress,
-          visible: true,
-        });
-      }
-    }, 16); // Mise à jour environ 60 fois par seconde pour une animation fluide
 
     // Ne pas appeler pressInput("jump", true) ici pour éviter le saut par défaut
     // Le saut sera géré uniquement par l'impulsion personnalisée au relâchement
@@ -297,17 +294,9 @@ and also configure additional buttons for mobile compatibility.
   function endJumpCharge() {
     if (!isJumpCharging) return;
 
-    // Arrête la mise à jour de la barre de charge
-    if (chargeUpdateInterval !== null) {
-      clearInterval(chargeUpdateInterval);
-      chargeUpdateInterval = null;
-    }
-
-    // Cache la barre de charge Scene UI au-dessus du joueur
+    // Cache la barre de charge Scene UI (le serveur stoppe l'animation)
     hytopia.sendData({
-      type: "jump-charge-update",
-      progress: 0,
-      visible: false,
+      type: "jump-charge-stop",
     });
 
     // Calcule la durée pendant laquelle le bouton a été maintenu
@@ -1269,13 +1258,6 @@ and also configure additional buttons for mobile compatibility.
     <img src="{{CDN_ASSETS_URL}}/icons/jump.png" />
   </a>
 </div>
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Caudex:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-  rel="stylesheet"
-/>
 
 <style>
   /* Styles globaux pour le body */

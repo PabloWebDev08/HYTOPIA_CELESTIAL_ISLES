@@ -10,21 +10,16 @@ import {
   WorldLoopEvent,
   Audio,
 } from "hytopia";
+import {
+  getSpinningSawRuntimeMeta,
+  isKinematicUpdateSuppressed,
+  setSpinningSawRuntimeMeta,
+} from "./runtimeState";
+// Ré-export des types partagés (évite les duplications entre fichiers).
+export type { Position, Rotation } from "./types";
+import type { Position, Rotation } from "./types";
 // Import par défaut pour compatibilité avec le code existant
 import spinningSawDataDefault from "../../assets/islands/island3/spinning-saw.json";
-
-export interface Position {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface Rotation {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
 
 export interface Movement {
   enabled: boolean;
@@ -116,10 +111,7 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
     }
 
     // Gel temporaire demandé par le monde (voir islands/shared/parkour.ts pour le contexte)
-    const suppressUntilMs = (world as any)._suppressKinematicUpdatesUntilMs as
-      | number
-      | undefined;
-    if (typeof suppressUntilMs === "number" && Date.now() < suppressUntilMs) {
+    if (isKinematicUpdateSuppressed(world)) {
       return;
     }
 
@@ -181,9 +173,9 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
   // Écoute les événements de tick du WorldLoop du monde
   world.loop.on(WorldLoopEvent.TICK_START, tickHandler);
 
-  // Stocke la référence au handler sur l'entité pour pouvoir le nettoyer si nécessaire
-  (entity as any)._movementTickHandler = tickHandler;
-  (entity as any)._movementWorld = world;
+  // NOTE:
+  // On ne stocke plus le handler sur l'entité via `(entity as any)._xxx` (fragile).
+  // Le handler se nettoie déjà automatiquement dès que l'entité n'est plus spawnée.
 }
 
 /**
@@ -281,9 +273,11 @@ export function createSpinningSawEntities(
     // Spawn l'entité dans le monde avec sa position et rotation
     entity.spawn(world, spinningSaw.position, rotation);
 
-    // Stocke la position de départ pour référence future (nécessaire pour téléportation)
-    (entity as any)._startPosition = defaultStartPosition;
-    (entity as any)._spinningSawWorld = world;
+    // Stocke la position de départ + le world pour la collision (sans écrire sur l'entité).
+    setSpinningSawRuntimeMeta(entity, {
+      startPosition: defaultStartPosition,
+      world,
+    });
 
     // Si l'entité a un mouvement, configurez-le ici
     if (spinningSaw.movement?.enabled) {
@@ -330,19 +324,18 @@ export function createSpinningSawEntities(
         // Ignore si la collision se termine (started === false)
         if (!started) return;
 
-        // Vérifie si l'autre entité est un joueur
-        if (!(other instanceof DefaultPlayerEntity)) {
-          console.log(
-            `[SpinningSaw ${spinningSaw.id}] L'entité n'est pas un DefaultPlayerEntity`
-          );
+        // IMPORTANT: éviter `instanceof DefaultPlayerEntity` (peut échouer selon l'environnement/bundling).
+        const maybePlayerEntity = other as any;
+        if (!maybePlayerEntity || !maybePlayerEntity.player) {
           return;
         }
+        const playerEntity = maybePlayerEntity as DefaultPlayerEntity;
 
-        const playerEntity = other as DefaultPlayerEntity;
-
-        // Récupère la position de départ stockée dans l'entité
-        const storedStartPosition = (entity as any)._startPosition as Position;
-        const storedWorld = (entity as any)._spinningSawWorld as World;
+        // Récupère la position de départ stockée (WeakMap).
+        const meta = getSpinningSawRuntimeMeta(entity);
+        if (!meta) return;
+        const storedStartPosition = meta.startPosition as Position;
+        const storedWorld = meta.world;
 
         // Joue le son de collision avec la scie rotative
         new Audio({

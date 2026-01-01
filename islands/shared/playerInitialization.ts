@@ -7,6 +7,8 @@ import {
   ParticleEmitter,
   SceneUI,
   type WorldMap,
+  ColliderShape,
+  RigidBodyType,
 } from "hytopia";
 import { IslandManager } from "../islandManager";
 import { IslandWorldManager } from "../worldManager";
@@ -100,6 +102,19 @@ export function createPlayerEntity(
   const startPos = currentIsland.getStartPosition();
   playerEntity.spawn(world, startPos);
 
+  // IMPORTANT:
+  // On utilise un saut "custom" via l'UI (applyImpulse dans playerUIHandlers.ts).
+  // En production HYTOPIA, l'input "jump" (sp) du DefaultPlayerEntityController
+  // peut quand même être déclenché (space), ce qui donne un saut doublé.
+  // On désactive donc le saut natif du controller et on garde seulement le saut custom.
+  const controller = playerEntity.controller as any;
+  if (controller && typeof controller.canJump === "function") {
+    controller.canJump = () => false;
+  }
+  if (controller && "jumpVelocity" in controller) {
+    controller.jumpVelocity = 0;
+  }
+
   // Initialise la Map pour ce monde si elle n'existe pas
   if (!playerEntitiesByWorld.has(world)) {
     playerEntitiesByWorld.set(world, new Map());
@@ -160,15 +175,11 @@ export function setupPlayerCollisions(playerEntity: DefaultPlayerEntity): void {
       CollisionGroup.ENVIRONMENT_ENTITY,
     ],
   });
-
-  playerEntity.setCollisionGroupsForSensorColliders({
-    belongsTo: [CollisionGroup.ENTITY_SENSOR],
-    collidesWith: [
-      CollisionGroup.BLOCK,
-      CollisionGroup.ENTITY,
-      CollisionGroup.ENVIRONMENT_ENTITY,
-    ],
-  });
+  // IMPORTANT:
+  // Ne pas override les collision groups des "sensor colliders" du joueur.
+  // Le DefaultPlayerEntityController crée/utilise des capteurs internes (ground/wall) pour `isGrounded`.
+  // Les modifier peut casser la détection au sol (différences dev/prod), ce qui entraîne
+  // des sauts incohérents et des comportements physiques instables.
 }
 
 /**
@@ -178,33 +189,44 @@ export function setupPlayerCollisions(playerEntity: DefaultPlayerEntity): void {
 export function setupPlayerUI(player: Player): void {
   // Charge l'UI du jeu pour ce joueur
   player.ui.load("ui/index.html");
+}
 
-  // Envoie l'or initial du joueur et les particules possédées à l'UI
-  setTimeout(async () => {
-    const playerData = player.getPersistedData() as PlayerCoinData | undefined;
-    const gold = playerData?.gold ?? 0;
-    // S'assure que les particules par défaut sont toujours incluses
-    const ownedParticles = mergeDefaultParticles(playerData?.ownedParticles);
-    player.ui.sendData({
-      type: "gold-update",
-      gold: gold,
-    });
-    player.ui.sendData({
-      type: "owned-particles-update",
-      ownedParticles: ownedParticles,
-    });
+/**
+ * Envoie les données initiales à l'UI (gold, particules possédées, état des îles).
+ * Appelé quand l'UI côté client signale qu'elle est prête (message `ui-ready`).
+ *
+ * IMPORTANT:
+ * - Mobile-first: évite les `setTimeout` fragiles (perf variable).
+ * - Le serveur reste la source de vérité (persistedData).
+ */
+export function sendInitialUIData(player: Player): void {
+  const playerData = player.getPersistedData() as PlayerCoinData | undefined;
+  const gold = playerData?.gold ?? 0;
 
-    // Envoie l'état de déverrouillage des îles à l'UI
-    const islandsStatus = {
-      island1: { unlocked: true }, // L'île 1 est toujours accessible
-      island2: { unlocked: hasUnlockedIsland(player, "island2") },
-      island3: { unlocked: hasUnlockedIsland(player, "island3") },
-    };
-    player.ui.sendData({
-      type: "islands-unlock-status",
-      islands: islandsStatus,
-    });
-  }, 100);
+  // S'assure que les particules par défaut sont toujours incluses
+  const ownedParticles = mergeDefaultParticles(playerData?.ownedParticles);
+
+  player.ui.sendData({
+    type: "gold-update",
+    gold,
+  });
+
+  player.ui.sendData({
+    type: "owned-particles-update",
+    ownedParticles,
+  });
+
+  // Envoie l'état de déverrouillage des îles à l'UI
+  const islandsStatus = {
+    island1: { unlocked: true }, // L'île 1 est toujours accessible
+    island2: { unlocked: hasUnlockedIsland(player, "island2") },
+    island3: { unlocked: hasUnlockedIsland(player, "island3") },
+  };
+
+  player.ui.sendData({
+    type: "islands-unlock-status",
+    islands: islandsStatus,
+  });
 }
 
 /**

@@ -19,19 +19,11 @@ import coinDataIsland1 from "../../assets/islands/island1/coin.json";
 import coinDataIsland2 from "../../assets/islands/island2/coin.json";
 import coinDataIsland3 from "../../assets/islands/island3/coin.json";
 import { updateIslandLeaderboard } from "./leaderboard";
+import { getCoinRuntimeMeta, setCoinRuntimeMeta } from "./runtimeState";
 
-export interface Position {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface Rotation {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
+// Ré-export des types partagés (évite les duplications entre fichiers).
+export type { Position, Rotation } from "./types";
+import type { Position, Rotation } from "./types";
 
 export interface Coin {
   id: string;
@@ -183,13 +175,20 @@ async function handleCoinCollection(
   }
 
   // Désactive le coin temporairement (même si on ne l'ajoute pas au leaderboard)
-  // Récupère la position et rotation stockées pour le respawn
-  const coinPosition = (coinEntity as any)._coinPosition;
-  const coinRotation = (coinEntity as any)._coinRotation;
-  const coinWorld = (coinEntity as any)._coinWorld || world;
-  const storedCoinId = (coinEntity as any)._coinId;
-  const storedLastCoinId = (coinEntity as any)._lastCoinId;
-  const storedIslandId = (coinEntity as any)._islandId;
+  // Récupère la position/rotation/world stockés (WeakMap) pour le respawn.
+  const meta = getCoinRuntimeMeta(coinEntity);
+  if (!meta) {
+    // Sécurité: si la meta manque, on despawn quand même mais on ne respawn pas.
+    coinEntity.despawn();
+    return;
+  }
+
+  const coinPosition = meta.position;
+  const coinRotation = meta.rotation;
+  const coinWorld = meta.world || world;
+  const storedCoinId = meta.coinId;
+  const storedLastCoinId = meta.lastCoinId;
+  const storedIslandId = meta.islandId;
 
   coinEntity.despawn();
 
@@ -210,13 +209,12 @@ async function handleCoinCollection(
         tag: "coin-collector-sensor",
         onCollision: async (other: Entity | any, started: boolean) => {
           if (!started) return;
-          if (!(other instanceof DefaultPlayerEntity)) {
-            console.log(
-              `[Coin ${storedCoinId}] L'entité n'est pas un DefaultPlayerEntity`
-            );
+          // IMPORTANT: éviter `instanceof DefaultPlayerEntity` (peut échouer selon l'environnement/bundling).
+          const maybePlayerEntity = other as any;
+          if (!maybePlayerEntity || !maybePlayerEntity.player) {
             return;
           }
-          const playerEntity = other as DefaultPlayerEntity;
+          const playerEntity = maybePlayerEntity as DefaultPlayerEntity;
           await handleCoinCollection(
             coinWorld,
             coinEntity,
@@ -411,12 +409,19 @@ export function createCoinEntities(
     const entityOptions: any = {
       name: coin.name,
       modelUri: "models/environment/Gameplay/coin-stack.gltf",
+      // IMPORTANT:
+      // En prod (après `hytopia package`), le SDK peut auto-générer un collider "physique"
+      // basé sur la bounding box du modèle si aucun collider explicite n'est fourni.
+      // Si la bounding box du modèle est large, cela crée un "mur invisible" et empêche
+      // le joueur d'approcher la pièce. On désactive donc le collider auto et on garde
+      // uniquement le collider "sensor" (non-bloquant) pour la collecte.
+      modelPreferredShape: ColliderShape.NONE,
       modelLoopedAnimations: ["idle"], // Animation "idle" en boucle
       rigidBodyOptions: {
         type: RigidBodyType.FIXED, // Coin fixe qui ne bouge pas
         collisionGroups: {
           belongsTo: [CollisionGroup.ENTITY],
-          collidesWith: [CollisionGroup.PLAYER, CollisionGroup.BLOCK],
+          collidesWith: [CollisionGroup.BLOCK],
         },
       },
     };
@@ -442,13 +447,15 @@ export function createCoinEntities(
     // Spawn l'entité dans le monde avec sa position et rotation
     entity.spawn(world, coin.position, rotation);
 
-    // Stocke l'ID du coin, la position et la rotation pour référence future (nécessaire pour respawn)
-    (entity as any)._coinId = coin.id;
-    (entity as any)._coinPosition = coin.position;
-    (entity as any)._coinRotation = rotation;
-    (entity as any)._coinWorld = world;
-    (entity as any)._lastCoinId = lastCoinId;
-    (entity as any)._islandId = islandId;
+    // Stocke les infos nécessaires au respawn (sans écrire sur l'entité).
+    setCoinRuntimeMeta(entity, {
+      coinId: coin.id,
+      islandId,
+      lastCoinId,
+      position: coin.position,
+      rotation,
+      world,
+    });
 
     // Ajoute un collider sensor pour détecter les collisions avec les joueurs
     // Le sensor permet de détecter les collisions sans bloquer le mouvement du joueur
@@ -466,15 +473,13 @@ export function createCoinEntities(
         // Ignore si la collision se termine (started === false)
         if (!started) return;
 
-        // Vérifie si l'autre entité est un joueur
-        if (!(other instanceof DefaultPlayerEntity)) {
-          console.log(
-            `[Coin ${coin.id}] L'entité n'est pas un DefaultPlayerEntity`
-          );
+        // Vérifie si l'autre entité ressemble à un PlayerEntity.
+        // IMPORTANT: éviter `instanceof DefaultPlayerEntity` (peut échouer selon l'environnement/bundling).
+        const maybePlayerEntity = other as any;
+        if (!maybePlayerEntity || !maybePlayerEntity.player) {
           return;
         }
-
-        const playerEntity = other as DefaultPlayerEntity;
+        const playerEntity = maybePlayerEntity as DefaultPlayerEntity;
 
         // Gère la collecte du coin avec l'ID de l'île et le dernier coin
         await handleCoinCollection(

@@ -7,6 +7,7 @@ import {
   SceneUI,
   Audio,
   ParticleEmitter,
+  WorldLoopEvent,
   type WorldMap,
 } from "hytopia";
 import { IslandWorldManager } from "../worldManager";
@@ -15,6 +16,11 @@ import type { ParticleType } from "../../particles/particleManager";
 import { purchaseParticle, ownsParticle } from "./particlePurchase";
 import { hasUnlockedIsland } from "./coin";
 import type { PlayerCoinData } from "./types";
+import {
+  requestKinematicUpdateSuppression,
+  setPendingIslandJoinMessage,
+} from "./runtimeState";
+import { sendInitialUIData } from "./playerInitialization";
 
 /**
  * Interface pour les dépendances nécessaires aux handlers UI
@@ -30,7 +36,11 @@ export interface PlayerUIHandlersDependencies {
  * Interface pour les données d'événement de saut
  */
 interface JumpEventData {
-  type: "jump-held" | "jump-charge-update";
+  type:
+    | "jump-held"
+    | "jump-charge-start"
+    | "jump-charge-stop"
+    | "jump-charge-update"; // rétro-compat (ancienne UI)
   duration?: number;
   progress?: number;
   visible?: boolean;
@@ -59,10 +69,9 @@ function isPlayerOnGround(playerEntity: DefaultPlayerEntity): boolean {
   }
 
   // Fallback: si le contrôleur n'est pas disponible ou n'a pas isGrounded,
-  // utilise une vérification basée sur la vélocité verticale comme sécurité
-  // Cela évite les sauts en l'air si le contrôleur n'est pas encore initialisé
-  const velocity = playerEntity.linearVelocity;
-  return velocity.y <= 0.1; // Considère au sol si la vélocité verticale est faible ou négative
+  // on renvoie false (plus sûr) : un test basé sur la vélocité peut considérer "au sol"
+  // au sommet d'un saut (vélocité proche de 0) et autoriser des doubles sauts selon le framerate.
+  return false;
 }
 
 /**
@@ -131,9 +140,8 @@ function handleSelectIsland(
     // IMPORTANT (SDK-friendly):
     // Player.joinWorld() implique une reconnexion côté client. Pour éviter que le client
     // reçoive des updates d'entités kinematic avant leurs SPAWN, on gèle temporairement
-    // les mouvements réseau dans le monde cible.
-    // (voir check dans islands/shared/parkour.ts)
-    (targetWorld as any)._suppressKinematicUpdatesUntilMs = Date.now() + 1200;
+    // les mouvements réseau dans le monde cible (voir check dans islands/shared/parkour.ts).
+    requestKinematicUpdateSuppression(targetWorld, 1200);
 
     // IMPORTANT:
     // On nettoie les ressources du joueur AVANT le changement de monde.
@@ -163,21 +171,9 @@ function handleSelectIsland(
 
     // Fait rejoindre le joueur au monde de l'île sélectionnée
     // Cela déclenchera LEFT_WORLD sur le monde actuel et JOINED_WORLD sur le nouveau monde
+    // On stocke une intention de message à afficher dans le nouveau monde (sans setTimeout).
+    setPendingIslandJoinMessage(player.id, islandId);
     player.joinWorld(targetWorld);
-
-    // Envoie un message au joueur
-    // Le message sera envoyé dans le nouveau monde après le changement
-    // On utilise un setTimeout pour s'assurer que le joueur est dans le nouveau monde
-    setTimeout(() => {
-      const newWorld = deps.islandWorldManager.getWorldForIsland(islandId);
-      if (newWorld) {
-        newWorld.chatManager.sendPlayerMessage(
-          player,
-          `Vous avez rejoint ${islandId}!`,
-          "00FF00"
-        );
-      }
-    }, 100);
   }
 }
 
@@ -262,6 +258,80 @@ function handleSelectParticle(
 const jumpAudioCache = new Map<string, Audio>();
 
 /**
+ * Cache pour l'animation de la barre de charge de saut (SceneUI) par joueur.
+ * Mobile-first: on évite d'envoyer la progression depuis l'UI (spam réseau).
+ * Le serveur calcule la progression en fonction du temps et pousse des updates à fréquence limitée.
+ */
+type JumpChargeTicker = {
+  world: World;
+  tickHandler: ({ tickDeltaMs }: { tickDeltaMs: number }) => void;
+};
+
+const jumpChargeTickerCache = new Map<string, JumpChargeTicker>();
+
+// Doit correspondre à la durée max côté UI (assets/ui/index.html)
+const JUMP_CHARGE_MAX_HOLD_DURATION_MS = 1000;
+// Fréquence des updates serveur → client pour une animation fluide mais légère (mobile)
+const JUMP_CHARGE_UI_UPDATE_INTERVAL_MS = 66; // ~15 Hz
+
+function stopJumpChargeProgressUpdates(playerId: string): void {
+  const existing = jumpChargeTickerCache.get(playerId);
+  if (!existing) return;
+
+  existing.world.loop.off(WorldLoopEvent.TICK_START, existing.tickHandler);
+  jumpChargeTickerCache.delete(playerId);
+}
+
+function startJumpChargeProgressUpdates(
+  playerEntity: DefaultPlayerEntity,
+  world: World,
+  jumpChargeSceneUI: SceneUI
+): void {
+  const playerId = playerEntity.player.id;
+
+  // Évite d'empiler plusieurs tick handlers
+  stopJumpChargeProgressUpdates(playerId);
+
+  const startTimeMs = Date.now();
+  let accumulatedMs = 0;
+  let isMaxed = false;
+
+  // Affiche immédiatement la barre à 0
+  jumpChargeSceneUI.setState({ progress: 0, visible: true });
+
+  const tickHandler = ({ tickDeltaMs }: { tickDeltaMs: number }) => {
+    // Nettoyage automatique si le joueur n'est plus valide dans ce monde
+    if (
+      !playerEntity.isSpawned ||
+      !playerEntity.world ||
+      playerEntity.world !== world
+    ) {
+      stopJumpChargeProgressUpdates(playerId);
+      return;
+    }
+
+    // Si on a déjà atteint 100%, inutile de recalculer à chaque tick
+    if (isMaxed) return;
+
+    accumulatedMs += tickDeltaMs;
+    if (accumulatedMs < JUMP_CHARGE_UI_UPDATE_INTERVAL_MS) return;
+    accumulatedMs = 0;
+
+    const elapsedMs = Date.now() - startTimeMs;
+    const progress = Math.min(elapsedMs / JUMP_CHARGE_MAX_HOLD_DURATION_MS, 1);
+
+    jumpChargeSceneUI.setState({ progress, visible: true });
+
+    if (progress >= 1) {
+      isMaxed = true;
+    }
+  };
+
+  world.loop.on(WorldLoopEvent.TICK_START, tickHandler);
+  jumpChargeTickerCache.set(playerId, { world, tickHandler });
+}
+
+/**
  * Cache pour suivre l'état de nage précédent de chaque joueur
  * Permet de détecter quand le joueur entre dans l'eau
  */
@@ -292,7 +362,23 @@ function handleJumpEvents(
     return;
   }
 
+  if (data.type === "jump-charge-start") {
+    // Démarre l'animation côté serveur (pas de spam réseau depuis l'UI)
+    startJumpChargeProgressUpdates(playerEntity, world, jumpChargeSceneUI);
+    return;
+  }
+
+  if (data.type === "jump-charge-stop") {
+    // Stoppe l'animation et cache la barre
+    stopJumpChargeProgressUpdates(playerEntity.player.id);
+    jumpChargeSceneUI.setState({ progress: 0, visible: false });
+    return;
+  }
+
   if (data.type === "jump-held") {
+    // Sécurité: stoppe aussi l'animation ici (au cas où "stop" arrive en retard)
+    stopJumpChargeProgressUpdates(playerEntity.player.id);
+
     // Vérifie si le joueur peut sauter (au sol ou dans l'eau)
     // Permet le saut dans l'eau après la mise à jour du SDK
     if (!canPlayerJump(playerEntity)) {
@@ -312,7 +398,7 @@ function handleJumpEvents(
 
     // Configuration du saut
     const minJumpForce = 10;
-    const maxJumpForce = 45;
+    const maxJumpForce = 40;
     const maxHoldDuration = 1000;
 
     // Calcule la force de saut basée sur la durée de maintien
@@ -358,6 +444,10 @@ function handleJumpEvents(
     // Clamp les valeurs pour éviter les valeurs invalides
     const progress = Math.max(0, Math.min(1, data.progress || 0));
     const visible = data.visible ?? false;
+
+    // Si un ancien client envoie encore des updates, on stoppe le ticker serveur
+    // et on se contente d'appliquer la valeur reçue.
+    stopJumpChargeProgressUpdates(playerEntity.player.id);
 
     jumpChargeSceneUI.setState({
       progress,
@@ -428,6 +518,7 @@ export function cleanupJumpAudio(playerId: string): void {
   jumpAudioCache.delete(playerId);
   splashAudioCache.delete(playerId);
   playerSwimmingStateCache.delete(playerId);
+  stopJumpChargeProgressUpdates(playerId);
 }
 
 /**
@@ -445,8 +536,20 @@ export function setupPlayerUIHandlers(
   jumpChargeSceneUI: SceneUI,
   deps: PlayerUIHandlersDependencies
 ): void {
+  // IMPORTANT:
+  // `setupPlayerUIHandlers` est appelé à chaque JOINED_WORLD. Le Player persiste entre les mondes,
+  // donc sans nettoyage on empile les listeners → événements UI traités plusieurs fois
+  // (ex: saut doublé, actions répétées).
+  player.ui.offAll(PlayerUIEvent.DATA);
+
   // Écoute les messages de l'UI
   player.ui.on(PlayerUIEvent.DATA, ({ data }) => {
+    // Handshake: l'UI notifie qu'elle est prête → on envoie les données initiales.
+    if (data.type === "ui-ready") {
+      sendInitialUIData(player);
+      return;
+    }
+
     if (data.type === "select-island") {
       const islandId = data.islandId as string;
       if (islandId) {
@@ -463,7 +566,12 @@ export function setupPlayerUIHandlers(
       return;
     }
 
-    if (data.type === "jump-held" || data.type === "jump-charge-update") {
+    if (
+      data.type === "jump-held" ||
+      data.type === "jump-charge-start" ||
+      data.type === "jump-charge-stop" ||
+      data.type === "jump-charge-update"
+    ) {
       handleJumpEvents(
         playerEntity,
         world,

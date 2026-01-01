@@ -7,21 +7,12 @@ import {
   Quaternion,
   WorldLoopEvent,
 } from "hytopia";
+import { isKinematicUpdateSuppressed } from "./runtimeState";
+// Ré-export des types partagés (évite les duplications entre fichiers).
+export type { Position, Rotation } from "./types";
+import type { Position, Rotation } from "./types";
 // Import par défaut pour compatibilité avec le code existant
 import parkourDataDefault from "../../assets/islands/island1/parkour.json";
-
-export interface Position {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface Rotation {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
 
 interface Movement {
   enabled: boolean;
@@ -169,10 +160,7 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
     // Pendant un court instant, le client peut recevoir des updates d'entités kinematic
     // avant d'avoir traité leurs SPAWN → ce qui génère les erreurs "Entity X not created".
     // On permet donc au monde de demander un gel temporaire des mouvements réseau.
-    const suppressUntilMs = (world as any)._suppressKinematicUpdatesUntilMs as
-      | number
-      | undefined;
-    if (typeof suppressUntilMs === "number" && Date.now() < suppressUntilMs) {
+    if (isKinematicUpdateSuppressed(world)) {
       return;
     }
 
@@ -234,9 +222,9 @@ function setupLinearMovement(entity: Entity, movement: Movement): void {
   // Écoute les événements de tick du WorldLoop du monde
   world.loop.on(WorldLoopEvent.TICK_START, tickHandler);
 
-  // Stocke la référence au handler sur l'entité pour pouvoir le nettoyer si nécessaire
-  (entity as any)._movementTickHandler = tickHandler;
-  (entity as any)._movementWorld = world;
+  // NOTE:
+  // On ne stocke plus le handler sur l'entité via `(entity as any)._xxx` (fragile).
+  // Le handler se nettoie déjà automatiquement dès que l'entité n'est plus spawnée.
 }
 
 /**

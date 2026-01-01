@@ -25,10 +25,10 @@
 
 import {
   startServer,
-  Audio,
   DefaultPlayerEntity,
   PlayerEvent,
   ParticleEmitter,
+  Audio,
   PlayerManager,
   World,
   Player,
@@ -48,6 +48,8 @@ import {
   checkWaterEntry,
 } from "./islands/shared/playerUIHandlers";
 import { registerAllCommands } from "./islands/shared/commands";
+import { playIslandAmbientMusic } from "./islands/shared/islandMusic";
+import { consumePendingIslandJoinMessage } from "./islands/shared/runtimeState";
 
 /**
  * Constantes de configuration du jeu
@@ -55,6 +57,8 @@ import { registerAllCommands } from "./islands/shared/commands";
 const GAME_CONFIG = {
   /** Seuil de chute en dessous duquel le joueur est repositionné */
   FALL_THRESHOLD_Y: -50,
+  /** Seuil d'altitude au-dessus duquel on joue le son de vent (windstorm) */
+  WINDSTORM_THRESHOLD_Y: 50,
   /** Intervalle de vérification de la position des joueurs (en millisecondes) */
   PLAYER_POSITION_CHECK_INTERVAL_MS: 1000,
   /** Volume par défaut de la musique d'ambiance */
@@ -114,9 +118,12 @@ startServer((defaultWorld) => {
   );
   islandWorldManager.initializeWorlds();
 
-  // Pour activer le debug rendering sur un monde d'île spécifique:
-  // const island3World = islandWorldManager.getWorldForIsland("island3");
-  // island3World?.simulation.enableDebugRendering(true);
+  // Rendu "normal" (sans debug physics) pour un monde d'île spécifique.
+  // Par défaut, le debug rendering est désactivé, mais on le force à OFF ici
+  // au cas où il aurait été activé pendant des tests.
+  // const island1WorldForRendering =
+  //   islandWorldManager.getWorldForIsland("island1");
+  // island1WorldForRendering?.simulation.enableDebugRendering(true);
 
   // Configure le handler pour rediriger automatiquement les nouveaux joueurs vers island1
   // Utilise defaultWorld comme fallback si island1 n'est pas disponible
@@ -135,6 +142,18 @@ startServer((defaultWorld) => {
   // Map pour tracker les émetteurs de particules par joueur
   // Structure: Map<playerId, ParticleEmitter>
   const playerParticleEmitters = new Map<string, ParticleEmitter>();
+
+  /**
+   * Cache Audio pour le son de vent (windstorm) par joueur.
+   * Mobile-first: on réutilise l'instance Audio au lieu d'en recréer une à chaque déclenchement.
+   */
+  const windstormAudioCache = new Map<string, Audio>();
+
+  /**
+   * Cache d'état: true si le joueur est actuellement au-dessus du seuil de vent.
+   * Permet de jouer le son UNIQUEMENT au moment où le joueur dépasse le seuil.
+   */
+  const isPlayerAboveWindstormThreshold = new Map<string, boolean>();
 
   /**
    * Fonction helper pour initialiser un joueur dans un monde donné
@@ -183,6 +202,17 @@ startServer((defaultWorld) => {
     // Handler JOINED_WORLD pour ce monde d'île
     islandWorld.on(PlayerEvent.JOINED_WORLD, ({ player }) => {
       initializePlayerInWorld(player, islandWorld, islandManager);
+
+      // Si le joueur vient de sélectionner une île via l'UI, on affiche le message
+      // dans le NOUVEAU monde (sans setTimeout fragile).
+      const pendingIslandId = consumePendingIslandJoinMessage(player.id);
+      if (pendingIslandId && pendingIslandId === islandId) {
+        islandWorld.chatManager.sendPlayerMessage(
+          player,
+          `Vous avez rejoint ${pendingIslandId}!`,
+          "00FF00"
+        );
+      }
     });
 
     // Handler LEFT_WORLD pour ce monde d'île
@@ -205,6 +235,10 @@ startServer((defaultWorld) => {
 
       // Nettoie le cache audio de saut du joueur
       cleanupJumpAudio(player.id);
+
+      // Nettoie le cache audio/état du vent (windstorm) pour ce joueur
+      windstormAudioCache.delete(player.id);
+      isPlayerAboveWindstormThreshold.delete(player.id);
     });
   });
 
@@ -260,9 +294,48 @@ startServer((defaultWorld) => {
             playerEntity.setPosition(startPosition);
           }
 
-          // Vérifie si le joueur vient d'entrer dans l'eau et joue le son d'éclaboussure
           if (playerEntity.isSpawned) {
+            // Vérifie si le joueur vient d'entrer dans l'eau et joue le son d'éclaboussure
             checkWaterEntry(playerEntity, islandWorld);
+
+            // Joue le son de vent lorsque le joueur dépasse le seuil d'altitude
+            const playerId = playerEntity.player.id;
+            const isAbove =
+              playerEntity.position.y > GAME_CONFIG.WINDSTORM_THRESHOLD_Y;
+            const wasAbove =
+              isPlayerAboveWindstormThreshold.get(playerId) ?? false;
+
+            // Transition: dessous -> dessus = démarrage du son de vent (boucle)
+            if (!wasAbove && isAbove) {
+              let windstormAudio = windstormAudioCache.get(playerId);
+
+              // Recrée si l'entité attachée n'est plus valide (ex: changement de monde)
+              if (
+                !windstormAudio ||
+                !windstormAudio.attachedToEntity ||
+                !windstormAudio.attachedToEntity.isSpawned
+              ) {
+                windstormAudio = new Audio({
+                  uri: "audio/sfx/windstorm-ambience.mp3",
+                  loop: true,
+                  volume: 0.3,
+                  attachedToEntity: playerEntity,
+                });
+                windstormAudioCache.set(playerId, windstormAudio);
+              }
+
+              // restart=true: garantit un démarrage immédiat au franchissement du seuil
+              windstormAudio.play(islandWorld, true);
+            }
+
+            // Transition: dessus -> dessous = arrêt du son de vent
+            if (wasAbove && !isAbove) {
+              const windstormAudio = windstormAudioCache.get(playerId);
+              windstormAudio?.pause();
+            }
+
+            // Met à jour l'état (réarmement automatique quand on repasse sous le seuil)
+            isPlayerAboveWindstormThreshold.set(playerId, isAbove);
           }
         });
       } else {
@@ -285,27 +358,7 @@ startServer((defaultWorld) => {
    * On joue une musique différente pour chaque île
    * Vous pouvez modifier les chemins de fichiers audio pour chaque île
    */
-  const islandMusicMapping: Record<string, string> = {
-    island1: "audio/music/rizzlas-morning-vibes.mp3",
-    island2: "audio/music/space-ambient.mp3", // Changez ce chemin pour une musique différente
-    island3: "audio/music/the-infinite-pulse.mp3", // Changez ce chemin pour une musique différente
-    // Ajoutez d'autres îles ici au fur et à mesure
-  };
-
-  islandWorldManager.getAllWorlds().forEach((islandWorld) => {
-    // Récupère l'ID de l'île correspondant à ce monde
-    const islandId = islandWorldManager.getIslandIdForWorld(islandWorld);
-    if (!islandId) return;
-
-    // Récupère la musique associée à cette île, ou utilise une musique par défaut
-    const musicUri =
-      islandMusicMapping[islandId] || "audio/music/jungle-theme-looping.mp3";
-
-    // Joue la musique spécifique à cette île
-    new Audio({
-      uri: musicUri,
-      loop: true,
-      volume: GAME_CONFIG.DEFAULT_MUSIC_VOLUME,
-    }).play(islandWorld);
+  playIslandAmbientMusic(islandWorldManager, {
+    volume: GAME_CONFIG.DEFAULT_MUSIC_VOLUME,
   });
 });
