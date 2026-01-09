@@ -39,9 +39,9 @@ class WelcomeNPC extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la tête du NPC
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Hola, jeune naufragé !",
+        title: "Hello, young castaway!",
         message:
-          "Pas trop dur ce naufrage ? <br> Par chance tu es toujours en vie !<br> Te voilà sur l'île céleste 1 !<br> Ici la gravité n'est plus la même !<br> Tu vois ces petites particules,<br>elles t'aident à sauter plus haut !<br> Reste appuyé sur la touche saut,<br> pour t'envoler !<br> Sur cette ile, une seule issue,<br> atteindre le sommet !",
+          "Wasn't that shipwreck too rough? <br> By chance you are still alive! <br> You are on the first celestial island! <br> Here gravity is not the same! <br> You see these small particles,<br>they help you jump higher! <br> Stay pressed on the jump key,<br> to fly! <br> On this island, there is only one way,<br> reach the summit!",
       },
       viewDistance: 30, // Visible jusqu'à 15 blocs de distance
     });
@@ -156,7 +156,7 @@ class SkeletonSoldierEntity extends Entity {
       state: {
         visible: true, // Affiche le leaderboard en permanence
         title: "🏆 Leaderboard 🏆",
-        subtitle: "Les 10 derniers joueurs à avoir terminé le niveau",
+        subtitle: "The 10 last players to have completed the level",
         leaderboard: leaderboard,
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
@@ -175,17 +175,17 @@ class SkeletonSoldierEntity extends Entity {
   ): void {
     if (this.leaderboardSceneUI) {
       console.log(
-        `[Island1] Mise à jour du leaderboard avec ${leaderboard.length} entrées`
+        `[Island1] Update leaderboard with ${leaderboard.length} entries`
       );
       this.leaderboardSceneUI.setState({
         visible: true,
         title: "🏆 Leaderboard 🏆",
-        subtitle: "Les 10 derniers joueurs à avoir terminé le niveau",
+        subtitle: "The 10 last players to have completed the level",
         leaderboard: leaderboard,
       });
     } else {
       console.warn(
-        "[Island1] Impossible de mettre à jour le leaderboard : leaderboardSceneUI est null"
+        "[Island1] Impossible to update the leaderboard : leaderboardSceneUI is null"
       );
     }
   }
@@ -254,7 +254,7 @@ class SpeechBubbleEntity extends Entity {
         visible: true, // Affiche la carte en permanence
         title: "Attention !",
         message:
-          "Si tu ne vois aucun coin ici, patiente 30 secondes : un autre aventurier est sûrement passé avant toi !<br> N’oublie surtout pas de ramasser au moins un coin pour être qualifié et débloquer l’accès à l’Île Céleste 2.",
+          "If you don't see any coin here, wait 30 seconds : another adventurer is certainly passed before you! <br> Don't forget to pick up at least one coin to be qualified and unlock access to the Celestial Island 2.",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -317,8 +317,55 @@ class ArrowEntity extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la flèche
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Le parcours commence ici !",
+        title: "The journey begins here!",
         message: "",
+      },
+      viewDistance: 30, // Visible jusqu'à 30 blocs de distance
+    });
+
+    // Charge la SceneUI dans le monde
+    this.cardSceneUI.load(this.world);
+  }
+}
+
+/**
+ * Entité "point d'interrogation" (repère d'aide) qui affiche une carte au-dessus
+ */
+class QuestionMarkEntity extends Entity {
+  private cardSceneUI: SceneUI | null = null;
+
+  constructor() {
+    super({
+      modelUri: "models/environment/Gameplay/question-mark.gltf",
+      name: "Question Mark",
+      modelScale: 1,
+      rigidBodyOptions: {
+        type: RigidBodyType.FIXED, // Repère fixe qui ne bouge pas
+      },
+    });
+  }
+
+  /**
+   * Crée et charge la SceneUI de la carte attachée au point d'interrogation
+   * Doit être appelé après que l'entité soit spawnée
+   */
+  public setupCard(): void {
+    if (!this.world) return;
+
+    // Crée la SceneUI pour la carte
+    this.cardSceneUI = new SceneUI({
+      templateId: "welcome-npc-card",
+      attachedToEntity: this,
+      offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus du modèle
+      state: {
+        visible: true, // Affiche la carte en permanence
+        title: "Game rules",
+        message:
+          "HOLD DOWN the Space bar (PC) or the Jump button (mobile) to jump higher.<br>" +
+          "⚠️ Don't just press it once: hold it down!<br>" +
+          "A power bar appears above the player.<br>" +
+          "Reach the last coin on the last platform to access the next island.<br>" +
+          "The coins you collect can be used to buy particles in the menu at the top right.",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -352,4 +399,26 @@ export function createArrow(
   }
 
   return arrow;
+}
+
+/**
+ * Crée et spawn le point d'interrogation dans le monde
+ * @param world - Le monde où spawner l'entité
+ * @param position - La position où spawner l'entité (optionnel)
+ * @returns L'entité point d'interrogation créée
+ */
+export function createQuestionMark(
+  world: World,
+  position: { x: number; y: number; z: number } = { x: 0, y: 10, z: 0 }
+): QuestionMarkEntity {
+  const questionMark = new QuestionMarkEntity();
+  questionMark.spawn(world, position);
+
+  // Configure la carte après le spawn
+  // On utilise setTimeout pour s'assurer que l'entité est complètement initialisée
+  setTimeout(() => {
+    questionMark.setupCard();
+  }, 100);
+
+  return questionMark;
 }

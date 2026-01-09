@@ -30,4 +30,9 @@ export const island1Config = {
     startArrow: { x: 21.66, y: 13, z: 24.41 } as Position,
     boatArrow: { x: 27.08, y: 14.08, z: 36.09 } as Position,
   },
+
+  // Positions des repères "point d'interrogation"
+  questionMarks: {
+    mainQuestionMark: { x: -8.79, y: 14, z: 0.31 } as Position,
+  },
 };

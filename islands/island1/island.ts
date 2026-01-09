@@ -16,6 +16,7 @@ import {
   createSkeletonSoldier,
   createSpeechBubble,
   createArrow,
+  createQuestionMark,
 } from "./welcomeNPCS";
 // Import des données JSON pour l'île 1
 import parkourData from "../../assets/islands/island1/parkour.json";
@@ -75,6 +76,13 @@ export class Island1 extends IslandBase {
     const startArrow = createArrow(world, island1Config.arrows.startArrow);
     const boatArrow = createArrow(world, island1Config.arrows.boatArrow, false);
     this.entities.arrows = [startArrow, boatArrow];
+
+    // Crée le repère "point d'interrogation"
+    const questionMark = createQuestionMark(
+      world,
+      island1Config.questionMarks.mainQuestionMark
+    );
+    this.entities.questionMarks = [questionMark];
   }
 
   /**

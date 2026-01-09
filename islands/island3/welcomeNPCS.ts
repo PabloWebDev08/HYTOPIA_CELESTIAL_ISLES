@@ -40,9 +40,9 @@ class WelcomeNPC extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la tête du NPC
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Dernière étape : l’Île Céleste 3 !",
+        title: "Last step : the Celestial Island 3!",
         message:
-          "Te voilà arrivé sur la dernière île… (du moins, pour cette version !) <br> Le défi monte encore d’un cran, mais pour un naufragé aussi déterminé que toi, ça ne devrait pas poser problème !<br> Donne tout, amuse-toi, et montre que tu peux conquérir les cieux !",
+          "You are here on the last island… (at least, for this version!) <br> The challenge is still one level higher, but for a castaway as determined as you, it should not be a problem! <br> Give it all, have fun, and show that you can conquer the heavens!",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
@@ -93,7 +93,7 @@ export function updateAllSkeletonSoldiersLeaderboard(
   leaderboard: Array<{ playerName: string; timestamp: number }>
 ): void {
   console.log(
-    `[Island3] Mise à jour de ${skeletonSoldierInstances.length} skeleton soldiers avec le nouveau leaderboard`
+    `[Island3] Update ${skeletonSoldierInstances.length} skeleton soldiers with the new leaderboard`
   );
   skeletonSoldierInstances.forEach((skeletonSoldier) => {
     skeletonSoldier.updateLeaderboard(leaderboard);
@@ -136,7 +136,7 @@ class SkeletonSoldierEntity extends Entity {
       state: {
         visible: true, // Affiche le leaderboard en permanence
         title: "🏆 Leaderboard 🏆",
-        subtitle: "Les 10 derniers joueurs à avoir terminé le niveau",
+        subtitle: "The 10 last players to have completed the level",
         leaderboard: leaderboard,
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
@@ -155,17 +155,17 @@ class SkeletonSoldierEntity extends Entity {
   ): void {
     if (this.leaderboardSceneUI) {
       console.log(
-        `[Island3] Mise à jour du leaderboard avec ${leaderboard.length} entrées`
+        `[Island3] Update leaderboard with ${leaderboard.length} entries`
       );
       this.leaderboardSceneUI.setState({
         visible: true,
         title: "🏆 Leaderboard 🏆",
-        subtitle: "Les 10 derniers joueurs à avoir terminé le niveau",
+        subtitle: "The 10 last players to have completed the level",
         leaderboard: leaderboard,
       });
     } else {
       console.warn(
-        "[Island3] Impossible de mettre à jour le leaderboard : leaderboardSceneUI est null"
+        "[Island3] Impossible to update the leaderboard : leaderboardSceneUI is null"
       );
     }
   }
@@ -217,7 +217,7 @@ class SpeechBubbleEntity extends Entity {
 
   constructor(
     title: string = "Attention !",
-    message: string = "Si tu ne vois aucun coin ici, patiente 30 secondes : un autre aventurier est sûrement passé avant toi !<br> N’oublie surtout pas de ramasser au moins un coin pour être qualifié et débloquer l’accès à l’Île Céleste 4."
+    message: string = "If you don't see any coin here, wait 30 seconds : another adventurer is certainly passed before you! <br> Don't forget to pick up at least one coin to be qualified and unlock access to the Celestial Island 4."
   ) {
     super({
       modelUri: "models/environment/Gameplay/speech-bubble.gltf",
@@ -329,7 +329,7 @@ class ArrowEntity extends Entity {
       offset: { x: 0, y: 2.5, z: 0 }, // Au-dessus de la flèche
       state: {
         visible: true, // Affiche la carte en permanence
-        title: "Le parcours commence ici !",
+        title: "The journey begins here!",
         message: "",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
