@@ -365,7 +365,8 @@ class QuestionMarkEntity extends Entity {
           "⚠️ Don't just press it once: hold it down!<br>" +
           "A power bar appears above the player.<br>" +
           "Reach the last coin on the last platform to access the next island.<br>" +
-          "The coins you collect can be used to buy particles in the menu at the top right.",
+          "The coins you collect can be used to buy particles in the menu at the top right." +
+          "TIPS: Jump first and then move forward !",
       },
       viewDistance: 30, // Visible jusqu'à 30 blocs de distance
     });
